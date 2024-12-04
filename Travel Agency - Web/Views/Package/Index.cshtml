@@ -1,0 +1,32 @@
+﻿
+@model IEnumerable<Travel_Agency___Data.Models.Package>
+
+@{
+    ViewData["Title"] = "View Packages";
+    ViewData["ActivePage"] = "Package";
+}
+
+<div class="container contenedor text-center mt-5">
+    <h1 class="text-center">Available Travel Packages</h1>
+    <div class="row">
+        @foreach (var item in Model)
+        {
+            <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
+                <div class="container_foto">
+                    <img src="@item.ImagePath" alt="@item.PkgName" />
+                    <article class="text-left">
+                        <h2>@item.PkgName</h2>
+                        <h4>@item.PkgDesc</h4>
+                        <p>Start Date: @item.PkgStartDate</p>
+                        <p>End Date: @item.PkgEndDate</p>
+                        <p>Price: $@item.PkgBasePrice.ToString("F2")</p>
+                    </article>
+                    <div class="ver_mas text-center">
+                        <a href="@Url.Action("Book", "Package", new { id = item.PackageId })" class="btn btn-primary book-now">Book Now</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+

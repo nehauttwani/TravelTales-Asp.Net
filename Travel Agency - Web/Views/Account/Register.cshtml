@@ -1,0 +1,93 @@
+﻿@model Travel_Agency___Data.Models.Customer
+
+@{
+    ViewData["Title"] = "Register";
+}
+
+<div class="container mb-4" style=" margin-top: 7rem;">
+    <h2 class="text-center mb-4">Create Your Account</h2>
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow">
+                <div class="card-body">
+                    <form asp-action="Register">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h4 class="mb-3">Personal Information</h4>
+                                <div class="mb-3">
+                                    <label asp-for="CustFirstName" class="form-label">First Name</label>
+                                    <input asp-for="CustFirstName" class="form-control" />
+                                    <span asp-validation-for="CustFirstName" class="text-danger"></span>
+                                </div>
+                                <div class="mb-3">
+                                    <label asp-for="CustLastName" class="form-label">Last Name</label>
+                                    <input asp-for="CustLastName" class="form-control" />
+                                    <span asp-validation-for="CustLastName" class="text-danger"></span>
+                                </div>
+                                <div class="mb-3">
+                                    <label asp-for="CustEmail" class="form-label">Email Address</label>
+                                    <input asp-for="CustEmail" class="form-control" />
+                                    <span asp-validation-for="CustEmail" class="text-danger"></span>
+                                </div>
+                                <div class="mb-3">
+                                    <label asp-for="CustBusPhone" class="form-label">Business Phone Number</label>
+                                    <input asp-for="CustBusPhone" class="form-control" />
+                                    <span asp-validation-for="CustBusPhone" class="text-danger"></span>
+                                </div>
+                                <div class="mb-3">
+                                    <label asp-for="CustHomePhone" class="form-label">Home Phone(optional)</label>
+                                    <input asp-for="CustHomePhone" class="form-control" />
+                                    <span asp-validation-for="CustHomePhone" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h4 class="mb-3">Address Information</h4>
+                                <div class="mb-3">
+                                    <label asp-for="CustAddress" class="form-label">Address</label>
+                                    <input asp-for="CustAddress" class="form-control" />
+                                    <span asp-validation-for="CustAddress" class="text-danger"></span>
+                                </div>
+                                <div class="mb-3">
+                                    <label asp-for="CustCity" class="form-label">City</label>
+                                    <input asp-for="CustCity" class="form-control" />
+                                    <span asp-validation-for="CustCity" class="text-danger"></span>
+                                </div>
+                                <div class="mb-3">
+                                    <label asp-for="CustProv" class="form-label">Province</label>
+                                    <input asp-for="CustProv" class="form-control" />
+                                    <span asp-validation-for="CustProv" class="text-danger"></span>
+                                </div>
+                                <div class="mb-3">
+                                    <label asp-for="CustPostal" class="form-label">Postal Code</label>
+                                    <input asp-for="CustPostal" class="form-control" />
+                                    <span asp-validation-for="CustPostal" class="text-danger"></span>
+                                </div>
+                                <div class="mb-3">
+                                    <label asp-for="CustCountry" class="form-label">Country</label>
+                                    <input asp-for="CustCountry" class="form-control" />
+                                    <span asp-validation-for="CustCountry" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="AgentId" class="form-label"></label>
+                            <select asp-for="AgentId" class="form-select" asp-items="ViewBag.AgentId">
+                                <option value="">-- Select Agent --</option>
+                            </select>
+                        </div>
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg">Create Account</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

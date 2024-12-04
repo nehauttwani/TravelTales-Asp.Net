@@ -1,0 +1,40 @@
+﻿@model IEnumerable<dynamic>
+
+@{
+    ViewData["ActivePage"] = "Contact";
+    ViewData["Title"] = "Contact US";
+}
+
+
+<div class="container" style="margin-top: 7rem;">
+<div id="agencies-container">
+    @foreach (var agency in Model)
+    {
+        <div class="agency-section mb-5">
+            <h3 class="mb-3">@agency.AgncyCity</h3>
+            <p class="agency-details" style="text-align:center;">
+                <strong>Address:</strong> @agency.AgncyAddress<br>
+                <strong>Location:</strong> @agency.AgncyCity, @agency.AgncyProv @agency.AgncyPostal<br>
+                <strong>Phone:</strong> @agency.AgncyPhone<br>
+                <strong>Fax:</strong> @agency.AgncyFax
+            </p>
+            <h4 class="mt-4 mb-3">Our Agents</h4>
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                @foreach (var agent in agency.Agents)
+                {
+                    <div class="col">
+                        <div class="card agent-card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title agent-name">@agent.AgtFirstName @agent.AgtLastName</h5>
+                                <p class="card-text"><strong>Position:</strong> @agent.AgtPosition</p>
+                                <p class="card-text"><strong>Phone:</strong> @agent.AgtBusPhone</p>
+                                <p class="card-text"><strong>Email:</strong> @agent.AgtEmail</p>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+</div>

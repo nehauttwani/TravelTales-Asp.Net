@@ -26,11 +26,13 @@ public partial class Customer
     public string CustBusPhone { get; set; } = null!;
 
     public string CustEmail { get; set; } = null!;
+    public decimal CreditBalance { get; set; }
 
     public int? AgentId { get; set; }
 
     public virtual Agent? Agent { get; set; }
 
+    public virtual ICollection<WalletTransaction> WalletTransactions { get; set; }
     public virtual ICollection<Booking> Bookings { get; set; } = new List<Booking>();
 
     public virtual ICollection<CreditCard> CreditCards { get; set; } = new List<CreditCard>();

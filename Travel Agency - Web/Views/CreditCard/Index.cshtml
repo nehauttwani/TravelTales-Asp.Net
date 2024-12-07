@@ -1,0 +1,23 @@
+﻿@model IEnumerable<Travel_Agency___Data.Models.CreditCard>
+
+<h2>Your Credit Cards</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Card Name</th>
+            <th>Card Number</th>
+            <th>Expiry Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var card in Model)
+        {
+            <tr>
+                <td>@card.Ccname</td>
+                <td>@card.Ccnumber</td>
+                <td>@card.Ccexpiry.ToString("MM/yyyy")</td>
+            </tr>
+        }
+    </tbody>
+</table>

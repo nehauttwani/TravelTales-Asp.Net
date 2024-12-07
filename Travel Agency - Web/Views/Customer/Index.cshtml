@@ -1,0 +1,34 @@
+﻿@model List<Travel_Agency___Data.Models.Customer>
+
+@{
+    ViewData["Title"] = "Customers";
+}
+
+<h2>Customers</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Customer ID</th>
+            <th>Full Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var customer in Model)
+        {
+            <tr>
+                <td>@customer.CustomerId</td>
+                <td>@customer.CustFirstName @customer.CustLastName</td>
+                <td>@customer.CustEmail</td>
+                <td>@customer.CustBusPhone</td>
+                <td>
+                    <a class="btn btn-info btn-sm" href="@Url.Action("Details", "Customer", new { id = customer.CustomerId })">Details</a>
+                    <a class="btn btn-success btn-sm" href="@Url.Action("Purchases", "Customer", new { customerId = customer.CustomerId })">Purchases</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

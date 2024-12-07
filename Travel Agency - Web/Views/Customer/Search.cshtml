@@ -1,0 +1,18 @@
+﻿@{
+    ViewData["Title"] = "Search Customer";
+}
+
+<h2>Search Customer</h2>
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+}
+
+<form asp-action="Search" method="post">
+    <div class="form-group">
+        <label for="customerNameOrId">Enter Customer ID or Name:</label>
+        <input type="text" class="form-control" id="customerNameOrId" name="customerNameOrId" placeholder="Enter customer ID or name" />
+    </div>
+    <button type="submit" class="btn btn-primary">Search</button>
+</form>

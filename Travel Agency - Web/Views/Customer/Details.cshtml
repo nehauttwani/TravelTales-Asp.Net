@@ -1,0 +1,46 @@
+﻿@model List<Travel_Agency___Data.ViewModels.ProductListViewModel>
+@{
+    ViewData["Title"] = "Customer Details";
+    var customer = (Travel_Agency___Data.Models.Customer)ViewBag.Customer;
+}
+
+<h2>Customer Details</h2>
+
+<div>
+    <h4>Customer Info</h4>
+    <p><strong>Name:</strong> @customer.CustFirstName @customer.CustLastName</p>
+    <p><strong>Email:</strong> @customer.CustEmail</p>
+    <p><strong>Phone:</strong> @customer.CustBusPhone</p>
+</div>
+
+<h3>Purchase History</h3>
+
+@if (!Model.Any())
+{
+    <p>This customer has no purchases.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Package Name</th>
+                <th>Price</th>
+                <th>Agency Commission</th>
+                <th>Total Cost</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.PackageName</td>
+                    <td>@item.PackagePrice:C</td>
+                    <td>@item.AgencyCommission:C</td>
+                    <td>@item.TotalCost:C</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+

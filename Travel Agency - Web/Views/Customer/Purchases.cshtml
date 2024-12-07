@@ -1,0 +1,35 @@
+﻿@model List<Travel_Agency___Data.ViewModels.ProductListViewModel>
+
+<div class="container mt-5">
+    @if (Model != null && Model.Any())
+    {
+        <h2>Customer Purchases</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Package Name</th>
+                    <th>Price</th>
+                    <th>Agency Commission</th>
+                    <th>Total Cost</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var purchase in Model)
+                {
+                    <tr>
+                        <td>@purchase.PackageName</td>
+                        <td>@purchase.PackagePrice.ToString("C")</td>
+                        <td>@purchase.AgencyCommission.ToString("C")</td>
+                        <td>@purchase.TotalCost.ToString("C")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            This customer has no purchases.
+        </div>
+    }
+</div>

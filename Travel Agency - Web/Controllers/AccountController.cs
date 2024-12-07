@@ -1,87 +1,110 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Travel_Agency___Data;
+using Travel_Agency___Data.Models;
+using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Travel_Agency___Web.Controllers
 {
     public class AccountController : Controller
     {
-        // GET: AccountController
-        public ActionResult Register()
+        private readonly TravelExpertsContext _context;
+
+        // Constructor to initialize the context
+        public AccountController(TravelExpertsContext context)
+        {
+            _context = context;
+        }
+
+        // GET: Account/Login
+        public IActionResult Login()
         {
             return View();
         }
 
-        public ActionResult Login()
-        {
-            return View();
-        }
-
-        // GET: AccountController/Details/5
-        public ActionResult Details(int id)
-        {
-            return View();
-        }
-
-        // GET: AccountController/Create
-        public ActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: AccountController/Create
+        // POST: Account/Login
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public IActionResult Login(Customer customer)
         {
-            try
+            if (ModelState.IsValid)
             {
-                return RedirectToAction(nameof(Index));
+                // Check if the customer exists in the database with the provided email and password
+                var user = _context.Customers
+                    .FirstOrDefault(c => c.CustEmail == customer.CustEmail && c.CustPassword == HashPassword(customer.CustPassword));
+
+                if (user != null)
+                {
+                    // If the user is found, store the user's ID in a session or cookie
+                    HttpContext.Session.SetInt32("CustomerId", user.CustomerId);
+                    return RedirectToAction("Index", "Home"); // Redirect to home page or dashboard
+                }
+                else
+                {
+                    // If no match is found, return an error message
+                    ModelState.AddModelError("", "Invalid email or password.");
+                }
             }
-            catch
-            {
-                return View();
-            }
+            return View(customer); // Return the view if the login failed or the model is invalid
         }
 
-        // GET: AccountController/Edit/5
-        public ActionResult Edit(int id)
+        // GET: Account/Register
+        public IActionResult Register()
         {
             return View();
         }
 
-        // POST: AccountController/Edit/5
+        // POST: Account/Register
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public IActionResult Register(Customer customer)
         {
-            try
+            if (ModelState.IsValid)
             {
-                return RedirectToAction(nameof(Index));
+                // Check if the email already exists
+                var existingCustomer = _context.Customers
+                    .FirstOrDefault(c => c.CustEmail == customer.CustEmail);
+
+                if (existingCustomer == null)
+                {
+                    // Hash the password before saving
+                    customer.CustPassword = HashPassword(customer.CustPassword);
+
+                    // Add the new customer to the database
+                    _context.Customers.Add(customer);
+                    _context.SaveChanges();
+
+                    // Optionally log in the user after registration
+                    HttpContext.Session.SetInt32("CustomerId", customer.CustomerId);
+
+                    return RedirectToAction("Index", "Home"); // Redirect to the home page after successful registration
+                }
+                else
+                {
+                    ModelState.AddModelError("", "This email is already registered.");
+                }
             }
-            catch
-            {
-                return View();
-            }
+
+            return View(customer); // Return the view if the registration failed or the model is invalid
         }
 
-        // GET: AccountController/Delete/5
-        public ActionResult Delete(int id)
+        // GET: Account/Logout
+        public IActionResult Logout()
         {
-            return View();
+            // Remove the customer session
+            HttpContext.Session.Remove("CustomerId");
+            return RedirectToAction("Login"); // Redirect to the login page
         }
 
-        // POST: AccountController/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        // Helper method to hash passwords securely using SHA256
+        private string HashPassword(string password)
         {
-            try
+            using (var sha256 = SHA256.Create())
             {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
+                var hashBytes = sha256.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+                return Convert.ToBase64String(hashBytes);
             }
         }
     }

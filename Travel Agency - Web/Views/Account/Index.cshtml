@@ -1,0 +1,42 @@
+﻿@model Travel_Agency___Data.Models.Customer
+
+@{
+    ViewData["Title"] = "Login";
+}
+
+<div class="container mb-4" style="margin-top: 7rem;">
+    <h2 class="text-center mb-4">Login to Your Account</h2>
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-body">
+                    <form asp-action="Login" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="CustEmail" class="form-label">Email Address</label>
+                            <input asp-for="CustEmail" class="form-control" />
+                            <span asp-validation-for="CustEmail" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="CustPassword" class="form-label">Password</label>
+                            <input asp-for="CustPassword" type="password" class="form-control" />
+                            <span asp-validation-for="CustPassword" class="text-danger"></span>
+                        </div>
+
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg">Login</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Travel_Agency___Web.Models
+namespace Travel_Agency___Data.ViewModels
 {
     public class WalletViewModel
     {

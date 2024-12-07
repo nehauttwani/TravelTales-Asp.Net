@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Travel_Agency___Data;
 using Travel_Agency___Data.Services;
-using Travel_Agency___Web.Models;
+using Travel_Agency___Data.ViewModels;
+
 
 namespace Travel_Agency___Web.Controllers
 {
@@ -14,7 +15,7 @@ namespace Travel_Agency___Web.Controllers
             _walletService = walletService;
         }
 
-        // View wallet details (balance, transactions, and associated credit cards)
+        // View wallet details (balance, transactions, credit cards)
         public async Task<IActionResult> Index(int customerId)
         {
             if (customerId <= 0)
@@ -24,37 +25,44 @@ namespace Travel_Agency___Web.Controllers
 
             try
             {
+                // Fetch wallet details and associated credit cards
                 var walletDetails = await _walletService.GetWalletDetailsAsync(customerId);
                 var creditCards = await _walletService.GetCreditCardsForCustomerAsync(customerId);
 
                 var viewModel = new WalletViewModel
                 {
-                    CustomerId = walletDetails.CustomerId,
-                    CurrentBalance = walletDetails.CurrentBalance,
-                    Transactions = walletDetails.Transactions,
-                    CreditCards = creditCards // Include credit cards in the view model
+                    CustomerId = customerId,
+                    CurrentBalance = walletDetails?.CurrentBalance ?? 0,
+                    Transactions = walletDetails?.Transactions ?? new List<TransactionViewModel>(),
+                    CreditCards = creditCards
                 };
 
                 return View(viewModel);
             }
             catch (Exception ex)
             {
-                return NotFound(ex.Message); // Handle cases where customer or wallet details are not found
+                // Log the exception (if logging is implemented)
+                Console.WriteLine($"Error fetching wallet details: {ex.Message}");
+                return NotFound($"Unable to find wallet details for Customer ID: {customerId}");
             }
         }
 
-        // Add funds to wallet
+        // Add funds via credit card
         [HttpPost]
-        public async Task<IActionResult> AddFunds(int customerId, decimal amount)
+        public async Task<IActionResult> AddFundsWithCreditCard(int customerId, int creditCardId, decimal amount)
         {
-            if (amount <= 0)
+            if (customerId <= 0 || creditCardId <= 0 || amount <= 0)
             {
-                return BadRequest("Amount must be greater than zero.");
+                return BadRequest("Invalid input. Please provide valid customer ID, credit card ID, and amount.");
+            }
+
+            var paymentSuccess = await _walletService.ProcessCreditCardPayment(customerId, creditCardId, amount);
+            if (!paymentSuccess)
+            {
+                return BadRequest("Failed to process the payment. Please check the credit card details.");
             }
 
             await _walletService.AddFundsAsync(customerId, amount);
-
-            // Redirect to the wallet index page
             return RedirectToAction("Index", new { customerId });
         }
 
@@ -62,23 +70,21 @@ namespace Travel_Agency___Web.Controllers
         [HttpPost]
         public async Task<IActionResult> DeductFunds(int customerId, decimal amount)
         {
-            if (amount <= 0)
+            if (customerId <= 0 || amount <= 0)
             {
-                return BadRequest("Amount must be greater than zero.");
+                return BadRequest("Invalid input. Please provide a valid customer ID and amount.");
             }
 
             var result = await _walletService.DeductFundsAsync(customerId, amount);
-
             if (!result)
             {
                 return BadRequest("Insufficient funds.");
             }
 
-            // Redirect to the wallet index page
             return RedirectToAction("Index", new { customerId });
         }
 
-        // View credit cards associated with the customer
+        // Optional: View associated credit cards
         public async Task<IActionResult> CreditCards(int customerId)
         {
             if (customerId <= 0)
@@ -86,33 +92,13 @@ namespace Travel_Agency___Web.Controllers
                 return BadRequest("Invalid customer ID.");
             }
 
-            // Fetch credit card details for the customer
             var creditCards = await _walletService.GetCreditCardsForCustomerAsync(customerId);
-
             if (creditCards == null || !creditCards.Any())
             {
                 return NotFound($"No credit card data found for customer ID {customerId}.");
             }
 
             return View(creditCards);
-        }
-
-        // Add funds using a credit card
-        [HttpPost]
-        public async Task<IActionResult> AddFundsWithCreditCard(int customerId, int creditCardId, decimal amount)
-        {
-            if (amount <= 0)
-            {
-                return BadRequest("Amount must be greater than zero.");
-            }
-
-            var paymentSuccess = await _walletService.ProcessCreditCardPaymentAsync(customerId, creditCardId, amount);
-            if (!paymentSuccess)
-            {
-                return BadRequest("Failed to process the payment. Please check the credit card details.");
-            }
-
-            return RedirectToAction("Index", new { customerId });
         }
     }
 }

@@ -1,0 +1,31 @@
+﻿@model Travel_Agency___Data.ViewModels.PurchaseViewModel
+
+<div class="purchase-container">
+    <h1>Purchase Package</h1>
+
+    <!-- Display Package Details -->
+    <div class="package-details">
+        <h3>Package ID: @Model.PackageId</h3>
+        <h4>Price: @Model.PackagePrice.ToString("C")</h4>
+    </div>
+
+    <!-- Display Wallet Balance -->
+    <div class="wallet-balance">
+        <h3>Current Wallet Balance: @Model.WalletBalance.ToString("C")</h3>
+    </div>
+
+    <!-- Purchase Button -->
+    @if (Model.WalletBalance >= Model.PackagePrice)
+    {
+        <form asp-action="PurchasePackage" asp-controller="Purchase" method="post">
+            <input type="hidden" name="customerId" value="@Model.CustomerId" />
+            <input type="hidden" name="packageId" value="@Model.PackageId" />
+            <input type="hidden" name="packagePrice" value="@Model.PackagePrice" />
+            <button type="submit" class="btn btn-success">Purchase with Wallet</button>
+        </form>
+    }
+    else
+    {
+        <p class="text-danger">Insufficient wallet balance. Please add funds to complete the purchase.</p>
+    }
+</div>

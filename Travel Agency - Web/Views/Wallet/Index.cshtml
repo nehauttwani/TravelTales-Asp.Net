@@ -1,7 +1,7 @@
-﻿@model Travel_Agency___Web.Models.WalletViewModel
+﻿@model Travel_Agency___Data.ViewModels.WalletViewModel
 
 <div class="wallet-container">
-    <h1>Wallet</h1>
+    <h1>Wallet Management</h1>
 
     <!-- Display Current Balance -->
     <div class="wallet-balance">
@@ -13,7 +13,7 @@
         <h3>Transaction History</h3>
         @if (Model.Transactions.Any())
         {
-            <table class="table table-striped">
+            <table class="table">
                 <thead>
                     <tr>
                         <th>Transaction Date</th>
@@ -39,49 +39,12 @@
         }
     </div>
 
-    <!-- Add Funds Form -->
+    <!-- Add Funds with Credit Card -->
     <div class="wallet-actions">
-        <h3>Add Funds</h3>
-        <form asp-action="AddFunds" asp-controller="Wallet" method="post">
-            <input type="hidden" name="customerId" value="@Model.CustomerId" />
-            <div class="form-group">
-                <label for="addAmount">Amount:</label>
-                <input type="number" id="addAmount" name="amount" class="form-control" step="0.01" required />
-            </div>
-            <button type="submit" class="btn btn-primary">Add Funds</button>
-        </form>
-    </div>
-
-    <!-- Deduct Funds Form -->
-    <div class="wallet-actions">
-        <h3>Deduct Funds</h3>
-        <form asp-action="DeductFunds" asp-controller="Wallet" method="post">
-            <input type="hidden" name="customerId" value="@Model.CustomerId" />
-            <div class="form-group">
-                <label for="deductAmount">Amount:</label>
-                <input type="number" id="deductAmount" name="amount" class="form-control" step="0.01" required />
-            </div>
-            <button type="submit" class="btn btn-danger">Deduct Funds</button>
-        </form>
-    </div>
-
-    <!-- Credit Cards Section -->
-    @if (Model.CreditCards.Any())
-    {
-        <div class="credit-cards">
-            <h3>Associated Credit Cards</h3>
-            <ul>
-                @foreach (var card in Model.CreditCards)
-                {
-                    <li>@card.Ccname (**** @card.Ccnumber.Substring(card.Ccnumber.Length - 4)) - Exp: @card.Ccexpiry.ToString("MM/yyyy")</li>
-                }
-            </ul>
-        </div>
-
-        <!-- Add Funds via Credit Card -->
-        <div class="credit-card-actions">
-            <h4>Add Funds via Credit Card</h4>
-            <form method="post" asp-action="AddFundsWithCreditCard">
+        <h3>Add Funds via Credit Card</h3>
+        @if (Model.CreditCards.Any())
+        {
+            <form asp-action="AddFundsWithCreditCard" asp-controller="Wallet" method="post">
                 <input type="hidden" name="customerId" value="@Model.CustomerId" />
                 <div class="form-group">
                     <label for="CreditCardId">Select Credit Card:</label>
@@ -96,10 +59,44 @@
                 </div>
                 <div class="form-group">
                     <label for="Amount">Amount:</label>
-                    <input type="number" id="Amount" name="amount" class="form-control" min="1" required />
+                    <input type="number" id="Amount" name="amount" class="form-control" step="0.01" min="1" required />
                 </div>
-                <button type="submit" class="btn btn-success">Add Funds</button>
+                <button type="submit" class="btn btn-primary">Add Funds</button>
             </form>
+        }
+        else
+        {
+            <p>No credit cards available. Please add a credit card to fund your wallet.</p>
+        }
+    </div>
+
+    <!-- Optional Deduct Funds Form -->
+    <div class="wallet-actions">
+        <h3>Deduct Funds</h3>
+        <form asp-action="DeductFunds" asp-controller="Wallet" method="post">
+            <input type="hidden" name="customerId" value="@Model.CustomerId" />
+            <div class="form-group">
+                <label for="deductAmount">Amount:</label>
+                <input type="number" id="deductAmount" name="amount" class="form-control" step="0.01" required />
+            </div>
+            <button type="submit" class="btn btn-danger">Deduct Funds</button>
+        </form>
+    </div>
+
+    <!-- Credit Cards List -->
+    @if (Model.CreditCards.Any())
+    {
+        <div class="credit-cards">
+            <h3>Your Credit Cards</h3>
+            <ul class="list-group">
+                @foreach (var card in Model.CreditCards)
+                {
+                    <li class="list-group-item">
+                        <strong>@card.Ccname</strong> (**** @card.Ccnumber.Substring(card.Ccnumber.Length - 4))
+                        - Expiry: @card.Ccexpiry.ToString("MM/yyyy")
+                    </li>
+                }
+            </ul>
         </div>
     }
 </div>

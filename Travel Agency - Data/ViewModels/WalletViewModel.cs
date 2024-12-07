@@ -1,7 +1,7 @@
-﻿using Travel_Agency___Data.Models;
-using Travel_Agency___Data;
+﻿using System;
+using System.Collections.Generic;
 
-namespace Travel_Agency___Data
+namespace Travel_Agency___Web.Models
 {
     public class WalletViewModel
     {
@@ -9,12 +9,12 @@ namespace Travel_Agency___Data
         public int CustomerId { get; set; }
 
         // Current balance of the wallet
-        public decimal WalletBalance { get; set; } // Renamed for consistency
+        public decimal CurrentBalance { get; set; }
 
         // List of wallet transactions
         public List<TransactionViewModel> Transactions { get; set; } = new();
 
-        // List of associated credit cards
+        // List of credit cards associated with the customer
         public List<CreditCardViewModel> CreditCards { get; set; } = new();
     }
 

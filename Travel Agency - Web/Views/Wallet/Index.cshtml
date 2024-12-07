@@ -1,35 +1,42 @@
-﻿@model Travel_Agency___Data.WalletViewModel
+﻿@model Travel_Agency___Web.Models.WalletViewModel
 
 <div class="wallet-container">
     <h1>Wallet</h1>
 
     <!-- Display Current Balance -->
     <div class="wallet-balance">
-        <h2>Current Balance: @Model.WalletBalance.ToString("C")</h2>
+        <h2>Current Balance: @Model.CurrentBalance.ToString("C")</h2>
     </div>
 
     <!-- Transactions List -->
     <div class="transactions">
         <h3>Transaction History</h3>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Transaction Date</th>
-                    <th>Amount</th>
-                    <th>Type</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var transaction in Model.Transactions)
-                {
+        @if (Model.Transactions.Any())
+        {
+            <table class="table table-striped">
+                <thead>
                     <tr>
-                        <td>@transaction.TransactionDate.ToString("g")</td>
-                        <td>@transaction.Amount.ToString("C")</td>
-                        <td>@transaction.TransactionType</td>
+                        <th>Transaction Date</th>
+                        <th>Amount</th>
+                        <th>Type</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach (var transaction in Model.Transactions)
+                    {
+                        <tr>
+                            <td>@transaction.TransactionDate.ToString("g")</td>
+                            <td>@transaction.Amount.ToString("C")</td>
+                            <td>@transaction.TransactionType</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p>No transactions found.</p>
+        }
     </div>
 
     <!-- Add Funds Form -->
@@ -57,18 +64,42 @@
             <button type="submit" class="btn btn-danger">Deduct Funds</button>
         </form>
     </div>
-</div>
 
-<!-- Optional Credit Cards Section -->
-@if (Model.CreditCards.Any())
-{
-    <div class="credit-cards">
-        <h3>Associated Credit Cards</h3>
-        <ul>
-            @foreach (var card in Model.CreditCards)
-            {
-                <li>Card Ending in ****@card.Ccnumber[^4..]</li>
-            }
-        </ul>
-    </div>
-}
+    <!-- Credit Cards Section -->
+    @if (Model.CreditCards.Any())
+    {
+        <div class="credit-cards">
+            <h3>Associated Credit Cards</h3>
+            <ul>
+                @foreach (var card in Model.CreditCards)
+                {
+                    <li>@card.Ccname (**** @card.Ccnumber.Substring(card.Ccnumber.Length - 4)) - Exp: @card.Ccexpiry.ToString("MM/yyyy")</li>
+                }
+            </ul>
+        </div>
+
+        <!-- Add Funds via Credit Card -->
+        <div class="credit-card-actions">
+            <h4>Add Funds via Credit Card</h4>
+            <form method="post" asp-action="AddFundsWithCreditCard">
+                <input type="hidden" name="customerId" value="@Model.CustomerId" />
+                <div class="form-group">
+                    <label for="CreditCardId">Select Credit Card:</label>
+                    <select id="CreditCardId" name="creditCardId" class="form-control" required>
+                        @foreach (var card in Model.CreditCards)
+                        {
+                            <option value="@card.CreditCardId">
+                                @card.Ccname (**** @card.Ccnumber.Substring(card.Ccnumber.Length - 4))
+                            </option>
+                        }
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="Amount">Amount:</label>
+                    <input type="number" id="Amount" name="amount" class="form-control" min="1" required />
+                </div>
+                <button type="submit" class="btn btn-success">Add Funds</button>
+            </form>
+        </div>
+    }
+</div>

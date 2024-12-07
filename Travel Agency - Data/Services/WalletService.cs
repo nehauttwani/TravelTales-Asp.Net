@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Travel_Agency___Data.Models;
-
+using Travel_Agency___Web.Models;
 
 namespace Travel_Agency___Data.Services
 {
@@ -18,22 +18,28 @@ namespace Travel_Agency___Data.Services
         }
 
         // Retrieve all wallet transactions for a customer
-        public async Task<List<WalletTransaction>> GetTransactionsAsync(int customerId)
+        public async Task<List<TransactionViewModel>> GetTransactionsAsync(int customerId)
         {
-            return await _context.WalletTransactions
+            var transactions = await _context.WalletTransactions
                 .Where(w => w.CustomerId == customerId)
                 .OrderByDescending(w => w.TransactionDate)
                 .ToListAsync();
+
+            return transactions.Select(t => new TransactionViewModel
+            {
+                TransactionId = t.TransactionId,
+                TransactionDate = t.TransactionDate,
+                Amount = t.Amount,
+                TransactionType = t.TransactionType
+            }).ToList();
         }
 
         // Method to calculate wallet balance
         public async Task<decimal> GetWalletBalanceAsync(int customerId)
         {
-            // Fetch transactions for the customer
             var transactions = _context.WalletTransactions
                 .Where(t => t.CustomerId == customerId);
 
-            // Calculate balance: deposits - withdrawals
             var balance = await transactions.SumAsync(t =>
                 t.TransactionType == "Deposit" ? t.Amount :
                 t.TransactionType == "Withdrawal" ? -t.Amount : 0);
@@ -50,32 +56,19 @@ namespace Travel_Agency___Data.Services
                 throw new Exception($"Customer with ID {customerId} not found.");
             }
 
-            // Ensure CreditBalance is initialized
-            var walletBalance = customer.CreditBalance;
-
-            var transactions = await _context.WalletTransactions
-                .Where(w => w.CustomerId == customerId)
-                .OrderByDescending(w => w.TransactionDate)
-                .ToListAsync();
+            var transactions = await GetTransactionsAsync(customerId);
 
             return new WalletViewModel
             {
                 CustomerId = customerId,
-                WalletBalance = walletBalance,
-                Transactions = transactions.Select(t => new TransactionViewModel
-                {
-                    TransactionId = t.TransactionId,
-                    TransactionDate = t.TransactionDate,
-                    Amount = t.Amount,
-                    TransactionType = t.TransactionType
-                }).ToList()
+                CurrentBalance = customer.CreditBalance,
+                Transactions = transactions
             };
         }
 
         // Process a credit card payment and add funds to wallet
-        public async Task<bool> ProcessCreditCardPayment(int customerId, int creditCardId, decimal amount)
+        public async Task<bool> ProcessCreditCardPaymentAsync(int customerId, int creditCardId, decimal amount)
         {
-            // Retrieve the credit card from the database
             var creditCard = await _context.CreditCards
                 .FirstOrDefaultAsync(cc => cc.CreditCardId == creditCardId && cc.CustomerId == customerId);
 
@@ -93,11 +86,19 @@ namespace Travel_Agency___Data.Services
         }
 
         // Retrieve credit cards associated with a customer
-        public async Task<IEnumerable<CreditCard>> GetCreditCardsAsync(int customerId)
+        public async Task<List<CreditCardViewModel>> GetCreditCardsForCustomerAsync(int customerId)
         {
-            return await _context.CreditCards
+            var creditCards = await _context.CreditCards
                 .Where(cc => cc.CustomerId == customerId)
                 .ToListAsync();
+
+            return creditCards.Select(cc => new CreditCardViewModel
+            {
+                CreditCardId = cc.CreditCardId,
+                Ccname = cc.Ccname,
+                Ccnumber = "**** " + cc.Ccnumber.Substring(cc.Ccnumber.Length - 4), // Mask the number
+                Ccexpiry = cc.Ccexpiry
+            }).ToList();
         }
 
         // Add funds to a customer's wallet

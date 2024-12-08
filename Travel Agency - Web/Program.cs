@@ -7,6 +7,9 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
+// Register PurchaseService
+builder.Services.AddScoped<PurchaseService>();
+
 //Service for context objects 
 builder.Services.AddDbContext<TravelExpertsContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("TravelExpertsContext")));
 

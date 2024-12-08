@@ -1,31 +1,34 @@
-﻿@model Travel_Agency___Data.ViewModels.PurchaseViewModel
+﻿@model List<Travel_Agency___Data.ViewModels.PurchaseViewModel>
 
 <div class="purchase-container">
-    <h1>Purchase Package</h1>
+    <h1>Available Packages</h1>
 
-    <!-- Display Package Details -->
-    <div class="package-details">
-        <h3>Package ID: @Model.PackageId</h3>
-        <h4>Price: @Model.PackagePrice.ToString("C")</h4>
-    </div>
-
-    <!-- Display Wallet Balance -->
-    <div class="wallet-balance">
-        <h3>Current Wallet Balance: @Model.WalletBalance.ToString("C")</h3>
-    </div>
-
-    <!-- Purchase Button -->
-    @if (Model.WalletBalance >= Model.PackagePrice)
-    {
-        <form asp-action="PurchasePackage" asp-controller="Purchase" method="post">
-            <input type="hidden" name="customerId" value="@Model.CustomerId" />
-            <input type="hidden" name="packageId" value="@Model.PackageId" />
-            <input type="hidden" name="packagePrice" value="@Model.PackagePrice" />
-            <button type="submit" class="btn btn-success">Purchase with Wallet</button>
-        </form>
-    }
-    else
-    {
-        <p class="text-danger">Insufficient wallet balance. Please add funds to complete the purchase.</p>
-    }
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Package ID</th>
+                <th>Price</th>
+                <th>Wallet Balance</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var package in Model)
+            {
+                <tr>
+                    <td>@package.PackageId</td>
+                    <td>@package.PackagePrice.ToString("C")</td>
+                    <td>@package.WalletBalance.ToString("C")</td>
+                    <td>
+                        <form asp-action="Purchase" asp-controller="Purchase" method="post">
+                            <input type="hidden" name="customerId" value="@package.CustomerId" />
+                            <input type="hidden" name="packageId" value="@package.PackageId" />
+                            <input type="hidden" name="packagePrice" value="@package.PackagePrice" />
+                            <button type="submit" class="btn btn-success">Purchase</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 </div>

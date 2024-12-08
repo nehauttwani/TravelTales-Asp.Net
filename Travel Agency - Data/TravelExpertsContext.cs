@@ -15,7 +15,7 @@ public partial class TravelExpertsContext : DbContext
         : base(options)
     {
     }
-
+    public virtual DbSet<Purchase> Purchases { get; set; }
     public virtual DbSet<Affiliation> Affiliations { get; set; }
 
     public virtual DbSet<Agency> Agencies { get; set; }

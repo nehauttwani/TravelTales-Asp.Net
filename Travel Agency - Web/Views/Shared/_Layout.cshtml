@@ -4,22 +4,21 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Travel Tales</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/bootstrap-basic-theme.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/custom.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/header-footer.css" asp-append-version="true" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-
+    <link rel="stylesheet" href="~/css/custom.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
 </head>
-<body>
+<body class="@ViewData["BodyClass"]">
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm bg-primary">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm bg-primary shadow">
             <div class="container-fluid">
-                <a class="navbar-brand text-light" asp-area="" asp-controller="Home" asp-action="Index">
-                    <img src="~/images/logo.png" alt="Travel Agency Logo" height="40" width="40" class="d-inline-block align-top"> Welcome to Travel Tales 
+                <a class="navbar-brand text-light d-flex align-items-center" asp-area="" asp-controller="Home" asp-action="Index">
+                    <img src="~/images/logo.png" alt="Travel Agency Logo" height="40" width="40" class="me-2">
+                    Welcome to Travel Tales
                 </a>
-                <button class="navbar-toggler type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
@@ -37,8 +36,6 @@
                         <li class="nav-item">
                             <a class="nav-link text-light @(ViewData["ActivePage"] == "Account" ? "active" : "")" asp-area="" asp-controller="Account" asp-action="Register"><i class="fas fa-user me-1"></i> SIGN IN</a>
                         </li>
-                       
-
                     </ul>
                 </div>
             </div>
@@ -51,13 +48,12 @@
     </div>
 
     <footer class="border-top footer text-light bg-primary">
-        <div class="container text-light">
-            &copy; 2024 - Travel Tales
+        <div class="container">
+            <p class="mb-0">&copy; 2024 - Travel Tales</p>
         </div>
     </footer>
-    <script src="~/lib/jquery/dist/jquery.js"></script>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>

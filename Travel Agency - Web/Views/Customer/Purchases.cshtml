@@ -1,10 +1,10 @@
 ﻿@model List<Travel_Agency___Data.ViewModels.ProductListViewModel>
 
-<div class="container mt-5">
+    <h2>Purchases</h2>
+
     @if (Model != null && Model.Any())
     {
-        <h2>Customer Purchases</h2>
-        <table class="table">
+        <table>
             <thead>
                 <tr>
                     <th>Package Name</th>
@@ -18,9 +18,9 @@
                 {
                     <tr>
                         <td>@purchase.PackageName</td>
-                        <td>@purchase.PackagePrice.ToString("C")</td>
-                        <td>@purchase.AgencyCommission.ToString("C")</td>
-                        <td>@purchase.TotalCost.ToString("C")</td>
+                        <td>$@purchase.PackagePrice.ToString("F2")</td>
+                        <td>$@purchase.AgencyCommission.ToString("F2")</td>
+                        <td>$@purchase.TotalCost.ToString("F2")</td>
                     </tr>
                 }
             </tbody>
@@ -28,8 +28,5 @@
     }
     else
     {
-        <div class="alert alert-info">
-            This customer has no purchases.
-        </div>
+        <p>This customer has no purchases.</p>
     }
-</div>

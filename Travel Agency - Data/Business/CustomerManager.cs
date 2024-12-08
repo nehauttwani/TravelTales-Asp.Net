@@ -27,18 +27,18 @@ namespace Travel_Agency___Data.Business
 
 
         // Get all customers
-        public static List<Customer> GetCustomers(TravelExpertsContext context)
-        {
-            return context.Customers.ToList();
-        }
+        //public static List<Customer> GetCustomers(TravelExpertsContext context)
+        //{
+        //    return context.Customers.ToList();
+        //}
 
 
         // Get purchases made by a specific customer
         public static List<ProductListViewModel> GetCustomerPurchases(TravelExpertsContext context, int customerId)
         {
             return context.Bookings
-                .Include(b => b.Package) // Ensure Packages are eagerly loaded
                 .Where(b => b.CustomerId == customerId && b.Package != null)
+                .Include(b => b.Package) // Ensure Packages are eagerly loaded
                  .Select(b => new ProductListViewModel
         {
                     PackageName = b.Package.PkgName,

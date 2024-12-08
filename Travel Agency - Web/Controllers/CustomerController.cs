@@ -31,7 +31,7 @@ namespace Travel_Agency___Web.Controllers
                 return RedirectToAction(nameof(Search));
             }
 
-            // searching by ID (integer)
+            // searching by ID 
             if (int.TryParse(customerNameOrId, out int customerId))
             {
                 var customer = CustomerManager.GetCustomerById(_context, customerId);
@@ -62,7 +62,7 @@ namespace Travel_Agency___Web.Controllers
             return RedirectToAction(nameof(Search));
         }
 
-        // Details Page for a Specific Customer
+        // Display purchase for a Specific Customer
         public IActionResult Details(int customerId)
         {
             var customer = CustomerManager.GetCustomerById(_context, customerId);

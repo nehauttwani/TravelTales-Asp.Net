@@ -11,6 +11,13 @@
     <link rel="stylesheet" href="~/css/header-footer.css" asp-append-version="true" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 
+    <style>
+        /* Add padding to account for the fixed navbar */
+        body {
+            padding-top: 70px; 
+        }
+    </style>
+
 </head>
 <body>
     <header>
@@ -31,9 +38,15 @@
                         <li class="nav-item">
                             <a class="nav-link text-light @(ViewData["ActivePage"] == "Package" ? "active" : "")" asp-area="" asp-controller="Package" asp-action="Index">PACKAGES</a>
                         </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link text-light @(ViewData["ActivePage"] == "Search" ? "active" : "")" asp-area="" asp-controller="Customer" asp-action="Search">SEARCH PURCHASES</a>
+                        </li>
+
                         <li class="nav-item">
                             <a class="nav-link text-light @(ViewData["ActivePage"] == "Contact" ? "active" : "")" asp-area="" asp-controller="Contact" asp-action="Index">CONTACT US</a>
                         </li>
+
                         <li class="nav-item">
                             <a class="nav-link text-light @(ViewData["ActivePage"] == "Account" ? "active" : "")" asp-area="" asp-controller="Account" asp-action="Register"><i class="fas fa-user me-1"></i> SIGN IN</a>
                         </li>

@@ -20,5 +20,7 @@ namespace Travel_Agency___Data.ModelManagers
         {
             return _context.Packages.ToList();
         }
+
+        public Package GetPackage(int packageID) => _context.Packages.Find(packageID);
     }
 }

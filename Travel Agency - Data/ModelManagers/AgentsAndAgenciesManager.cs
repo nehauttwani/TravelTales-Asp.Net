@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Travel_Agency___Data.Models;
 
 namespace Travel_Agency___Data.ModelManagers
 {

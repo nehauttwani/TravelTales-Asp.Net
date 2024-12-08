@@ -1,0 +1,15 @@
+﻿@model Booking
+
+<h2>Booking Confirmation</h2>
+
+<p>Thank you for your booking, @Model.Customer!.CustFirstName @Model.Customer.CustLastName!</p>
+
+<h3>Booking Details:</h3>
+<ul>
+    <li>Booking Number: @Model.BookingNo</li>
+    <li>Package: @Model.Package!.PkgName</li>
+    <li>Booking Date: @Model.BookingDate</li>
+    <li>Traveler Count: @Model.TravelerCount</li>
+</ul>
+
+<a asp-controller="Home" asp-action="Index" class="btn btn-primary">Return to Home</a>

@@ -1,26 +1,26 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using Travel_Agency___Data.Models;
 
 namespace Travel_Agency___Data.ModelManagers
 {
-    public static class CustomerManager
+    public class CustomerManager
     {
-        public static List<Customer> GetCustomers(TravelExpertsContext db)
+        private TravelExpertsContext _context { get; set; }
+
+        public CustomerManager(TravelExpertsContext ctx)
         {
-            return db.Customers.ToList();
+            _context = ctx;
         }
 
-        public static Customer GetCustomerById(TravelExpertsContext db, int customerId)
+        public void AddCustomer(Customer customer)
         {
-            return db.Customers.FirstOrDefault(c => c.CustomerId == customerId);
-        }
-
-        public static void AddCustomer(TravelExpertsContext db, Customer customer)
-        {
-            db.Customers.Add(customer);
-            db.SaveChanges();
-        }
+            _context.Customers.Add(customer);
+            _context.SaveChanges();
 
         public static void UpdateCustomer(TravelExpertsContext db, Customer customer)
         {
@@ -28,14 +28,10 @@ namespace Travel_Agency___Data.ModelManagers
             db.SaveChanges();
         }
 
-        public static void DeleteCustomer(TravelExpertsContext db, int customerId)
+        public Customer GetCustomer(int id)
         {
-            var customer = db.Customers.FirstOrDefault(c => c.CustomerId == customerId);
-            if (customer != null)
-            {
-                db.Customers.Remove(customer);
-                db.SaveChanges();
-            }
+            return _context.Customers.FirstOrDefault(x => x.CustomerId == id);
         }
+
     }
 }

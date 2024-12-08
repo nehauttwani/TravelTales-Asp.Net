@@ -20,6 +20,13 @@ builder.Services.AddIdentity<User, IdentityRole>(options =>
     options.Password.RequiredLength = 8;
 }).AddEntityFrameworkStores<TravelExpertsContext>().AddDefaultTokenProviders();
 
+//add identity services.
+builder.Services.AddIdentity<User, IdentityRole>(options => {
+    options.Password.RequiredUniqueChars = 1;
+    options.Password.RequireUppercase = true;
+    options.Password.RequiredLength = 8;
+}).AddEntityFrameworkStores<TravelExpertsContext>().AddDefaultTokenProviders();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

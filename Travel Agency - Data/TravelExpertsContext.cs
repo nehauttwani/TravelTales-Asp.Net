@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Travel_Agency___Data.Models;
 
 namespace Travel_Agency___Data;
 
-public partial class TravelExpertsContext : DbContext
+public partial class TravelExpertsContext : IdentityDbContext<User>
 {
     public TravelExpertsContext()
     {
@@ -74,6 +75,8 @@ public partial class TravelExpertsContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+
+        base.OnModelCreating(modelBuilder);
         modelBuilder.Entity<Affiliation>(entity =>
         {
             entity.HasKey(e => e.AffilitationId)

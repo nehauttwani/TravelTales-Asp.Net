@@ -1,16 +1,42 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 using Travel_Agency___Data;
+using Travel_Agency___Data.ModelManagers;
 using Travel_Agency___Data.Models;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
+using Travel_Agency___Data.ViewModels;
 
 namespace Travel_Agency___Web.Controllers
 {
     public class AccountController : Controller
     {
-        private readonly TravelExpertsContext _context;
+        private TravelExpertsContext _context { get; set; }
+        private CustomerManager _customerManager;
+        private AgentsAndAgenciesManager _agentsAndAgenciesManager;
+
+        //Identity object to manage signin
+        private readonly SignInManager<User> signInManager;
+        private readonly UserManager<User> userManager;
+
+        public AccountController(TravelExpertsContext context, SignInManager<User> signInManager, UserManager<User> userManager)
+        {
+            _context = context;
+            _customerManager = new CustomerManager(_context);
+            _agentsAndAgenciesManager = new AgentsAndAgenciesManager(_context);
+            this.signInManager = signInManager;
+            this.userManager = userManager;
+        }
+
+        // GET: AccountController
+        public ActionResult Register()
+        {
+            var registerViewModel = new RegisterViewModel()
+            {
+                Agents = _agentsAndAgenciesManager.GetAgents()
+            };
+            return View(registerViewModel);
+        }
 
         // Constructor to initialize the context
         public AccountController(TravelExpertsContext context)
@@ -18,36 +44,91 @@ namespace Travel_Agency___Web.Controllers
             _context = context;
         }
 
-        // GET: Account/Login
-        public IActionResult Login()
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> LoginAsync(LoginViewModal loginViewModal)
+        {
+            if (ModelState.IsValid) //Check if model is valid
+            {
+                var result = await signInManager.PasswordSignInAsync(loginViewModal.Username!, loginViewModal.Password!, loginViewModal.RememberMe, false);
+                if (result.Succeeded)//if successful, go to home page.
+                {
+                    return RedirectToAction("Index", "Home");
+                }
+                else
+                {
+                    ModelState.AddModelError("", "Invalid Login");
+                    return View();
+                }
+            }
+            return View();
+        }
+
+        public async Task<ActionResult> Logout()
+        {
+            //sign out 
+            await signInManager.SignOutAsync();
+            return RedirectToAction("Index", "Home");
+        }
+
+        // GET: AccountController/Details/5
+        public ActionResult Details(int id)
         {
             return View();
         }
 
-        // POST: Account/Login
+        
+
+        // POST: AccountController/Register
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Login(Customer customer)
+        [HttpPost]
+        public async Task<ActionResult> Register(RegisterViewModel registerViewModel)
         {
             if (ModelState.IsValid)
             {
-                // Check if the customer exists in the database with the provided email and password
-                var user = _context.Customers
-                    .FirstOrDefault(c => c.CustEmail == customer.CustEmail && c.CustPassword == HashPassword(customer.CustPassword));
+                User user = new User()
+                {
+                    UserName = registerViewModel.CustEmail,
+                    Email = registerViewModel.CustEmail,
+                    FullName = $"{registerViewModel.CustFirstName} {registerViewModel.CustLastName}",
+                    PhoneNumber = registerViewModel.CustBusPhone
+                };
 
-                if (user != null)
+                var result = await userManager.CreateAsync(user, registerViewModel.Password!);
+
+                if (result.Succeeded)
                 {
-                    // If the user is found, store the user's ID in a session or cookie
-                    HttpContext.Session.SetInt32("CustomerId", user.CustomerId);
-                    return RedirectToAction("Index", "Home"); // Redirect to home page or dashboard
+                    var customer = new Customer
+                    {
+                        CustFirstName = registerViewModel.CustFirstName!,
+                        CustLastName = registerViewModel.CustLastName!,
+                        CustAddress = registerViewModel.CustAddress!,
+                        CustCity = registerViewModel.CustCity!,
+                        CustProv = registerViewModel.CustProv!,
+                        CustPostal = registerViewModel.CustPostal!,
+                        CustCountry = registerViewModel.CustCountry!,
+                        CustHomePhone = registerViewModel.CustHomePhone!,
+                        CustBusPhone = registerViewModel.CustBusPhone!,
+                        CustEmail = registerViewModel.CustEmail!
+                    };
+
+                    _customerManager.AddCustomer(customer);
+                    await _context.SaveChangesAsync();
+
+                    user.CustomerId = customer.CustomerId;
+                    await userManager.UpdateAsync(user);
+
+                    await signInManager.SignInAsync(user, isPersistent: false);
+                    return RedirectToAction("Index", "Home");
                 }
-                else
+
+                foreach (var item in result.Errors)
                 {
-                    // If no match is found, return an error message
-                    ModelState.AddModelError("", "Invalid email or password.");
+                    ModelState.AddModelError("", item.Description);
                 }
             }
-            return View(customer); // Return the view if the login failed or the model is invalid
+            return View(registerViewModel);
         }
 
         // GET: Account/Register

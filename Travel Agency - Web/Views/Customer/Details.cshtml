@@ -1,0 +1,31 @@
+﻿@model Travel_Agency___Data.Models.Customer
+
+@{
+    ViewData["Title"] = "Customer Details";
+}
+
+<div class="container mb-4" style="margin-top: 7rem;">
+    <h2 class="text-center mb-4">Your Account Details</h2>
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h5><strong>First Name:</strong> @Model.CustFirstName</h5>
+                    <h5><strong>Last Name:</strong> @Model.CustLastName</h5>
+                    <h5><strong>Email:</strong> @Model.CustEmail</h5>
+                    <h5><strong>Phone (Business):</strong> @Model.CustBusPhone</h5>
+                    <h5><strong>Phone (Home):</strong> @Model.CustHomePhone</h5>
+                    <h5><strong>Address:</strong> @Model.CustAddress</h5>
+                    <h5><strong>City:</strong> @Model.CustCity</h5>
+                    <h5><strong>Province:</strong> @Model.CustProv</h5>
+                    <h5><strong>Postal Code:</strong> @Model.CustPostal</h5>
+                    <h5><strong>Country:</strong> @Model.CustCountry</h5>
+
+                    <div class="text-center mt-4">
+                        <a href="@Url.Action("Edit", new { id = Model.CustomerId })" class="btn btn-warning btn-lg">Edit Account</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

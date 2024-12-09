@@ -260,27 +260,6 @@ namespace Travel_Agency___Data.Migrations
                     b.ToTable("Agents");
                 });
 
-            modelBuilder.Entity("Travel_Agency___Data.Models.AgentPassword", b =>
-                {
-                    b.Property<int>("AgentId")
-                        .HasColumnType("int")
-                        .HasColumnName("AgentID");
-
-                    b.Property<bool>("IsAdmin")
-                        .HasColumnType("bit")
-                        .HasColumnName("isAdmin");
-
-                    b.Property<byte[]>("PasswordHash")
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("varbinary(64)");
-
-                    b.HasKey("AgentId")
-                        .HasName("PK__AgentPas__9AC3BFD16541CBF7");
-
-                    b.ToTable("AgentPasswords");
-                });
-
             modelBuilder.Entity("Travel_Agency___Data.Models.Booking", b =>
                 {
                     b.Property<int>("BookingId")
@@ -367,6 +346,11 @@ namespace Travel_Agency___Data.Migrations
                     b.Property<double?>("ItineraryNo")
                         .HasColumnType("float");
 
+                    b.Property<int?>("ProductSupplierId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
                     b.Property<string>("RegionId")
                         .HasMaxLength(5)
                         .HasColumnType("nvarchar(5)");
@@ -395,6 +379,10 @@ namespace Travel_Agency___Data.Migrations
                     b.HasIndex(new[] { "RegionId" }, "DestinationsBookingDetails");
 
                     b.HasIndex(new[] { "FeeId" }, "FeesBookingDetails");
+
+                    b.HasIndex(new[] { "ProductSupplierId" }, "ProductSupplierId");
+
+                    b.HasIndex(new[] { "ProductSupplierId" }, "Products_SuppliersBookingDetails");
 
                     b.ToTable("BookingDetails");
                 });
@@ -621,10 +609,6 @@ namespace Travel_Agency___Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PackageId"));
 
-                    b.Property<string>("ImagePath")
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
                     b.Property<decimal?>("PkgAgencyCommission")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("money")
@@ -671,7 +655,7 @@ namespace Travel_Agency___Data.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("PackageProductSupplierId")
-                        .HasName("PK__Packages__53E8ED999A2B3177");
+                        .HasName("PK__Packages__53E8ED9911275680");
 
                     b.HasIndex(new[] { "PackageId" }, "PackagesPackages_Products_Suppliers");
 
@@ -679,7 +663,7 @@ namespace Travel_Agency___Data.Migrations
 
                     b.HasIndex(new[] { "ProductSupplierId" }, "Products_SuppliersPackages_Products_Suppliers");
 
-                    b.HasIndex(new[] { "PackageId", "ProductSupplierId" }, "UQ__Packages__29CA8E9507CBFE69")
+                    b.HasIndex(new[] { "PackageId", "ProductSupplierId" }, "UQ__Packages__29CA8E95C7152C8E")
                         .IsUnique();
 
                     b.ToTable("Packages_Products_Suppliers");
@@ -923,7 +907,6 @@ namespace Travel_Agency___Data.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("FullName")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("LockoutEnabled")
@@ -1035,17 +1018,6 @@ namespace Travel_Agency___Data.Migrations
                     b.Navigation("Agency");
                 });
 
-            modelBuilder.Entity("Travel_Agency___Data.Models.AgentPassword", b =>
-                {
-                    b.HasOne("Travel_Agency___Data.Models.Agent", "Agent")
-                        .WithOne("AgentPassword")
-                        .HasForeignKey("Travel_Agency___Data.Models.AgentPassword", "AgentId")
-                        .IsRequired()
-                        .HasConstraintName("FK__AgentPass__Agent__02FC7413");
-
-                    b.Navigation("Agent");
-                });
-
             modelBuilder.Entity("Travel_Agency___Data.Models.Booking", b =>
                 {
                     b.HasOne("Travel_Agency___Data.Models.Customer", "Customer")
@@ -1087,6 +1059,11 @@ namespace Travel_Agency___Data.Migrations
                         .HasForeignKey("FeeId")
                         .HasConstraintName("FK_BookingDetails_Fees");
 
+                    b.HasOne("Travel_Agency___Data.Models.ProductsSupplier", "ProductSupplier")
+                        .WithMany("BookingDetails")
+                        .HasForeignKey("ProductSupplierId")
+                        .HasConstraintName("FK_BookingDetails_Products_Suppliers");
+
                     b.HasOne("Travel_Agency___Data.Models.Region", "Region")
                         .WithMany("BookingDetails")
                         .HasForeignKey("RegionId")
@@ -1097,6 +1074,8 @@ namespace Travel_Agency___Data.Migrations
                     b.Navigation("Class");
 
                     b.Navigation("Fee");
+
+                    b.Navigation("ProductSupplier");
 
                     b.Navigation("Region");
                 });
@@ -1215,8 +1194,6 @@ namespace Travel_Agency___Data.Migrations
 
             modelBuilder.Entity("Travel_Agency___Data.Models.Agent", b =>
                 {
-                    b.Navigation("AgentPassword");
-
                     b.Navigation("Customers");
                 });
 
@@ -1258,6 +1235,8 @@ namespace Travel_Agency___Data.Migrations
 
             modelBuilder.Entity("Travel_Agency___Data.Models.ProductsSupplier", b =>
                 {
+                    b.Navigation("BookingDetails");
+
                     b.Navigation("PackagesProductsSuppliers");
                 });
 

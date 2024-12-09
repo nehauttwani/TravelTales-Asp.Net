@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-using Travel_Agency___Data.Models;
 
-namespace Travel_Agency___Data;
+namespace Travel_Agency___Web.Models;
 
 public partial class TravelExpertsContext : DbContext
 {
@@ -74,6 +73,7 @@ public partial class TravelExpertsContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
         modelBuilder.Entity<Affiliation>(entity =>
         {
             entity.HasKey(e => e.AffilitationId)
@@ -134,15 +134,12 @@ public partial class TravelExpertsContext : DbContext
                 .IsClustered(false);
 
             entity.Property(e => e.BookingId).HasDefaultValue(0);
-            entity.Property(e => e.ProductSupplierId).HasDefaultValue(0);
 
             entity.HasOne(d => d.Booking).WithMany(p => p.BookingDetails).HasConstraintName("FK_BookingDetails_Bookings");
 
             entity.HasOne(d => d.Class).WithMany(p => p.BookingDetails).HasConstraintName("FK_BookingDetails_Classes");
 
             entity.HasOne(d => d.Fee).WithMany(p => p.BookingDetails).HasConstraintName("FK_BookingDetails_Fees");
-
-            entity.HasOne(d => d.ProductSupplier).WithMany(p => p.BookingDetails).HasConstraintName("FK_BookingDetails_Products_Suppliers");
 
             entity.HasOne(d => d.Region).WithMany(p => p.BookingDetails).HasConstraintName("FK_BookingDetails_Regions");
         });
@@ -207,7 +204,7 @@ public partial class TravelExpertsContext : DbContext
 
         modelBuilder.Entity<PackagesProductsSupplier>(entity =>
         {
-            entity.HasKey(e => e.PackageProductSupplierId).HasName("PK__Packages__53E8ED9911275680");
+            entity.HasKey(e => e.PackageProductSupplierId).HasName("PK__Packages__53E8ED999EE4BF6C");
 
             entity.HasOne(d => d.Package).WithMany(p => p.PackagesProductsSuppliers)
                 .OnDelete(DeleteBehavior.ClientSetNull)

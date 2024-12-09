@@ -36,8 +36,5 @@ public partial class Agent
     public virtual Agency? Agency { get; set; }
 
     [InverseProperty("Agent")]
-    public virtual AgentPassword? AgentPassword { get; set; }
-
-    [InverseProperty("Agent")]
     public virtual ICollection<Customer> Customers { get; set; } = new List<Customer>();
 }

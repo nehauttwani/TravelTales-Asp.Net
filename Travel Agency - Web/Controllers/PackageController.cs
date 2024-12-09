@@ -18,10 +18,6 @@ namespace Travel_Agency___Web.Controllers
         public IActionResult Index()
         {
             List<Package> packages = _packageManager.GetAllPackages();
-            foreach (Package item in packages)
-            {
-                item.ImagePath = $"/images/package-{item.PackageId}.jpg";
-            }
             return View(packages);
         }
     }

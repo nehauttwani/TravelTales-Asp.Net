@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace Travel_Agency___Data.Models;
+namespace Travel_Agency___Web.Models;
 
 [Table("Products_Suppliers")]
 [Index("SupplierId", Name = "Product Supplier ID")]
@@ -20,9 +20,6 @@ public partial class ProductsSupplier
     public int? ProductId { get; set; }
 
     public int? SupplierId { get; set; }
-
-    [InverseProperty("ProductSupplier")]
-    public virtual ICollection<BookingDetail> BookingDetails { get; set; } = new List<BookingDetail>();
 
     [InverseProperty("ProductSupplier")]
     public virtual ICollection<PackagesProductsSupplier> PackagesProductsSuppliers { get; set; } = new List<PackagesProductsSupplier>();

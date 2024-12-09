@@ -4,13 +4,13 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace Travel_Agency___Data.Models;
+namespace Travel_Agency___Web.Models;
 
 [Table("Packages_Products_Suppliers")]
 [Index("PackageId", Name = "PackagesPackages_Products_Suppliers")]
 [Index("ProductSupplierId", Name = "ProductSupplierId")]
 [Index("ProductSupplierId", Name = "Products_SuppliersPackages_Products_Suppliers")]
-[Index("PackageId", "ProductSupplierId", Name = "UQ__Packages__29CA8E95C7152C8E", IsUnique = true)]
+[Index("PackageId", "ProductSupplierId", Name = "UQ__Packages__29CA8E950309DD97", IsUnique = true)]
 public partial class PackagesProductsSupplier
 {
     [Key]

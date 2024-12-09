@@ -10,6 +10,9 @@ namespace Travel_Agency___Data.Models
 {
     public class User: IdentityUser
     {
+        [Required]
+        [Key]
+        public int Id { get; set; }
 
         public string? FullName { get; set; }
 

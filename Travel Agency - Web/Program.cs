@@ -12,11 +12,11 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<TravelExpertsContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("TravelExpertsConnectionString")
 ));
-builder.Services.AddIdentity<User, IdentityRole>(options =>
-{
+
+//add identity services.
+builder.Services.AddIdentity<User, IdentityRole>(options => {
     options.Password.RequiredUniqueChars = 1;
     options.Password.RequireUppercase = true;
-    options.Password.RequireLowercase = true;
     options.Password.RequiredLength = 8;
 }).AddEntityFrameworkStores<TravelExpertsContext>().AddDefaultTokenProviders();
 

@@ -1,93 +1,140 @@
-﻿@model Travel_Agency___Data.Models.Customer
+﻿@model Travel_Agency___Data.ViewModels.RegisterViewModel;
+@using Travel_Agency___Data.ViewModels;
 
 @{
     ViewData["Title"] = "Register";
+    var passwordViewModel = new PasswordViewModel
+            {
+                Password = Model?.Password,
+                ConfirmPassword = Model?.ConfirmPassword
+            };
 }
 
-<div class="container mb-4" style=" margin-top: 7rem;">
+<div class="container mb-4" style="margin-top: 7rem;">
     <h2 class="text-center mb-4">Create Your Account</h2>
     <div class="row justify-content-center">
         <div class="col-md-10">
             <div class="card shadow">
                 <div class="card-body">
-                    <form asp-action="Register">
+                    <ul class="nav nav-tabs" id="registerTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="personal-tab" data-bs-toggle="tab" data-bs-target="#personal" type="button" role="tab" aria-controls="personal" aria-selected="true">Personal Information</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="account-tab" data-bs-toggle="tab" data-bs-target="#account" type="button" role="tab" aria-controls="account" aria-selected="false" disabled>Account Setup</button>
+                        </li>
+                    </ul>
+
+                    <form asp-action="Register" id="registerForm">
                         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <h4 class="mb-3">Personal Information</h4>
-                                <div class="mb-3">
-                                    <label asp-for="CustFirstName" class="form-label">First Name</label>
-                                     <input asp-for="CustFirstName" class="form-control" />
-                                    <span asp-validation-for="CustFirstName" class="text-danger"></span>
+                        <div class="tab-content" id="registerTabsContent">
+                            <div class="tab-pane fade show active" id="personal" role="tabpanel" aria-labelledby="personal-tab">
+                                <div class="row mt-3">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label asp-for="CustFirstName" class="form-label"></label>
+                                            <input asp-for="CustFirstName" class="form-control" required/>
+                                            <span asp-validation-for="CustFirstName" class="text-danger"></span>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label asp-for="CustLastName" class="form-label"></label>
+                                            <input asp-for="CustLastName" class="form-control" required />
+                                            <span asp-validation-for="CustLastName" class="text-danger"></span>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label asp-for="CustAddress" class="form-label"></label>
+                                            <input asp-for="CustAddress" class="form-control" required />
+                                            <span asp-validation-for="CustAddress" class="text-danger"></span>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label asp-for="CustCity" class="form-label"></label>
+                                            <input asp-for="CustCity" class="form-control" required />
+                                            <span asp-validation-for="CustCity" class="text-danger"></span>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label asp-for="CustProv" class="control-label"></label>
+                                            <select asp-for="CustProv" class="form-control" required>
+                                                <option value="">Select a province</option>
+                                                <option value="AB">Alberta</option>
+                                                <option value="BC">British Columbia</option>
+                                                <option value="MB">Manitoba</option>
+                                                <option value="NB">New Brunswick</option>
+                                                <option value="NL">Newfoundland and Labrador</option>
+                                                <option value="NS">Nova Scotia</option>
+                                                <option value="ON">Ontario</option>
+                                                <option value="PE">Prince Edward Island</option>
+                                                <option value="QC">Quebec</option>
+                                                <option value="SK">Saskatchewan</option>
+                                            </select>
+                                            <span asp-validation-for="CustProv" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label asp-for="CustPostal" class="form-label"></label>
+                                            <input asp-for="CustPostal" class="form-control" required />
+                                            <span asp-validation-for="CustPostal" class="text-danger"></span>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label asp-for="CustCountry" class="form-label"></label>
+                                            <input asp-for="CustCountry" class="form-control" value="Canada" readonly />
+                                            <span asp-validation-for="CustCountry" class="text-danger"></span>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label asp-for="CustHomePhone" class="form-label"></label>
+                                            <input asp-for="CustHomePhone" class="form-control" required oninput="formatPhoneNumber(this)" />
+                                            <span asp-validation-for="CustHomePhone" class="text-danger"></span>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label asp-for="CustBusPhone" class="form-label">Business Phone (optional)</label>
+                                            <input asp-for="CustBusPhone" class="form-control" oninput="formatPhoneNumber(this)" />
+                                            <span asp-validation-for="CustBusPhone" class="text-danger"></span>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label asp-for="CustEmail" class="form-label"></label>
+                                            <input asp-for="CustEmail" class="form-control" required />
+                                            <span asp-validation-for="CustEmail" class="text-danger"></span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="mb-3">
-                                    <label asp-for="CustLastName" class="form-label">Last Name</label>
-                                    <input asp-for="CustLastName" class="form-control" />
-                                    <span asp-validation-for="CustLastName" class="text-danger"></span>
-                                </div>
-                                <div class="mb-3">
-                                    <label asp-for="CustEmail" class="form-label">Email Address</label>
-                                    <input asp-for="CustEmail" class="form-control" />
-                                    <span asp-validation-for="CustEmail" class="text-danger"></span>
-                                </div>
-                                <div class="mb-3">
-                                    <label asp-for="CustBusPhone" class="form-label">Business Phone Number</label>
-                                    <input asp-for="CustBusPhone" class="form-control" />
-                                    <span asp-validation-for="CustBusPhone" class="text-danger"></span>
-                                </div>
-                                <div class="mb-3">
-                                    <label asp-for="CustHomePhone" class="form-label">Home Phone(optional)</label>
-                                    <input asp-for="CustHomePhone" class="form-control" />
-                                    <span asp-validation-for="CustHomePhone" class="text-danger"></span>
+                                <div class="text-end mt-3">
+                                    <button type="button" class="btn btn-primary" onclick="nextTab()">Next</button>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <h4 class="mb-3">Address Information</h4>
-                                <div class="mb-3">
-                                    <label asp-for="CustAddress" class="form-label">Address</label>
-                                    <input asp-for="CustAddress" class="form-control" />
-                                    <span asp-validation-for="CustAddress" class="text-danger"></span>
+                            <div class="tab-pane fade" id="account" role="tabpanel" aria-labelledby="account-tab">
+                                <div class="row mt-3">
+                                    <div class="col-md-6">
+                                        <partial name="_PasswordFields" model=@passwordViewModel/>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label asp-for="AgentId" class="form-label">Preferred Agent (optional)</label>
+                                            <select asp-for="AgentId" class="form-select" asp-items="@(new SelectList(Model?.Agents, "AgentId", "AgtFirstName", "AgtLastName"))">
+                                                <option value="">-- Select Agent --</option>
+                                            </select>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="mb-3">
-                                    <label asp-for="CustCity" class="form-label">City</label>
-                                    <input asp-for="CustCity" class="form-control" />
-                                    <span asp-validation-for="CustCity" class="text-danger"></span>
-                                </div>
-                                <div class="mb-3">
-                                    <label asp-for="CustProv" class="form-label">Province</label>
-                                    <input asp-for="CustProv" class="form-control" />
-                                    <span asp-validation-for="CustProv" class="text-danger"></span>
-                                </div>
-                                <div class="mb-3">
-                                    <label asp-for="CustPostal" class="form-label">Postal Code</label>
-                                    <input asp-for="CustPostal" class="form-control" />
-                                    <span asp-validation-for="CustPostal" class="text-danger"></span>
-                                </div>
-                                <div class="mb-3">
-                                    <label asp-for="CustCountry" class="form-label">Country</label>
-                                    <input asp-for="CustCountry" class="form-control" />
-                                    <span asp-validation-for="CustCountry" class="text-danger"></span>
+                                <div class="text-end mt-3">
+                                    <button type="button" class="btn btn-secondary" onclick="previousTab()">Previous</button>
+                                    <button type="submit" class="btn btn-primary">Create Account</button>
                                 </div>
                             </div>
-                        </div>
-                        <div class="mb-3">
-                            <label asp-for="AgentId" class="form-label"></label>
-                            <select asp-for="AgentId" class="form-select" asp-items="ViewBag.AgentId">
-                                <option value="">-- Select Agent --</option>
-                            </select>
-                        </div>
-                        <div class="text-center mt-4">
-                            <button type="submit" class="btn btn-primary btn-lg">Create Account</button>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
+        <div class="row">
+            <a asp-action="Login" asp-route-returnUrl="@ViewData["ReturnUrl"]" class="d-flex justify-content-center">Already have an account?</a>
+        </div>
     </div>
-</div>
+</div>       
 
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        <script src="~/js/register.js"></script>
     }
+    
 }

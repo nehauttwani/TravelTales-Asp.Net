@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Travel_Agency___Data.ModelManagers;
-using Travel_Agency___Data;
 using System.Diagnostics;
+using Travel_Agency___Data.Models;
 
 namespace Travel_Agency___Web.Controllers
 {

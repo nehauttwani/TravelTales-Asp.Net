@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Travel_Agency___Data.Models;
 
@@ -11,9 +12,11 @@ using Travel_Agency___Data.Models;
 namespace Travel_Agency___Data.Migrations
 {
     [DbContext(typeof(TravelExpertsContext))]
-    partial class TravelExpertsContextModelSnapshot : ModelSnapshot
+    [Migration("20241210041541_Secondupdateidentity")]
+    partial class Secondupdateidentity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -254,7 +257,7 @@ namespace Travel_Agency___Data.Migrations
 
                     SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("AffilitationId"), false);
 
-                    b.ToTable("Affiliations", (string)null);
+                    b.ToTable("Affiliations");
                 });
 
             modelBuilder.Entity("Travel_Agency___Data.Models.Agency", b =>
@@ -295,7 +298,7 @@ namespace Travel_Agency___Data.Migrations
 
                     b.HasKey("AgencyId");
 
-                    b.ToTable("Agencies", (string)null);
+                    b.ToTable("Agencies");
                 });
 
             modelBuilder.Entity("Travel_Agency___Data.Models.Agent", b =>
@@ -337,7 +340,7 @@ namespace Travel_Agency___Data.Migrations
 
                     b.HasIndex("AgencyId");
 
-                    b.ToTable("Agents", (string)null);
+                    b.ToTable("Agents");
                 });
 
             modelBuilder.Entity("Travel_Agency___Data.Models.AspNetRole", b =>
@@ -563,7 +566,7 @@ namespace Travel_Agency___Data.Migrations
 
                     b.HasIndex(new[] { "TripTypeId" }, "TripTypesBookings");
 
-                    b.ToTable("Bookings", (string)null);
+                    b.ToTable("Bookings");
                 });
 
             modelBuilder.Entity("Travel_Agency___Data.Models.BookingDetail", b =>
@@ -635,7 +638,7 @@ namespace Travel_Agency___Data.Migrations
 
                     b.HasIndex(new[] { "ProductSupplierId" }, "Products_SuppliersBookingDetails");
 
-                    b.ToTable("BookingDetails", (string)null);
+                    b.ToTable("BookingDetails");
                 });
 
             modelBuilder.Entity("Travel_Agency___Data.Models.Class", b =>
@@ -655,7 +658,7 @@ namespace Travel_Agency___Data.Migrations
 
                     b.HasKey("ClassId");
 
-                    b.ToTable("Classes", (string)null);
+                    b.ToTable("Classes");
                 });
 
             modelBuilder.Entity("Travel_Agency___Data.Models.CreditCard", b =>
@@ -689,7 +692,7 @@ namespace Travel_Agency___Data.Migrations
 
                     b.HasIndex(new[] { "CustomerId" }, "CustomersCreditCards");
 
-                    b.ToTable("CreditCards", (string)null);
+                    b.ToTable("CreditCards");
                 });
 
             modelBuilder.Entity("Travel_Agency___Data.Models.Customer", b =>
@@ -755,7 +758,7 @@ namespace Travel_Agency___Data.Migrations
 
                     b.HasIndex(new[] { "AgentId" }, "EmployeesCustomers");
 
-                    b.ToTable("Customers", (string)null);
+                    b.ToTable("Customers");
                 });
 
             modelBuilder.Entity("Travel_Agency___Data.Models.CustomersReward", b =>
@@ -777,7 +780,7 @@ namespace Travel_Agency___Data.Migrations
 
                     b.HasIndex(new[] { "RewardId" }, "RewardsCustomers_Rewards");
 
-                    b.ToTable("Customers_Rewards", (string)null);
+                    b.ToTable("Customers_Rewards");
                 });
 
             modelBuilder.Entity("Travel_Agency___Data.Models.Employee", b =>
@@ -811,7 +814,7 @@ namespace Travel_Agency___Data.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.ToTable("Employees", (string)null);
+                    b.ToTable("Employees");
                 });
 
             modelBuilder.Entity("Travel_Agency___Data.Models.Fee", b =>
@@ -893,10 +896,10 @@ namespace Travel_Agency___Data.Migrations
 
                     b.HasIndex(new[] { "ProductSupplierId" }, "Products_SuppliersPackages_Products_Suppliers");
 
-                    b.HasIndex(new[] { "PackageId", "ProductSupplierId" }, "UQ__Packages__29CA8E959CAFBA0F")
+                    b.HasIndex(new[] { "PackageId", "ProductSupplierId" }, "UQ__Packages__29CA8E95C7152C8E")
                         .IsUnique();
 
-                    b.ToTable("Packages_Products_Suppliers", (string)null);
+                    b.ToTable("Packages_Products_Suppliers");
                 });
 
             modelBuilder.Entity("Travel_Agency___Data.Models.Product", b =>
@@ -916,7 +919,7 @@ namespace Travel_Agency___Data.Migrations
 
                     b.HasIndex(new[] { "ProductId" }, "ProductId");
 
-                    b.ToTable("Products", (string)null);
+                    b.ToTable("Products");
                 });
 
             modelBuilder.Entity("Travel_Agency___Data.Models.ProductsSupplier", b =>
@@ -945,7 +948,7 @@ namespace Travel_Agency___Data.Migrations
 
                     b.HasIndex(new[] { "SupplierId" }, "SuppliersProducts_Suppliers1");
 
-                    b.ToTable("Products_Suppliers", (string)null);
+                    b.ToTable("Products_Suppliers");
                 });
 
             modelBuilder.Entity("Travel_Agency___Data.Models.Region", b =>
@@ -1000,7 +1003,7 @@ namespace Travel_Agency___Data.Migrations
 
                     b.HasIndex(new[] { "SupplierId" }, "SupplierId");
 
-                    b.ToTable("Suppliers", (string)null);
+                    b.ToTable("Suppliers");
                 });
 
             modelBuilder.Entity("Travel_Agency___Data.Models.SupplierContact", b =>
@@ -1073,7 +1076,7 @@ namespace Travel_Agency___Data.Migrations
 
                     b.HasIndex(new[] { "SupplierId" }, "SuppliersSupCon");
 
-                    b.ToTable("SupplierContacts", (string)null);
+                    b.ToTable("SupplierContacts");
                 });
 
             modelBuilder.Entity("Travel_Agency___Data.Models.TripType", b =>

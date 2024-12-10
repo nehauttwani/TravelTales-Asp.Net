@@ -33,12 +33,14 @@ var app = builder.Build();
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
+    app.UseHsts(); // Use HSTS in production
 }
+
 app.UseStaticFiles();
 
 app.UseRouting();
 
-app.UseAuthentication();
+app.UseAuthentication(); // Ensure authentication middleware is added before authorization
 
 app.UseAuthorization();
 

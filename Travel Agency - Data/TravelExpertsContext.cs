@@ -17,6 +17,7 @@ public partial class TravelExpertsContext : IdentityDbContext<User>
         {
         }
 
+        // DbSet properties for all your tables
         public virtual DbSet<Affiliation> Affiliations { get; set; }
         public virtual DbSet<Agency> Agencies { get; set; }
         public virtual DbSet<Agent> Agents { get; set; }
@@ -37,6 +38,8 @@ public partial class TravelExpertsContext : IdentityDbContext<User>
         public virtual DbSet<Supplier> Suppliers { get; set; }
         public virtual DbSet<SupplierContact> SupplierContacts { get; set; }
         public virtual DbSet<TripType> TripTypes { get; set; }
+        public virtual DbSet<Wallet> Wallets { get; set; } // Added Wallet DbSet
+        public virtual DbSet<Purchase> Purchases { get; set; }// Added Purchase DbSet
     public virtual DbSet<Affiliation> Affiliations { get; set; }
 
     public virtual DbSet<Agency> Agencies { get; set; }
@@ -81,16 +84,46 @@ public partial class TravelExpertsContext : IdentityDbContext<User>
         {
             base.OnModelCreating(modelBuilder); // Required for Identity integration.
 
+            // Affiliation entity configuration
             modelBuilder.Entity<Affiliation>(entity =>
             {
                 entity.HasKey(e => e.AffilitationId)
                     .HasName("aaaaaAffiliations_PK")
                     .IsClustered(false);
+
+                entity.Property(e => e.AffilitationId)
+                    .HasMaxLength(10);
+
+                entity.Property(e => e.AffDesc)
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.AffName)
+                    .HasMaxLength(50);
             });
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
         => optionsBuilder.UseSqlServer("Data Source=DESKTOP-AABS9BD\\SQLEXPRESS;Initial Catalog=TravelExperts;Integrated Security=True; TrustServerCertificate=true");
 
+            // Additional entity configurations can go here...
+
+            // Wallet entity configuration
+            modelBuilder.Entity<Wallet>(entity =>
+            {
+                entity.HasKey(e => e.WalletId); // Primary key
+
+                entity.Property(e => e.Balance)
+                    .HasColumnType("decimal(18,2)") // Define precision for decimal values
+                    .IsRequired();
+
+                entity.Property(e => e.LastUpdated)
+                    .HasColumnType("datetime") // DateTime column type
+                    .IsRequired();
+
+                entity.HasOne<Customer>() // Foreign key relationship with Customer
+                    .WithMany()
+                    .HasForeignKey(e => e.CustomerId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

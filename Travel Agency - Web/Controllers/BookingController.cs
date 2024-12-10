@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
-using Travel_Agency___Data;
 using Travel_Agency___Data.ModelManagers;
 using Travel_Agency___Data.Models;
 using Travel_Agency___Data.ViewModels;

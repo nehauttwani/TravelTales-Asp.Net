@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
-using Travel_Agency___Data;
 using Travel_Agency___Data.ModelManagers;
 using Travel_Agency___Data.Models;
 using Travel_Agency___Data.ViewModels;

@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-
-namespace Travel_Agency___Web.Controllers
+using Travel_Agency___Data;
+using Travel_Agency___Data.ViewModels;
 {
     public class WalletController : Controller
     {

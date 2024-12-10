@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Travel_Agency___Data.ViewModels
 {
@@ -13,20 +11,23 @@ namespace Travel_Agency___Data.ViewModels
         [Display(Name = "Package Name")]
         public string PackageName { get; set; } // Name of the selected package
 
-        [Required]
-        [DataType(DataType.Currency)]
-        [Display(Name = "Price")]
-        public decimal Price { get; set; } // Price of the package
-
-        [Required]
-        [DataType(DataType.Currency)]
-        [Display(Name = "Total Price")]
-        public decimal TotalPrice { get; set; }
+        public string Description { get; set; } // Package description
 
         [Required]
         [DataType(DataType.Currency)]
         [Display(Name = "Price Per Person")]
-        public decimal PricePerPerson { get; set; }
+        public decimal PricePerPerson { get; set; } // Price per traveler
+
+        [Required]
+        [Range(1, int.MaxValue, ErrorMessage = "Please enter at least 1 traveler.")]
+        [Display(Name = "Number of Travelers")]
+        public int TravelerCount { get; set; } // Number of travelers
+
+        [Required]
+        [DataType(DataType.Currency)]
+        [Display(Name = "Total Price")]
+        public decimal TotalPrice { get; set; } // Total cost for the purchase
+
         [Required]
         public int CustomerId { get; set; } // ID of the customer
 
@@ -34,15 +35,6 @@ namespace Travel_Agency___Data.ViewModels
         [Display(Name = "Wallet Balance")]
         public decimal WalletBalance { get; set; } // Current wallet balance of the customer
 
-        [Display(Name = "Description")]
-        public string Description { get; set; } // Package description
-
-        [Display(Name = "Trip Start Date")]
-        [DataType(DataType.Date)]
-        public DateTime TripStart { get; set; } // Start date of the trip
-
-        [Display(Name = "Trip End Date")]
-        [DataType(DataType.Date)]
-        public DateTime TripEnd { get; set; } // End date of the trip
+        public decimal Price { get; set; } // Add this to hold the package price
     }
 }

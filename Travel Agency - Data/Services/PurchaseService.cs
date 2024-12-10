@@ -1,10 +1,9 @@
-﻿using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Travel_Agency___Data.Models;
 
 namespace Travel_Agency___Data.Services
 {
-    public class PurchaseService : IPurchaseService
+    public class PurchaseService
     {
         private readonly TravelExpertsContext _context;
 
@@ -21,7 +20,7 @@ namespace Travel_Agency___Data.Services
 
         public async Task SavePurchaseAsync(Purchase purchase)
         {
-            _context.Purchases.Add(purchase);
+            await _context.Purchases.AddAsync(purchase);
             await _context.SaveChangesAsync();
         }
     }

@@ -1,47 +1,65 @@
-﻿using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Mvc;
+using Travel_Agency___Data.Services;
 using Travel_Agency___Data.Models;
-using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
-namespace Travel_Agency___Data.Services
+namespace Travel_Agency___Web.Controllers
 {
-    public class WalletService
+    public class WalletController : Controller
     {
-        private readonly TravelExpertsContext _context;
+        private readonly WalletService _walletService;
 
-        public WalletService(TravelExpertsContext context)
+        public WalletController(WalletService walletService)
         {
-            _context = context;
+            _walletService = walletService;
         }
 
-        // Fetch wallet information for a customer
-        public async Task<Wallet> GetWalletAsync(int customerId)
+        // GET: Wallet Balance
+        [HttpGet]
+        public async Task<IActionResult> Index(int customerId)
         {
-            return await _context.Wallets
-                .FirstOrDefaultAsync(w => w.CustomerId == customerId);
+            var balance = await _walletService.GetWalletBalanceAsync(customerId);
+            ViewData["WalletBalance"] = balance;
+            ViewData["CustomerId"] = customerId;
+            return View();
         }
 
-        // Add funds to a wallet
-        public async Task<bool> AddFundsAsync(int customerId, decimal amount)
+        // POST: Add Funds to Wallet
+        [HttpPost]
+        public async Task<IActionResult> AddFunds(int customerId, decimal amount)
         {
-            var wallet = await GetWalletAsync(customerId);
-            if (wallet == null)
-                return false;
+            if (amount <= 0)
+            {
+                ModelState.AddModelError("", "Amount should be greater than zero.");
+                return RedirectToAction("Index", new { customerId });
+            }
 
-            wallet.Balance += amount;
-            await _context.SaveChangesAsync();
-            return true;
+            var success = await _walletService.AddFundsAsync(customerId, amount);
+            if (!success)
+            {
+                ModelState.AddModelError("", "Failed to add funds. Please try again.");
+            }
+
+            return RedirectToAction("Index", new { customerId });
         }
 
-        // Deduct funds from a wallet
-        public async Task<bool> DeductFundsAsync(int customerId, decimal amount)
+        // POST: Deduct Funds from Wallet
+        [HttpPost]
+        public async Task<IActionResult> DeductFunds(int customerId, decimal amount)
         {
-            var wallet = await GetWalletAsync(customerId);
-            if (wallet == null || wallet.Balance < amount)
-                return false;
+            if (amount <= 0)
+            {
+                ModelState.AddModelError("", "Amount should be greater than zero.");
+                return RedirectToAction("Index", new { customerId });
+            }
 
-            wallet.Balance -= amount;
-            await _context.SaveChangesAsync();
-            return true;
+            var success = await _walletService.DeductFundsAsync(customerId, amount);
+            if (!success)
+            {
+                ModelState.AddModelError("", "Insufficient funds or transaction error.");
+            }
+
+            return RedirectToAction("Index", new { customerId });
         }
     }
 }

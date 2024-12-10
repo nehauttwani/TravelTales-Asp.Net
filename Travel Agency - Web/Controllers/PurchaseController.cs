@@ -2,22 +2,20 @@
 using Travel_Agency___Data.Models;
 using Travel_Agency___Data.Services;
 using Travel_Agency___Data.ViewModels;
-using System.Threading.Tasks;
 
 namespace Travel_Agency___Web.Controllers
 {
     public class PurchaseController : Controller
     {
-        private readonly IWalletService _walletService;
-        private readonly IPurchaseService _purchaseService;
+        private readonly WalletService _walletService;
+        private readonly PurchaseService _purchaseService;
 
-        public PurchaseController(IWalletService walletService, IPurchaseService purchaseService)
+        public PurchaseController(WalletService walletService, PurchaseService purchaseService)
         {
             _walletService = walletService;
             _purchaseService = purchaseService;
         }
 
-        // Displays the purchase page with package details and wallet balance
         [HttpGet]
         public async Task<IActionResult> Purchase(int packageId, int customerId)
         {
@@ -39,16 +37,13 @@ namespace Travel_Agency___Web.Controllers
                 CustomerId = customerId,
                 PackageName = package.PkgName,
                 PricePerPerson = package.PkgBasePrice,
-                Description = package.PkgDesc,
                 WalletBalance = walletBalance,
-                TripStart = package.PkgStartDate ?? DateTime.MinValue,
-                TripEnd = package.PkgEndDate ?? DateTime.MinValue
+                TotalPrice = package.PkgBasePrice // Adjust if additional logic applies
             };
 
             return View(viewModel);
         }
 
-        // Processes the purchase
         [HttpPost]
         public async Task<IActionResult> ProcessPurchase(PurchaseViewModel model)
         {
@@ -77,6 +72,7 @@ namespace Travel_Agency___Web.Controllers
             await _purchaseService.SavePurchaseAsync(new Purchase
             {
                 CustomerId = model.CustomerId,
+                PackageId = model.PackageId,
                 ProductName = model.PackageName,
                 BasePrice = model.PricePerPerson,
                 Tax = model.TotalPrice * 0.1m, // Example tax calculation
@@ -93,7 +89,6 @@ namespace Travel_Agency___Web.Controllers
             });
         }
 
-        // Displays the confirmation page after successful purchase
         [HttpGet]
         public IActionResult Confirmation(string packageName, decimal totalPrice)
         {

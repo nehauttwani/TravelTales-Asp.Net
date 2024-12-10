@@ -2,11 +2,10 @@
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Travel_Agency___Data.Models;
-using Travel_Agency___Data.Services;
 
 namespace Travel_Agency___Data.Services
 {
-    public class WalletService : IWalletService
+    public class WalletService
     {
         private readonly TravelExpertsContext _context;
 
@@ -15,14 +14,16 @@ namespace Travel_Agency___Data.Services
             _context = context;
         }
 
+        // Retrieve the wallet balance for a specific customer
         public async Task<decimal> GetWalletBalanceAsync(int customerId)
         {
-            return await _context.Customers
-                .Where(c => c.CustomerId == customerId)
-                .Select(c => c.CreditBalance)
-                .FirstOrDefaultAsync();
+            var customer = await _context.Customers
+                .FirstOrDefaultAsync(c => c.CustomerId == customerId);
+
+            return customer?.CreditBalance ?? 0m; // Return 0 if customer is not found
         }
 
+        // Deduct funds from the wallet
         public async Task<bool> DeductFundsAsync(int customerId, decimal amount)
         {
             var customer = await _context.Customers.FindAsync(customerId);
@@ -37,6 +38,7 @@ namespace Travel_Agency___Data.Services
             return false;
         }
 
+        // Add funds to the wallet
         public async Task<bool> AddFundsAsync(int customerId, decimal amount)
         {
             var customer = await _context.Customers.FindAsync(customerId);

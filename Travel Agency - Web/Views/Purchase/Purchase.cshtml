@@ -1,0 +1,31 @@
+﻿@model Travel_Agency___Data.ViewModels.PurchaseViewModel
+
+<div class="container mt-5">
+    <h2 class="text-primary text-center">Purchase Package</h2>
+
+    <div class="card shadow mt-4">
+        <div class="card-body">
+            <h4>@Model.PackageName</h4>
+            <p>@Model.Description</p>
+            <p><strong>Price:</strong> $@Model.Price.ToString("F2")</p>
+            <p><strong>Your Wallet Balance:</strong> $@Model.WalletBalance.ToString("F2")</p>
+            <hr />
+            @if (Model.WalletBalance >= Model.Price)
+            {
+                <form method="post" asp-action="ProcessPurchase" asp-controller="Purchase">
+                    <input type="hidden" name="customerId" value="@Model.CustomerId" />
+                    <input type="hidden" name="packageId" value="@Model.PackageId" />
+                    <input type="hidden" name="price" value="@Model.Price" />
+
+                    <button type="submit" class="btn btn-success">Pay Now</button>
+                </form>
+            }
+            else
+            {
+                <p class="text-danger">Insufficient wallet balance. Please add funds to your wallet.</p>
+            }
+
+            <a href="/Home/Index" class="btn btn-secondary mt-3">Cancel</a>
+        </div>
+    </div>
+</div>

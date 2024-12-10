@@ -2,22 +2,21 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Travel_Agency___Data.Models;
 using Travel_Agency___Data.Services;
-using Travel_Agency___Data.ViewModels;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-// Register services
-builder.Services.AddScoped<IPurchaseService, PurchaseService>();
-builder.Services.AddScoped<IWalletService, WalletService>();
+// Register services directly
+builder.Services.AddScoped<WalletService>();
+builder.Services.AddScoped<PurchaseService>();
 
-// Service for context objects
+// Register DbContext
 builder.Services.AddDbContext<TravelExpertsContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("TravelExpertsConnectionString")));
 
-// Add Identity services with IdentityUser.
+// Add Identity
 builder.Services.AddIdentity<User, IdentityRole>(options =>
 {
     options.Password.RequiredUniqueChars = 1;
@@ -33,14 +32,12 @@ var app = builder.Build();
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    app.UseHsts(); // Use HSTS in production
+    app.UseHsts();
 }
 
 app.UseStaticFiles();
-
 app.UseRouting();
-
-app.UseAuthentication(); // Ensure authentication middleware is added before authorization
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(

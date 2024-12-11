@@ -20,7 +20,7 @@ namespace Travel_Agency___Data.Services
 
         public async Task SavePurchaseAsync(Purchase purchase)
         {
-            await _context.Purchases.AddAsync(purchase);
+            _context.Purchases.Add(purchase);
             await _context.SaveChangesAsync();
         }
     }

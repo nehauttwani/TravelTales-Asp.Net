@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using Travel_Agency___Data.Models;
 using Travel_Agency___Data.Services;
 using Travel_Agency___Data.ViewModels;
@@ -50,60 +51,70 @@ namespace Travel_Agency___Web.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> ProcessPurchase(PurchaseViewModel model)
+        public async Task<IActionResult> ProcessPurchase(int customerId, int packageId, decimal totalPrice)
         {
-            if (!ModelState.IsValid)
+            // Fetch the package details
+            var package = await _purchaseService.GetPackageAsync(packageId);
+            if (package == null)
             {
-                return View("Purchase", model); // Return to the purchase page if validation fails
+                TempData["ErrorMessage"] = "Package not found.";
+                return RedirectToAction("Purchase", new { packageId, customerId, travelerCount = 1 });
             }
 
-            // Check if wallet balance is sufficient
-            var walletBalance = await _walletService.GetWalletBalanceAsync(model.CustomerId);
-            if (walletBalance < model.TotalPrice)
+            // Calculate tax and final total
+            var tax = totalPrice * 0.05m; // Assuming 5% tax
+            var finalPrice = totalPrice + tax;
+
+            // Deduct funds including tax
+            var isPaymentSuccessful = await _walletService.DeductFundsAsync(customerId, finalPrice);
+            if (!isPaymentSuccessful)
             {
-                ModelState.AddModelError("", "Insufficient wallet balance.");
-                return View("Purchase", model);
+                TempData["ErrorMessage"] = "Payment failed. Please ensure you have sufficient funds in your wallet.";
+                return RedirectToAction("Purchase", new { packageId, customerId, travelerCount = 1 });
             }
 
-            // Deduct the amount from the wallet
-            var success = await _walletService.DeductFundsAsync(model.CustomerId, model.TotalPrice);
-            if (!success)
+            // Create and save the purchase record
+            var purchase = new Purchase
             {
-                ModelState.AddModelError("", "Failed to process payment. Please try again.");
-                return View("Purchase", model);
-            }
-
-            // Save the purchase to the database
-            await _purchaseService.SavePurchaseAsync(new Purchase
-            {
-                CustomerId = model.CustomerId,
-                PackageId = model.PackageId,
-                ProductName = model.PackageName,
-                BasePrice = model.PricePerPerson,
-                Tax = model.TotalPrice * 0.1m, // Example tax calculation
-                TotalPrice = model.TotalPrice,
-                IsPaid = true,
-                PurchaseDate = DateTime.Now
-            });
-
-            // Redirect to the confirmation page with the purchase details
-            return RedirectToAction("Confirmation", new
-            {
-                packageName = model.PackageName,
-                totalPrice = model.TotalPrice
-            });
-        }
-
-        [HttpGet]
-        public IActionResult Confirmation(string packageName, decimal totalPrice)
-        {
-            var viewModel = new ConfirmationViewModel
-            {
-                PackageName = packageName,
-                TotalPrice = totalPrice
+                CustomerId = customerId,
+                PackageId = packageId,
+                ProductName = package.PkgName,
+                Tax = tax,
+                BasePrice = package.PkgBasePrice,
+                TotalPrice = finalPrice,
+                Price = totalPrice, // Total without tax
+                PurchaseDate = DateTime.Now,
+                IsPaid = true
             };
 
-            return View(viewModel);
+            await _purchaseService.SavePurchaseAsync(purchase);
+
+            // Store confirmation details in TempData
+            var confirmation = new PurchaseConfirmationViewModel
+            {
+                PackageName = package.PkgName,
+                BasePrice = totalPrice,
+                Tax = tax,
+                TotalPrice = finalPrice
+            };
+            TempData["ConfirmationDetails"] = JsonConvert.SerializeObject(confirmation); // Serialize as JSON
+
+            return RedirectToAction("Confirmation");
+        }
+
+
+        [HttpGet]
+        public IActionResult Confirmation()
+        {
+            if (TempData["ConfirmationDetails"] != null)
+            {
+                var json = TempData["ConfirmationDetails"].ToString();
+                var confirmationDetails = JsonConvert.DeserializeObject<PurchaseConfirmationViewModel>(json);
+                return View(confirmationDetails);
+            }
+
+            ViewBag.ErrorMessage = "No confirmation details found.";
+            return View("Error");
         }
     }
 }

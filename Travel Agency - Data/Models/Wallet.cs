@@ -1,28 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Travel_Agency___Data.Models
 {
     public class Wallet
     {
-        [Key] // Primary key
+        [Key]
         public int WalletId { get; set; }
 
-        [Required]
+        [ForeignKey("Customer")]
         public int CustomerId { get; set; }
 
-        [Required]
-        [DataType(DataType.Currency)]
+        [Column(TypeName = "money")] // Match database column type
         public decimal Balance { get; set; }
 
-        [Required]
-        public DateTime LastUpdated { get; set; }
-
-        // Optional navigation property if Customer is a related table
-        // public Customer Customer { get; set; }
+        // Navigation property (optional, if used)
+      //  public virtual Customer Customer { get; set; }
     }
 }

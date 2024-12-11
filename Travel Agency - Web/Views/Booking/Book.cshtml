@@ -28,13 +28,11 @@
                         <div class="col-md-7">
                             <form asp-action="Purchase" asp-controller="Purchase" method="get">
                                 <input type="hidden" asp-for="PackageId" />
-                                <input type="hidden" asp-for="Price" />
-                                <input type="hidden" asp-for="TripStart" value="@Model.TripStart" />
-                                <input type="hidden" asp-for="TripEnd" value="@Model.TripEnd" />
+                                <input type="hidden" id="hiddenTravelerCount" name="travelerCount" value="@Model.TravelerCount" /> <!-- Bind dynamically -->
 
                                 <div class="mb-3">
                                     <label asp-for="TravelerCount" class="form-label">Number of Travelers</label>
-                                    <input asp-for="TravelerCount" class="form-control" id="travelerCount" oninput="updateTotalPrice()" />
+                                    <input asp-for="TravelerCount" class="form-control" id="travelerCount" oninput="updateTravelerCount()" />
                                     <span asp-validation-for="TravelerCount" class="text-danger"></span>
                                 </div>
 
@@ -73,23 +71,13 @@
 </div>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    @Html.Partial("_ValidationScriptsPartial")
     <script>
-        function updateTotalPrice() {
-            var travelers = document.getElementById('travelerCount').value;
-            var pricePerPerson = @Model.Price;
-            var totalPriceContainer = document.getElementById('totalPriceContainer');
-            var totalPriceSpan = document.getElementById('totalPrice');
-
-            if (travelers > 0) {
-                var totalPrice = travelers * pricePerPerson;
-                totalPriceSpan.textContent = totalPrice.toFixed(2);
-                totalPriceContainer.style.display = 'block';
-            } else {
-                totalPriceContainer.style.display = 'none';
-            }
+        function updateTravelerCount() {
+            // Update the hidden field with the value entered in the traveler count input
+            const travelerCountInput = document.getElementById("travelerCount");
+            const hiddenTravelerCount = document.getElementById("hiddenTravelerCount");
+            hiddenTravelerCount.value = travelerCountInput.value;
         }
     </script>
 }

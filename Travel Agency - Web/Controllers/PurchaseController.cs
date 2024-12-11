@@ -17,32 +17,37 @@ namespace Travel_Agency___Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Purchase(int packageId, int customerId)
+        public async Task<IActionResult> Purchase(int packageId, int customerId, int travelerCount = 1)
         {
             // Fetch package details
             var package = await _purchaseService.GetPackageAsync(packageId);
-
             if (package == null)
             {
                 return NotFound("Package not found.");
             }
 
-            // Retrieve wallet balance
+            // Fetch wallet balance from the Wallets table
             var walletBalance = await _walletService.GetWalletBalanceAsync(customerId);
 
-            // Pass package and wallet details to the view
+            // Calculate total price based on traveler count
+            var totalPrice = package.PkgBasePrice * travelerCount;
+
+            // Pass data to the view
             var viewModel = new PurchaseViewModel
             {
                 PackageId = package.PackageId,
                 CustomerId = customerId,
                 PackageName = package.PkgName,
+                Description = package.PkgDesc ?? string.Empty,
                 PricePerPerson = package.PkgBasePrice,
                 WalletBalance = walletBalance,
-                TotalPrice = package.PkgBasePrice // Adjust if additional logic applies
+                TravelerCount = travelerCount,
+                TotalPrice = totalPrice
             };
 
             return View(viewModel);
         }
+
 
         [HttpPost]
         public async Task<IActionResult> ProcessPurchase(PurchaseViewModel model)

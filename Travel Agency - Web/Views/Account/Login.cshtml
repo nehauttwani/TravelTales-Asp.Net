@@ -5,6 +5,13 @@
 
 <div class="container" style="margin-top: 7rem;">
      <div class="row justify-content-center">
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                @TempData["SuccessMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
          <div class="col-md-6">
              <div class="card shadow-lg">
                  <div class="card-header text-center text-dark">
@@ -27,19 +34,22 @@
                             </span>
                             <span asp-validation-for="Password" class="text-danger"></span>
                         </div>
+
                          <div class="mb-3 form-check">
                              <input asp-for="RememberMe" class="form-check-input" style="
                                     border: 1.5px solid black; />
                              <label asp-for="RememberMe" class="form-check-label">@Html.DisplayNameFor(a=>a.RememberMe)</label>
                          </div>
                          <div class="row">
-                            <a asp-action="Register" asp-route-returnUrl="@ViewData["ReturnUrl"]" class="d-flex justify-content-center">Don't have an account? Register</a>
+                            <a asp-action="Resetpassword" asp-route-returnUrl="@ViewData["ReturnUrl"]" class="d-flex justify-content-center">Don't remember your password? Reset it now</a>
                              <button type="submit" value="Login" class="btn btn-primary w-100">Login</button>
                          </div>
                          
                      </form>
                  </div>
              </div>
+
+            <a asp-action="Register" asp-route-returnUrl="@ViewData["ReturnUrl"]" class="d-flex justify-content-center">Don't have an account? Register</a>
          </div>
      </div>
  </div>

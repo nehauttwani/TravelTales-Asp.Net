@@ -38,7 +38,7 @@ namespace Travel_Agency___Web.Controllers
             {
                 PackageId = package.PackageId,
                 PackageName = package.PkgName,
-                //PackageImage= package.ImagePath,
+                PackageImage= package.ImagePath,
                 TripStart = package.PkgStartDate ?? DateTime.Now,
                 TripEnd = package.PkgEndDate ?? DateTime.Now,
                 Price = package.PkgBasePrice,

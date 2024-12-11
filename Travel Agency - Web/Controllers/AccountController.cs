@@ -1,4 +1,6 @@
-﻿
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Travel_Agency___Data.Models;
@@ -33,6 +35,7 @@ namespace Travel_Agency___Web.Controllers
         }
 
         // GET: Account/Register
+        // GET: AccountController/Register
         public ActionResult Register()
         {
             var registerViewModel = new RegisterViewModel()
@@ -262,6 +265,57 @@ namespace Travel_Agency___Web.Controllers
                     return RedirectToAction("Login");
                 }
 
+        [HttpGet]
+        [Authorize]
+        public IActionResult ChangePassword()
+        {
+            TempData["PasswordChange"] = true;
+            return View();
+        }
+
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> ChangePassword(PasswordOperationsViewModel model)
+        {
+            ModelState.Remove("Email");
+            ModelState.Remove("ResetToken");
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var user = await userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                ModelState.AddModelError("", "User not found.");
+                return View(model);
+            }
+
+            var result = await userManager.ChangePasswordAsync(user, model.CurrentPassword!, model.Password!);
+
+            if (result.Succeeded)
+            {
+                await signInManager.RefreshSignInAsync(user);
+                TempData["SuccessMessage"] = "Your password has been changed successfully.";
+                return RedirectToAction("Index", "Home");
+            }
+
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
+            return View(model);
+        }
+
+
+
+        [HttpGet]
+        public IActionResult ResetPassword(string? token = "")
+        {
+            TempData["PasswordChange"] = true;
+            return View(new PasswordOperationsViewModel { ResetToken = token });
+        }
+
                 // Create filename based on CustomerId
                 var fileName = $"customer_{customer.CustomerId}.jpg";
                 var filePath = Path.Combine("wwwroot", "images", "profile_pictures", fileName);
@@ -284,6 +338,35 @@ namespace Travel_Agency___Web.Controllers
      
         // POST: AccountController/Login
         [HttpPost]
+        public async Task<IActionResult> ResetPassword(PasswordOperationsViewModel model)
+        {
+            ModelState.Remove("CurrentPassword");
+            ModelState.Remove("ResetToken");
+
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var user = await userManager.FindByEmailAsync(model.Email);
+            if (user == null)
+            {
+                ModelState.AddModelError("", "No user exists with this email address.");
+                return View(model);
+            }
+            model.ResetToken = await userManager.GeneratePasswordResetTokenAsync(user);
+            var result = await userManager.ResetPasswordAsync(user, model.ResetToken, model.Password!);
+            if (result.Succeeded)
+            {
+                TempData["SuccessMessage"] = "Your password has been reset successfully.";
+                return RedirectToAction("Login");
+            }
+
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError("", error.Description);
+            }
+            return View(model);
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> LoginAsync(LoginViewModal loginViewModal)
         {

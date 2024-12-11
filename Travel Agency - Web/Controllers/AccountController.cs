@@ -1,11 +1,9 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
-using System.IO;
-using System.Threading.Tasks;
 using Travel_Agency___Data.Models;
 using Travel_Agency___Data.ModelManagers;
 using Travel_Agency___Data.ViewModels;
+using System.Threading.Tasks;
 using Travel_Agency___Data;
 
 namespace Travel_Agency___Web.Controllers
@@ -15,11 +13,10 @@ namespace Travel_Agency___Web.Controllers
         private readonly TravelExpertsContext _context;
         private readonly CustomerManager _customerManager;
         private readonly AgentsAndAgenciesManager _agentsAndAgenciesManager;
-
-        // Identity objects to manage sign-in
         private readonly SignInManager<User> signInManager;
         private readonly UserManager<User> userManager;
 
+        // Constructor
         public AccountController(
             TravelExpertsContext context,
             SignInManager<User> signInManager,
@@ -39,20 +36,21 @@ namespace Travel_Agency___Web.Controllers
         {
             var registerViewModel = new RegisterViewModel()
             {
-                Agents = _agentsAndAgenciesManager.GetAgents()
+                // Ensure that Agents is not null by using null-coalescing operator
+                Agents = _agentsAndAgenciesManager.GetAgents() ?? new List<Agent>()
             };
             return View(registerViewModel);
         }
 
-        // POST: Account/Register
+        // POST: AccountController/Register
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Register(RegisterViewModel registerViewModel, IFormFile ProfilePicture)
+        public async Task<ActionResult> Register(RegisterViewModel registerViewModel)
         {
             if (ModelState.IsValid)
             {
-                // Create new user
-                var user = new User()
+                // Create the user object for Identity
+                User user = new User()
                 {
                     UserName = registerViewModel.CustEmail,
                     Email = registerViewModel.CustEmail,
@@ -60,76 +58,50 @@ namespace Travel_Agency___Web.Controllers
                     PhoneNumber = registerViewModel.CustBusPhone
                 };
 
-                // Handle profile picture upload
-                if (ProfilePicture != null && ProfilePicture.Length > 0)
-                {
-                    // Validate file type and size
-                    var allowedExtensions = new[] { ".jpg", ".jpeg", ".png" };
-                    var fileExtension = Path.GetExtension(ProfilePicture.FileName).ToLower();
+                // Create the user in Identity
+                var result = await userManager.CreateAsync(user, registerViewModel.Password!);
 
-                    if (!allowedExtensions.Contains(fileExtension))
-                    {
-                        ModelState.AddModelError("ProfilePicture", "Only JPG, JPEG, and PNG files are allowed.");
-                        return View(registerViewModel);
-                    }
-
-                    if (ProfilePicture.Length > 5 * 1024 * 1024) // 5MB size limit
-                    {
-                        ModelState.AddModelError("ProfilePicture", "The file size must be less than 5 MB.");
-                        return View(registerViewModel);
-                    }
-
-                    // Save image to wwwroot/images/profile_pictures folder
-                    var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "profile_pictures");
-                    Directory.CreateDirectory(uploadsFolder); // Ensure the folder exists
-
-                    var fileName = Guid.NewGuid().ToString() + fileExtension; // Generate a unique file name
-                    var filePath = Path.Combine(uploadsFolder, fileName);
-
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await ProfilePicture.CopyToAsync(stream);
-                    }
-
-                    user.ProfilePicture = fileName; // Save the file name to the user object (as a string)
-                }
-
-                // Create user in identity system
-                var result = await userManager.CreateAsync(user, registerViewModel.Password);
                 if (result.Succeeded)
                 {
-                    // Create customer profile
+                    // Create the Customer object
                     var customer = new Customer
                     {
-                        CustFirstName = registerViewModel.CustFirstName,
-                        CustLastName = registerViewModel.CustLastName,
-                        CustAddress = registerViewModel.CustAddress,
-                        CustCity = registerViewModel.CustCity,
-                        CustProv = registerViewModel.CustProv,
-                        CustPostal = registerViewModel.CustPostal,
-                        CustCountry = registerViewModel.CustCountry,
-                        CustHomePhone = registerViewModel.CustHomePhone,
-                        CustBusPhone = registerViewModel.CustBusPhone,
-                        CustEmail = registerViewModel.CustEmail
+                        CustFirstName = registerViewModel.CustFirstName!,
+                        CustLastName = registerViewModel.CustLastName!,
+                        CustAddress = registerViewModel.CustAddress!,
+                        CustCity = registerViewModel.CustCity!,
+                        CustProv = registerViewModel.CustProv!,
+                        CustPostal = registerViewModel.CustPostal!,
+                        CustCountry = registerViewModel.CustCountry!,
+                        CustHomePhone = registerViewModel.CustHomePhone!,
+                        CustBusPhone = registerViewModel.CustBusPhone!,
+                        CustEmail = registerViewModel.CustEmail!
                     };
 
                     // Add customer asynchronously
                     await _customerManager.AddCustomerAsync(customer);
 
-                    // Link customer to user
+                    // Link the customer to the user
                     user.CustomerId = customer.CustomerId;
+
+                    // Update the user with the CustomerId
                     await userManager.UpdateAsync(user);
 
-                    // Sign in user
+                    // Sign the user in
                     await signInManager.SignInAsync(user, isPersistent: false);
+
+                    // Redirect to the home page after successful registration
                     return RedirectToAction("Index", "Home");
                 }
 
+                // If registration fails, add errors to ModelState
                 foreach (var item in result.Errors)
                 {
                     ModelState.AddModelError("", item.Description);
                 }
             }
+
+            // Return the registration view with any errors
             return View(registerViewModel);
         }
 
@@ -160,8 +132,7 @@ namespace Travel_Agency___Web.Controllers
                 CustCountry = customer.CustCountry,
                 CustHomePhone = customer.CustHomePhone,
                 CustBusPhone = customer.CustBusPhone,
-                CustEmail = customer.CustEmail,
-                ProfilePicture = user.ProfilePicture 
+                CustEmail = customer.CustEmail
             };
 
             return View(profileViewModel);
@@ -194,8 +165,7 @@ namespace Travel_Agency___Web.Controllers
                 CustCountry = customer.CustCountry,
                 CustHomePhone = customer.CustHomePhone,
                 CustBusPhone = customer.CustBusPhone,
-                CustEmail = customer.CustEmail,
-                ProfilePicture = user.ProfilePicture 
+                CustEmail = customer.CustEmail
             };
 
             return View(profileViewModel);
@@ -204,7 +174,7 @@ namespace Travel_Agency___Web.Controllers
         // POST: Account/EditProfile
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateProfile(ProfileViewModel model, IFormFile ProfilePicture)
+        public async Task<IActionResult> UpdateProfile(ProfileViewModel model)
         {
             if (ModelState.IsValid)
             {
@@ -232,40 +202,6 @@ namespace Travel_Agency___Web.Controllers
                 customer.CustHomePhone = model.CustHomePhone;
                 customer.CustBusPhone = model.CustBusPhone;
                 customer.CustEmail = model.CustEmail;
-
-                // Handle profile picture update
-                if (ProfilePicture != null && ProfilePicture.Length > 0)
-                {
-                    // Validate file type and size
-                    var allowedExtensions = new[] { ".jpg", ".jpeg", ".png" };
-                    var fileExtension = Path.GetExtension(ProfilePicture.FileName).ToLower();
-
-                    if (!allowedExtensions.Contains(fileExtension))
-                    {
-                        ModelState.AddModelError("ProfilePicture", "Only JPG, JPEG, and PNG files are allowed.");
-                        return View("EditProfile", model); // Redirect back to EditProfile view with error
-                    }
-
-                    if (ProfilePicture.Length > 5 * 1024 * 1024) // 5MB size limit
-                    {
-                        ModelState.AddModelError("ProfilePicture", "The file size must be less than 5 MB.");
-                        return View("EditProfile", model);
-                    }
-
-                    // Save the new image file
-                    var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "profile_pictures");
-                    Directory.CreateDirectory(uploadsFolder); // Ensure the folder exists
-
-                    var fileName = Guid.NewGuid().ToString() + fileExtension;
-                    var filePath = Path.Combine(uploadsFolder, fileName);
-
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await ProfilePicture.CopyToAsync(stream);
-                    }
-
-                    user.ProfilePicture = fileName; // Save the new file name to the user object
-                }
 
                 // Save changes to customer profile
                 await _customerManager.UpdateCustomerAsync(customer);
@@ -295,6 +231,33 @@ namespace Travel_Agency___Web.Controllers
             }
 
             return View("EditProfile", model); // Return to EditProfile view with validation errors if model is invalid
+        }
+
+        // GET: AccountController/Login
+        public ActionResult Login()
+        {
+            return View();
+        }
+
+        // POST: AccountController/Login
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> LoginAsync(LoginViewModal loginViewModal)
+        {
+            if (ModelState.IsValid) // Check if model is valid
+            {
+                var result = await signInManager.PasswordSignInAsync(loginViewModal.Username!, loginViewModal.Password!, loginViewModal.RememberMe, false);
+                if (result.Succeeded) // If successful, go to home page
+                {
+                    return RedirectToAction("Index", "Home");
+                }
+                else
+                {
+                    ModelState.AddModelError("", "Invalid Login");
+                    return View();
+                }
+            }
+            return View();
         }
 
         // GET: Account/Logout

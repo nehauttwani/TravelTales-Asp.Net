@@ -13,6 +13,8 @@ namespace Travel_Agency___Data.Models;
 [Index("RegionId", Name = "Dest ID")]
 [Index("RegionId", Name = "DestinationsBookingDetails")]
 [Index("FeeId", Name = "FeesBookingDetails")]
+[Index("ProductSupplierId", Name = "ProductSupplierId")]
+[Index("ProductSupplierId", Name = "Products_SuppliersBookingDetails")]
 public partial class BookingDetail
 {
     [Key]
@@ -49,6 +51,8 @@ public partial class BookingDetail
     [StringLength(10)]
     public string? FeeId { get; set; }
 
+    public int? ProductSupplierId { get; set; }
+
     [ForeignKey("BookingId")]
     [InverseProperty("BookingDetails")]
     public virtual Booking? Booking { get; set; }
@@ -60,6 +64,10 @@ public partial class BookingDetail
     [ForeignKey("FeeId")]
     [InverseProperty("BookingDetails")]
     public virtual Fee? Fee { get; set; }
+
+    [ForeignKey("ProductSupplierId")]
+    [InverseProperty("BookingDetails")]
+    public virtual ProductsSupplier? ProductSupplier { get; set; }
 
     [ForeignKey("RegionId")]
     [InverseProperty("BookingDetails")]

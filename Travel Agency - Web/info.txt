@@ -3,19 +3,21 @@
 ALTER TABLE Packages
 ADD ImagePath NVARCHAR(255);
 
+
 UPDATE Packages
-SET ImagePath = '~/images/package-1.jpg'
+SET ImagePath = '/images/package-1.jpg'
 WHERE PackageId = 1;
 
 UPDATE Packages
-SET ImagePath = '~/images/package-2.jpg'
+SET ImagePath = '/images/package-2.jpg'
 WHERE PackageId = 2;
 
 UPDATE Packages
-SET ImagePath = '~/images/package-3.jpg'
+SET ImagePath = '/images/package-3.jpg'
 WHERE PackageId = 3;
 
 UPDATE Packages
-SET ImagePath = '~/images/package-4.jpg'
+SET ImagePath = '/images/package-4.jpg'
 WHERE PackageId = 4;
+
 

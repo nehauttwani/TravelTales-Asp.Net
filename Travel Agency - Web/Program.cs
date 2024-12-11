@@ -1,5 +1,7 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Travel_Agency___Data;
+using Travel_Agency___Data.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,7 +9,16 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 
 //Service for context objects 
-builder.Services.AddDbContext<TravelExpertsContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("TravelExpertsContext")));
+builder.Services.AddDbContext<TravelExpertsContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("TravelExpertsConnectionString")
+));
+
+//add identity services.
+builder.Services.AddIdentity<User, IdentityRole>(options => {
+    options.Password.RequiredUniqueChars = 1;
+    options.Password.RequireUppercase = true;
+    options.Password.RequiredLength = 8;
+}).AddEntityFrameworkStores<TravelExpertsContext>().AddDefaultTokenProviders();
 
 var app = builder.Build();
 
@@ -19,6 +30,8 @@ if (!app.Environment.IsDevelopment())
 app.UseStaticFiles();
 
 app.UseRouting();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 

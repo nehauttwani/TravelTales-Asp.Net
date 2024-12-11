@@ -1,0 +1,88 @@
+﻿@model Travel_Agency___Data.ViewModels.WalletViewModel
+
+<div class="container mt-5">
+    <!-- Wallet Balance -->
+    <div class="card shadow-lg mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Wallet</h5>
+        </div>
+        <div class="card-body">
+            <h3 class="text-success">$@Model.WalletBalance.ToString("F2")</h3>
+        </div>
+    </div>
+
+    <!-- Add Funds -->
+    <div class="card shadow-lg mb-4">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0">Add Funds via Credit Card</h5>
+        </div>
+        <div class="card-body">
+            <form asp-action="AddFunds" asp-controller="Wallet" method="post">
+                <input type="hidden" name="customerId" value="@Model.CustomerId" />
+                <div class="mb-3">
+                    <label for="CreditCardId" class="form-label">Select Credit Card</label>
+                    <select id="CreditCardId" name="creditCardId" class="form-select" required>
+                        @if (Model.CreditCards?.Any() == true)
+                        {
+                            @foreach (var card in Model.CreditCards)
+                            {
+                                <option value="@card.CreditCardId">
+                                    VISA (**** @card.Ccnumber.Substring(Math.Max(0, card.Ccnumber.Length - 4)))
+                                </option>
+                            }
+                        }
+                        else
+                        {
+                            <option value="" disabled selected>No credit cards available</option>
+                        }
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="Amount" class="form-label">Amount</label>
+                    <input type="number" id="Amount" name="amount" class="form-control" min="1" step="0.01" required />
+                </div>
+                <button type="submit" class="btn btn-success w-100">Add Funds</button>
+            </form>
+
+        </div>
+    </div>
+
+    <!-- Transaction History -->
+    <div class="card shadow-lg">
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">Transaction History</h5>
+        </div>
+        <div class="card-body">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Amount</th>
+                        <th>Type</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Transactions?.Any() == true)
+                    {
+                        @foreach (var transaction in Model.Transactions)
+                        {
+                            <tr>
+                                <td>@transaction.TransactionDate.ToString("MM/dd/yyyy hh:mm tt")</td>
+                                <td class="@(transaction.Amount < 0 ? "text-danger" : "text-success")">
+                                    $@Math.Abs(transaction.Amount).ToString("F2")
+                                </td>
+                                <td>@transaction.TransactionType</td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="3" class="text-center">No transactions available</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

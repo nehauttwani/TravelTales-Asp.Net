@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
+using System.IO;
 using System.Threading.Tasks;
 using Travel_Agency___Data.Models;
 using Travel_Agency___Data.ModelManagers;
@@ -45,7 +47,7 @@ namespace Travel_Agency___Web.Controllers
         // POST: Account/Register
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Register(RegisterViewModel registerViewModel)
+        public async Task<ActionResult> Register(RegisterViewModel registerViewModel, IFormFile ProfilePicture)
         {
             if (ModelState.IsValid)
             {
@@ -57,6 +59,40 @@ namespace Travel_Agency___Web.Controllers
                     FullName = $"{registerViewModel.CustFirstName} {registerViewModel.CustLastName}",
                     PhoneNumber = registerViewModel.CustBusPhone
                 };
+
+                // Handle profile picture upload
+                if (ProfilePicture != null && ProfilePicture.Length > 0)
+                {
+                    // Validate file type and size
+                    var allowedExtensions = new[] { ".jpg", ".jpeg", ".png" };
+                    var fileExtension = Path.GetExtension(ProfilePicture.FileName).ToLower();
+
+                    if (!allowedExtensions.Contains(fileExtension))
+                    {
+                        ModelState.AddModelError("ProfilePicture", "Only JPG, JPEG, and PNG files are allowed.");
+                        return View(registerViewModel);
+                    }
+
+                    if (ProfilePicture.Length > 5 * 1024 * 1024) // 5MB size limit
+                    {
+                        ModelState.AddModelError("ProfilePicture", "The file size must be less than 5 MB.");
+                        return View(registerViewModel);
+                    }
+
+                    // Save image to wwwroot/images/profile_pictures folder
+                    var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "profile_pictures");
+                    Directory.CreateDirectory(uploadsFolder); // Ensure the folder exists
+
+                    var fileName = Guid.NewGuid().ToString() + fileExtension; // Generate a unique file name
+                    var filePath = Path.Combine(uploadsFolder, fileName);
+
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await ProfilePicture.CopyToAsync(stream);
+                    }
+
+                    user.ProfilePicture = fileName; // Save the file name to the user object (as a string)
+                }
 
                 // Create user in identity system
                 var result = await userManager.CreateAsync(user, registerViewModel.Password);
@@ -97,40 +133,6 @@ namespace Travel_Agency___Web.Controllers
             return View(registerViewModel);
         }
 
-        // GET: Account/Login
-        public ActionResult Login()
-        {
-            return View();
-        }
-
-        // POST: Account/Login
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<ActionResult> LoginAsync(LoginViewModal loginViewModal)
-        {
-            if (ModelState.IsValid)
-            {
-                var result = await signInManager.PasswordSignInAsync(loginViewModal.Username, loginViewModal.Password, loginViewModal.RememberMe, false);
-                if (result.Succeeded)
-                {
-                    return RedirectToAction("Index", "Home");
-                }
-                else
-                {
-                    ModelState.AddModelError("", "Invalid Login");
-                    return View();
-                }
-            }
-            return View();
-        }
-
-        // GET: Account/Logout
-        public async Task<ActionResult> Logout()
-        {
-            await signInManager.SignOutAsync();
-            return RedirectToAction("Index", "Home");
-        }
-
         // GET: Account/Profile
         public async Task<ActionResult> Profile()
         {
@@ -158,7 +160,8 @@ namespace Travel_Agency___Web.Controllers
                 CustCountry = customer.CustCountry,
                 CustHomePhone = customer.CustHomePhone,
                 CustBusPhone = customer.CustBusPhone,
-                CustEmail = customer.CustEmail
+                CustEmail = customer.CustEmail,
+                ProfilePicture = user.ProfilePicture 
             };
 
             return View(profileViewModel);
@@ -191,7 +194,8 @@ namespace Travel_Agency___Web.Controllers
                 CustCountry = customer.CustCountry,
                 CustHomePhone = customer.CustHomePhone,
                 CustBusPhone = customer.CustBusPhone,
-                CustEmail = customer.CustEmail
+                CustEmail = customer.CustEmail,
+                ProfilePicture = user.ProfilePicture 
             };
 
             return View(profileViewModel);
@@ -200,7 +204,7 @@ namespace Travel_Agency___Web.Controllers
         // POST: Account/EditProfile
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateProfile(ProfileViewModel model)
+        public async Task<IActionResult> UpdateProfile(ProfileViewModel model, IFormFile ProfilePicture)
         {
             if (ModelState.IsValid)
             {
@@ -228,6 +232,40 @@ namespace Travel_Agency___Web.Controllers
                 customer.CustHomePhone = model.CustHomePhone;
                 customer.CustBusPhone = model.CustBusPhone;
                 customer.CustEmail = model.CustEmail;
+
+                // Handle profile picture update
+                if (ProfilePicture != null && ProfilePicture.Length > 0)
+                {
+                    // Validate file type and size
+                    var allowedExtensions = new[] { ".jpg", ".jpeg", ".png" };
+                    var fileExtension = Path.GetExtension(ProfilePicture.FileName).ToLower();
+
+                    if (!allowedExtensions.Contains(fileExtension))
+                    {
+                        ModelState.AddModelError("ProfilePicture", "Only JPG, JPEG, and PNG files are allowed.");
+                        return View("EditProfile", model); // Redirect back to EditProfile view with error
+                    }
+
+                    if (ProfilePicture.Length > 5 * 1024 * 1024) // 5MB size limit
+                    {
+                        ModelState.AddModelError("ProfilePicture", "The file size must be less than 5 MB.");
+                        return View("EditProfile", model);
+                    }
+
+                    // Save the new image file
+                    var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "profile_pictures");
+                    Directory.CreateDirectory(uploadsFolder); // Ensure the folder exists
+
+                    var fileName = Guid.NewGuid().ToString() + fileExtension;
+                    var filePath = Path.Combine(uploadsFolder, fileName);
+
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await ProfilePicture.CopyToAsync(stream);
+                    }
+
+                    user.ProfilePicture = fileName; // Save the new file name to the user object
+                }
 
                 // Save changes to customer profile
                 await _customerManager.UpdateCustomerAsync(customer);
@@ -259,46 +297,11 @@ namespace Travel_Agency___Web.Controllers
             return View("EditProfile", model); // Return to EditProfile view with validation errors if model is invalid
         }
 
-        // GET: Account/ChangePassword
-        public async Task<ActionResult> ChangePassword()
+        // GET: Account/Logout
+        public async Task<IActionResult> Logout()
         {
-            var user = await userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                return RedirectToAction("Login");
-            }
-
-            var changePasswordViewModel = new ChangePasswordViewModel();
-            return View(changePasswordViewModel);
-        }
-
-        // POST: Account/ChangePassword
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<ActionResult> ChangePassword(ChangePasswordViewModel model)
-        {
-            if (ModelState.IsValid)
-            {
-                var user = await userManager.GetUserAsync(User);
-                if (user == null)
-                {
-                    return RedirectToAction("Login");
-                }
-
-                var result = await userManager.ChangePasswordAsync(user, model.OldPassword, model.NewPassword);
-                if (result.Succeeded)
-                {
-                    return RedirectToAction("Profile");
-                }
-                else
-                {
-                    foreach (var error in result.Errors)
-                    {
-                        ModelState.AddModelError("", error.Description);
-                    }
-                }
-            }
-            return View(model);
+            await signInManager.SignOutAsync();
+            return RedirectToAction("Index", "Home");
         }
     }
 }

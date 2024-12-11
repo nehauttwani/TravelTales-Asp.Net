@@ -44,5 +44,7 @@ namespace Travel_Agency___Data.ViewModels
         [EmailAddress]
         [StringLength(50)]
         public string CustEmail { get; set; }
+
+        public string ProfilePicture { get; set; }
     }
 }

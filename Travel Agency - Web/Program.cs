@@ -11,7 +11,8 @@ builder.Services.AddControllersWithViews();
 
 // Service for context objects 
 builder.Services.AddDbContext<TravelExpertsContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("TravelExpertsConnectionString"))
+    options.UseSqlServer(builder.Configuration.GetConnectionString("TravelExpertsConnectionString"),
+    builder => builder.MigrationsAssembly("Travel Agency - Data")) 
 );
 
 // Add identity services
@@ -25,7 +26,6 @@ builder.Services.AddIdentity<User, IdentityRole>(options => {
 // Register CustomerManager with DI
 builder.Services.AddScoped<CustomerManager>();
 builder.Services.AddScoped<AgentsAndAgenciesManager>();
-
 
 var app = builder.Build();
 

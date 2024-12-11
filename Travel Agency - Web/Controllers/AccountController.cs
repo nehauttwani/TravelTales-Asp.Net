@@ -84,6 +84,7 @@ namespace Travel_Agency___Web.Controllers
         [HttpPost]
         public async Task<ActionResult> Register(RegisterViewModel registerViewModel)
         {
+
             if (ModelState.IsValid)
             {
                 User user = new User()

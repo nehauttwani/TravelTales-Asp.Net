@@ -1,8 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Travel_Agency___Data.Models;
 
@@ -17,17 +14,26 @@ namespace Travel_Agency___Data.ModelManagers
             _context = ctx;
         }
 
-        public void AddCustomer(Customer customer)
+        // Use asynchronous method to add customer
+        public async Task AddCustomerAsync(Customer customer)
         {
-            _context.Customers.Add(customer);
-            _context.SaveChanges();
-
+            try
+            {
+                _context.Customers.Add(customer);
+                await _context.SaveChangesAsync();  // Use SaveChangesAsync for async operation
+            }
+            catch (Exception ex)
+            {
+                // Handle exceptions (log or rethrow as necessary)
+                throw new InvalidOperationException("An error occurred while adding the customer.", ex);
+            }
         }
 
-        public Customer GetCustomer(int id)
+        // Asynchronously retrieve customer by ID
+        public async Task<Customer> GetCustomerAsync(int id)
         {
-            return _context.Customers.FirstOrDefault(x => x.CustomerId == id);
+            return await _context.Customers
+                                 .FirstOrDefaultAsync(x => x.CustomerId == id);  // Use async method here
         }
-
     }
 }

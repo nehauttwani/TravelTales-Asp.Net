@@ -18,6 +18,7 @@ builder.Services.AddIdentity<User, IdentityRole>(options => {
     options.Password.RequiredUniqueChars = 1;
     options.Password.RequireUppercase = true;
     options.Password.RequiredLength = 8;
+    options.Password.RequireDigit = true;
 }).AddEntityFrameworkStores<TravelExpertsContext>().AddDefaultTokenProviders();
 
 var app = builder.Build();

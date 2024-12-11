@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Travel_Agency___Data.Models;
 
 namespace Travel_Agency___Data.ViewModels
 {
@@ -34,7 +35,7 @@ namespace Travel_Agency___Data.ViewModels
         [DataType(DataType.Currency)]
         [Display(Name = "Wallet Balance")]
         public decimal WalletBalance { get; set; } // Current wallet balance of the customer
-
+        public IEnumerable<CreditCard> CreditCards { get; set; } // Add this property
         public decimal Price { get; set; } // Add this to hold the package price
     }
 }

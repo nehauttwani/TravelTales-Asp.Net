@@ -1,64 +1,115 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Travel_Agency___Data.Services;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Travel_Agency___Data.Models;
+using Travel_Agency___Data.ViewModels;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Travel_Agency___Web.Controllers
 {
     public class WalletController : Controller
     {
-        private readonly WalletService _walletService;
+        private readonly TravelExpertsContext _context;
+        private readonly ILogger<WalletController> _logger;
 
-        public WalletController(WalletService walletService)
+        public WalletController(TravelExpertsContext context, ILogger<WalletController> logger)
         {
-            _walletService = walletService;
+            _context = context;
+            _logger = logger;
         }
 
-        // GET: Wallet Balance
         [HttpGet]
         public async Task<IActionResult> Index(int customerId)
         {
-            var balance = await _walletService.GetWalletBalanceAsync(customerId);
-            ViewData["WalletBalance"] = balance;
-            ViewData["CustomerId"] = customerId;
-            return View();
+            _logger.LogInformation("WalletController.Index called with customerId: {CustomerId}", customerId);
+
+            // Fetch wallet for the customer
+            var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.CustomerId == customerId);
+
+            if (wallet == null)
+            {
+                TempData["ErrorMessage"] = "Wallet not found for this customer.";
+                return RedirectToAction("Purchase", "Purchase", new { customerId });
+            }
+
+            // Fetch customer's credit cards
+            var creditCards = await _context.CreditCards
+                .Where(cc => cc.CustomerId == customerId)
+                .ToListAsync();
+
+            // Fetch wallet transactions
+            var transactions = await _context.WalletTransactions
+                .Where(t => t.WalletId == wallet.WalletId)
+                .OrderByDescending(t => t.TransactionDate)
+                .ToListAsync();
+
+            // Prepare the view model
+            var viewModel = new WalletViewModel
+            {
+                CustomerId = customerId,
+                WalletBalance = wallet.Balance,
+                CreditCards = creditCards,
+                Transactions = transactions
+            };
+
+            return View(viewModel);
         }
 
-        // POST: Add Funds to Wallet
         [HttpPost]
-        public async Task<IActionResult> AddFunds(int customerId, decimal amount)
+        public async Task<IActionResult> AddFunds(int customerId, int creditCardId, decimal amount)
         {
-            if (amount <= 0)
+            _logger.LogInformation("AddFunds called with customerId: {CustomerId}, creditCardId: {CreditCardId}, amount: {Amount}", customerId, creditCardId, amount);
+
+            // Check if the customer exists
+            var customer = await _context.Customers.FirstOrDefaultAsync(c => c.CustomerId == customerId);
+            if (customer == null)
             {
-                ModelState.AddModelError("", "Amount should be greater than zero.");
+                TempData["ErrorMessage"] = "Customer not found.";
                 return RedirectToAction("Index", new { customerId });
             }
 
-            var success = await _walletService.AddFundsAsync(customerId, amount);
-            if (!success)
+            // Fetch or create wallet for the customer
+            var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.CustomerId == customerId);
+            if (wallet == null)
             {
-                ModelState.AddModelError("", "Failed to add funds. Please try again.");
+                wallet = new Wallet
+                {
+                    CustomerId = customerId,
+                    Balance = 0
+                };
+                _context.Wallets.Add(wallet);
+                await _context.SaveChangesAsync();
             }
 
-            return RedirectToAction("Index", new { customerId });
-        }
-
-        // POST: Deduct Funds from Wallet
-        [HttpPost]
-        public async Task<IActionResult> DeductFunds(int customerId, decimal amount)
-        {
-            if (amount <= 0)
+            // Ensure customer has enough credit balance
+            if (customer.CreditBalance < amount)
             {
-                ModelState.AddModelError("", "Amount should be greater than zero.");
+                TempData["ErrorMessage"] = "Insufficient credit balance on your card.";
                 return RedirectToAction("Index", new { customerId });
             }
 
-            var success = await _walletService.DeductFundsAsync(customerId, amount);
-            if (!success)
-            {
-                ModelState.AddModelError("", "Insufficient funds or transaction error.");
-            }
+            // Update wallet balance
+            wallet.Balance += amount;
 
+            // Deduct the amount from customer's CreditBalance
+            customer.CreditBalance -= amount;
+
+            // Save changes to the database
+            await _context.SaveChangesAsync();
+
+            // Log the transaction in WalletTransactions
+            var transaction = new WalletTransaction
+            {
+                WalletId = wallet.WalletId,
+                Amount = amount,
+                TransactionType = "Deposit",
+                Description = $"Added funds via card ending in {creditCardId}"
+            };
+            _context.WalletTransactions.Add(transaction);
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Funds added successfully to your wallet.";
             return RedirectToAction("Index", new { customerId });
         }
     }

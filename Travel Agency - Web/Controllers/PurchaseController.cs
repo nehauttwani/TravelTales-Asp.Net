@@ -43,7 +43,8 @@ namespace Travel_Agency___Web.Controllers
                 PricePerPerson = package.PkgBasePrice,
                 WalletBalance = walletBalance,
                 TravelerCount = travelerCount,
-                TotalPrice = totalPrice
+                TotalPrice = totalPrice,
+               
             };
 
             return View(viewModel);

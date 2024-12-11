@@ -32,18 +32,16 @@ namespace Travel_Agency___Data.Services
         // Deduct funds from the wallet
         public async Task<bool> DeductFundsAsync(int customerId, decimal amount)
         {
-            var customer = await _context.Customers.FindAsync(customerId);
-
-            if (customer != null && customer.CreditBalance >= amount)
+            var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.CustomerId == customerId);
+            if (wallet != null && wallet.Balance >= amount)
             {
-                customer.CreditBalance -= amount;
+                wallet.Balance -= amount; // Deduct the amount (including tax)
                 await _context.SaveChangesAsync();
                 return true;
             }
 
-            return false;
+            return false; // Insufficient funds
         }
-
         // Add funds to the wallet
         public async Task<bool> AddFundsAsync(int customerId, decimal amount)
         {

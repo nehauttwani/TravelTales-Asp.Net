@@ -1,7 +1,20 @@
-﻿<div class="container mt-5">
-    <h2 class="text-success text-center">Purchase Successful!</h2>
-    <p class="text-center mt-3">Thank you for your purchase. Enjoy your package!</p>
-    <div class="text-center">
-        <a href="/Home/Index" class="btn btn-primary">Go to Home</a>
+﻿@model Travel_Agency___Data.ViewModels.PurchaseConfirmationViewModel
+
+<div class="container mt-5">
+    <div class="card shadow-lg border-0">
+        <div class="card-header bg-success text-white text-center py-4">
+            <h2 class="mb-0">Payment Confirmation</h2>
+        </div>
+        <div class="card-body text-center">
+            <h4 class="text-success mb-4">Thank you for your purchase!</h4>
+            <p class="fs-5">Here are the details of your transaction:</p>
+            <ul class="list-unstyled fs-5">
+                <li><strong>Package Name:</strong> @Model.PackageName</li>
+                <li><strong>Base Price:</strong> $@Model.BasePrice.ToString("F2")</li>
+                <li><strong>Tax (5%):</strong> $@Model.Tax.ToString("F2")</li>
+                <li><strong>Total Price:</strong> $@Model.TotalPrice.ToString("F2")</li>
+            </ul>
+            <a href="/Home/Index" class="btn btn-primary btn-lg mt-4">Return to Home</a>
+        </div>
     </div>
 </div>

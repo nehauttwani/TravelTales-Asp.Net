@@ -34,7 +34,7 @@ namespace Travel_Agency___Data.Models
         public virtual DbSet<TripType> TripTypes { get; set; }
         public virtual DbSet<Wallet> Wallets { get; set; } // Added Wallet DbSet
         public virtual DbSet<Purchase> Purchases { get; set; }// Added Purchase DbSet
-        public virtual DbSet<WalletTransaction> WalletTransactions { get; set; }
+        public DbSet<WalletTransaction> WalletTransactions { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder); // Required for Identity integration.

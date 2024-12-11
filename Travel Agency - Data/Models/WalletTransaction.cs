@@ -7,28 +7,27 @@ namespace Travel_Agency___Data.Models
     public class WalletTransaction
     {
         [Key]
-        public int TransactionId { get; set; }
+        public int TransactionId { get; set; } // Primary Key
 
         [Required]
-        public int WalletId { get; set; } // Foreign key to Wallet table
+        public int CustomerId { get; set; } // Foreign Key to Customer table
 
         [Required]
-        [Column(TypeName = "datetime")]
-        public DateTime TransactionDate { get; set; } = DateTime.Now;
+        public DateTime TransactionDate { get; set; } = DateTime.Now; // Defaults to current date/time
 
         [Required]
         [Column(TypeName = "decimal(18,2)")]
-        public decimal Amount { get; set; } // Positive for deposits, negative for withdrawals
+        public decimal Amount { get; set; } // Transaction amount
 
         [Required]
         [StringLength(50)]
-        public string TransactionType { get; set; } // Deposit, Withdrawal, etc.
+        public string TransactionType { get; set; } // e.g., Deposit, Withdrawal
 
         [StringLength(255)]
-        public string Description { get; set; } // Optional description of the transaction
+        public string? Description { get; set; } // Optional description
 
-        // Navigation Property
-        [ForeignKey("WalletId")]
-        public virtual Wallet Wallet { get; set; }
+        // Navigation property
+        [ForeignKey("CustomerId")]
+        public Customer Customer { get; set; } // Navigation property to link to the Customer table
     }
 }

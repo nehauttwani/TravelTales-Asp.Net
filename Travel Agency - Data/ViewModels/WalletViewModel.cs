@@ -6,25 +6,18 @@ namespace Travel_Agency___Data.ViewModels
 {
     public class WalletViewModel
     {
-        public int CustomerId { get; set; } // ID of the customer
-        public decimal WalletBalance { get; set; } // Current wallet balance
-        public IEnumerable<CreditCard> CreditCards { get; set; } // List of customer's credit cards
-        public IEnumerable<WalletTransaction> Transactions { get; set; } // List of wallet transactions
+        public int CustomerId { get; set; } // To identify the customer
+        public decimal CurrentBalance { get; set; } // Wallet's current balance
+        public List<CreditCard> CreditCards { get; set; } = new List<CreditCard>(); // Customer's credit cards
+        public List<WalletTransaction> Transactions { get; set; } = new List<WalletTransaction>(); // Wallet transactions
+
+        
+        // Optional calculated properties for convenience
+        public bool HasCreditCards => CreditCards?.Count > 0; // Check if the customer has any credit cards
+        public bool HasTransactions => Transactions?.Count > 0; // Check if the wallet has any transactions
+
+       
+        // Optional display-friendly property for transaction count
+        public string TransactionSummary => $"{Transactions?.Count ?? 0} transactions available.";
     }
-
-    //    public class TransactionViewModel
-    //    {
-    //        public int TransactionId { get; set; }
-    //        public DateTime TransactionDate { get; set; }
-    //        public decimal Amount { get; set; }
-    //        public string TransactionType { get; set; } = string.Empty; // e.g., "Deposit", "Withdrawal"
-    //    }
-
-    //    public class CreditCardViewModel
-    //    {
-    //        public int CreditCardId { get; set; }
-    //        public string Ccnumber { get; set; } = string.Empty; // Mask card numbers when displaying
-    //        public string Ccname { get; set; } = string.Empty;
-    //        public DateTime Ccexpiry { get; set; }
-    //    }
 }

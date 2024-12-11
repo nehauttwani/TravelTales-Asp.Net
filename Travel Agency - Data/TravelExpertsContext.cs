@@ -81,6 +81,7 @@ public partial class TravelExpertsContext : IdentityDbContext<User>
     public virtual DbSet<TripType> TripTypes { get; set; }
 
         public virtual DbSet<WalletTransaction> WalletTransactions { get; set; }
+        public DbSet<WalletTransaction> WalletTransactions { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder); // Required for Identity integration.

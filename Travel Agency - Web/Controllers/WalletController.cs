@@ -1,54 +1,36 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Travel_Agency___Data.Models;
+using Travel_Agency___Data.Services;
 using Travel_Agency___Data.ViewModels;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Travel_Agency___Web.Controllers
 {
     public class WalletController : Controller
     {
-        private readonly TravelExpertsContext _context;
+        private readonly WalletService _walletService;
         private readonly ILogger<WalletController> _logger;
 
-        public WalletController(TravelExpertsContext context, ILogger<WalletController> logger)
+        public WalletController(WalletService walletService, ILogger<WalletController> logger)
         {
-            _context = context;
+            _walletService = walletService;
             _logger = logger;
         }
 
         [HttpGet]
         public async Task<IActionResult> Index(int customerId)
         {
-            _logger.LogInformation("WalletController.Index called with customerId: {CustomerId}", customerId);
+            _logger.LogInformation("Fetching wallet details for CustomerId: {CustomerId}", customerId);
 
-            // Fetch wallet for the customer
-            var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.CustomerId == customerId);
+            var balance = await _walletService.GetWalletBalanceAsync(customerId);
+            var creditCards = await _walletService.GetCreditCardsAsync(customerId);
+            var transactions = await _walletService.GetWalletTransactionsAsync(customerId);
 
-            if (wallet == null)
-            {
-                TempData["ErrorMessage"] = "Wallet not found for this customer.";
-                return RedirectToAction("Purchase", "Purchase", new { customerId });
-            }
-
-            // Fetch customer's credit cards
-            var creditCards = await _context.CreditCards
-                .Where(cc => cc.CustomerId == customerId)
-                .ToListAsync();
-
-            // Fetch wallet transactions
-            var transactions = await _context.WalletTransactions
-                .Where(t => t.WalletId == wallet.WalletId)
-                .OrderByDescending(t => t.TransactionDate)
-                .ToListAsync();
-
-            // Prepare the view model
             var viewModel = new WalletViewModel
             {
                 CustomerId = customerId,
-                WalletBalance = wallet.Balance,
+                CurrentBalance = balance,
                 CreditCards = creditCards,
                 Transactions = transactions
             };
@@ -56,60 +38,36 @@ namespace Travel_Agency___Web.Controllers
             return View(viewModel);
         }
 
+
+        // Add funds via credit card
         [HttpPost]
-        public async Task<IActionResult> AddFunds(int customerId, int creditCardId, decimal amount)
+        public async Task<IActionResult> AddFundsWithCreditCard(int customerId, int creditCardId, decimal amount)
         {
-            _logger.LogInformation("AddFunds called with customerId: {CustomerId}, creditCardId: {CreditCardId}, amount: {Amount}", customerId, creditCardId, amount);
+            _logger.LogInformation("Adding funds. CustomerId: {CustomerId}, CreditCardId: {CreditCardId}, Amount: {Amount}", customerId, creditCardId, amount);
 
-            // Check if the customer exists
-            var customer = await _context.Customers.FirstOrDefaultAsync(c => c.CustomerId == customerId);
-            if (customer == null)
+            if (customerId <= 0 || creditCardId <= 0 || amount <= 0)
             {
-                TempData["ErrorMessage"] = "Customer not found.";
+                TempData["ErrorMessage"] = "Invalid input. Please provide valid customer ID, credit card ID, and amount.";
                 return RedirectToAction("Index", new { customerId });
             }
 
-            // Fetch or create wallet for the customer
-            var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.CustomerId == customerId);
-            if (wallet == null)
+            var paymentSuccess = await _walletService.ProcessCreditCardPayment(customerId, creditCardId, amount);
+            if (!paymentSuccess)
             {
-                wallet = new Wallet
-                {
-                    CustomerId = customerId,
-                    Balance = 0
-                };
-                _context.Wallets.Add(wallet);
-                await _context.SaveChangesAsync();
-            }
-
-            // Ensure customer has enough credit balance
-            if (customer.CreditBalance < amount)
-            {
-                TempData["ErrorMessage"] = "Insufficient credit balance on your card.";
+                TempData["ErrorMessage"] = "Failed to process the payment. Please check the credit card details.";
                 return RedirectToAction("Index", new { customerId });
             }
 
-            // Update wallet balance
-            wallet.Balance += amount;
-
-            // Deduct the amount from customer's CreditBalance
-            customer.CreditBalance -= amount;
-
-            // Save changes to the database
-            await _context.SaveChangesAsync();
-
-            // Log the transaction in WalletTransactions
-            var transaction = new WalletTransaction
+            var fundsAdded = await _walletService.AddFundsAsync(customerId, amount);
+            if (fundsAdded)
             {
-                WalletId = wallet.WalletId,
-                Amount = amount,
-                TransactionType = "Deposit",
-                Description = $"Added funds via card ending in {creditCardId}"
-            };
-            _context.WalletTransactions.Add(transaction);
-            await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Funds added successfully.";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Failed to add funds to the wallet.";
+            }
 
-            TempData["SuccessMessage"] = "Funds added successfully to your wallet.";
             return RedirectToAction("Index", new { customerId });
         }
     }

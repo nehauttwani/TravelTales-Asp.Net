@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Travel_Agency___Data.Models;
+using System.Collections.Generic;
 
 namespace Travel_Agency___Data.Services
 {
@@ -14,19 +15,11 @@ namespace Travel_Agency___Data.Services
             _context = context;
         }
 
-        // Retrieve the wallet balance for a specific customer
+        // Retrieve wallet balance for a specific customer
         public async Task<decimal> GetWalletBalanceAsync(int customerId)
         {
-            // Query the Wallets table for the wallet balance
             var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.CustomerId == customerId);
-            if (wallet == null)
-            {
-                Console.WriteLine($"Wallet not found for Customer ID {customerId}.");
-                return 0m; // Return 0 if no wallet exists for the customer
-            }
-
-            Console.WriteLine($"Wallet Balance for Customer {customerId}: {wallet.Balance}");
-            return wallet.Balance; // Return the wallet balance
+            return wallet?.Balance ?? 0m;
         }
 
         // Deduct funds from the wallet
@@ -35,26 +28,84 @@ namespace Travel_Agency___Data.Services
             var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.CustomerId == customerId);
             if (wallet != null && wallet.Balance >= amount)
             {
-                wallet.Balance -= amount; // Deduct the amount (including tax)
+                wallet.Balance -= amount;
+
+                // Log the transaction
+                var transaction = new WalletTransaction
+                {
+                    CustomerId = customerId,
+                    Amount = -amount,
+                    TransactionType = "Withdrawal",
+                    Description = "Funds deducted",
+                    TransactionDate = DateTime.Now
+                };
+                _context.WalletTransactions.Add(transaction);
+
                 await _context.SaveChangesAsync();
                 return true;
             }
-
-            return false; // Insufficient funds
+            return false;
         }
+
         // Add funds to the wallet
         public async Task<bool> AddFundsAsync(int customerId, decimal amount)
         {
-            var customer = await _context.Customers.FindAsync(customerId);
-
-            if (customer != null)
+            var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.CustomerId == customerId);
+            if (wallet == null)
             {
-                customer.CreditBalance += amount;
-                await _context.SaveChangesAsync();
-                return true;
+                wallet = new Wallet
+                {
+                    CustomerId = customerId,
+                    Balance = 0
+                };
+                _context.Wallets.Add(wallet);
             }
 
-            return false;
+            wallet.Balance += amount;
+
+            // Log the transaction
+            var transaction = new WalletTransaction
+            {
+                CustomerId = customerId,
+                Amount = amount,
+                TransactionType = "Deposit",
+                Description = "Funds added via credit card",
+                TransactionDate = DateTime.Now
+            };
+            _context.WalletTransactions.Add(transaction);
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        // Fetch wallet transactions for a customer
+        public async Task<List<WalletTransaction>> GetWalletTransactionsAsync(int customerId)
+        {
+            return await _context.WalletTransactions
+                .Where(t => t.CustomerId == customerId)
+                .OrderByDescending(t => t.TransactionDate)
+                .ToListAsync();
+        }
+
+        // Fetch credit cards for a customer
+        public async Task<List<CreditCard>> GetCreditCardsAsync(int customerId)
+        {
+            return await _context.CreditCards
+                .Where(cc => cc.CustomerId == customerId)
+                .ToListAsync();
+        }
+
+        // Process credit card payment (mocked functionality)
+        public async Task<bool> ProcessCreditCardPayment(int customerId, int creditCardId, decimal amount)
+        {
+            var creditCard = await _context.CreditCards.FirstOrDefaultAsync(c => c.CreditCardId == creditCardId && c.CustomerId == customerId);
+            if (creditCard == null)
+            {
+                return false;
+            }
+
+            // Simulate payment success (this can be replaced with actual payment gateway logic)
+            return true;
         }
     }
 }

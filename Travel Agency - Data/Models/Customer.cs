@@ -44,7 +44,7 @@ public partial class Customer
 
     public int? AgentId { get; set; }
 
-    public decimal CreditBalance { get; set; }
+    public decimal? CreditBalance { get; set; }
 
     [ForeignKey("AgentId")]
     [InverseProperty("Customers")]

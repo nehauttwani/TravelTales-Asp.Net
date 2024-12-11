@@ -17,10 +17,16 @@ namespace Travel_Agency___Data.Services
         // Retrieve the wallet balance for a specific customer
         public async Task<decimal> GetWalletBalanceAsync(int customerId)
         {
-            var customer = await _context.Customers
-                .FirstOrDefaultAsync(c => c.CustomerId == customerId);
+            // Query the Wallets table for the wallet balance
+            var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.CustomerId == customerId);
+            if (wallet == null)
+            {
+                Console.WriteLine($"Wallet not found for Customer ID {customerId}.");
+                return 0m; // Return 0 if no wallet exists for the customer
+            }
 
-            return customer?.CreditBalance ?? 0m; // Return 0 if customer is not found
+            Console.WriteLine($"Wallet Balance for Customer {customerId}: {wallet.Balance}");
+            return wallet.Balance; // Return the wallet balance
         }
 
         // Deduct funds from the wallet

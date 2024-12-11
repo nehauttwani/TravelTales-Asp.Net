@@ -59,6 +59,7 @@ namespace Travel_Agency___Data.Models
             // Additional entity configurations can go here...
 
             // Wallet entity configuration
+            // Wallet entity configuration
             modelBuilder.Entity<Wallet>(entity =>
             {
                 entity.HasKey(e => e.WalletId); // Primary key
@@ -67,10 +68,7 @@ namespace Travel_Agency___Data.Models
                     .HasColumnType("decimal(18,2)") // Define precision for decimal values
                     .IsRequired();
 
-                entity.Property(e => e.LastUpdated)
-                    .HasColumnType("datetime") // DateTime column type
-                    .IsRequired();
-
+                // Ensure the foreign key relationship is correct
                 entity.HasOne<Customer>() // Foreign key relationship with Customer
                     .WithMany()
                     .HasForeignKey(e => e.CustomerId)

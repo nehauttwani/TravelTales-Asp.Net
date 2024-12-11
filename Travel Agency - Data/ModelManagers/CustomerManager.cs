@@ -14,7 +14,7 @@ namespace Travel_Agency___Data.ModelManagers
             _context = ctx;
         }
 
-        // Use asynchronous method to add customer
+        // Asynchronously add a customer
         public async Task AddCustomerAsync(Customer customer)
         {
             try
@@ -26,6 +26,21 @@ namespace Travel_Agency___Data.ModelManagers
             {
                 // Handle exceptions (log or rethrow as necessary)
                 throw new InvalidOperationException("An error occurred while adding the customer.", ex);
+            }
+        }
+
+        // Asynchronously update an existing customer
+        public async Task UpdateCustomerAsync(Customer customer)
+        {
+            try
+            {
+                _context.Customers.Update(customer);
+                await _context.SaveChangesAsync();  // Use SaveChangesAsync for async operation
+            }
+            catch (Exception ex)
+            {
+                // Handle exceptions (log or rethrow as necessary)
+                throw new InvalidOperationException("An error occurred while updating the customer.", ex);
             }
         }
 

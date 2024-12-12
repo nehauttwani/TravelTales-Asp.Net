@@ -1,8 +1,6 @@
 ﻿// BookingController.cs
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PdfSharp.Drawing;
@@ -24,8 +22,6 @@ namespace Travel_Agency___Web.Controllers
         private readonly CustomerManager customerManager;
         private readonly UserManager<User> userManager;
 
-
-        public BookingController(TravelExpertsContext context, UserManager<User> userManager)
         public BookingController(TravelExpertsContext context, UserManager<User> userManager)
         {
             _context = context;
@@ -52,7 +48,6 @@ namespace Travel_Agency___Web.Controllers
                 PackageId = package.PackageId,
                 PackageName = package.PkgName,
                 PackageImage= package.ImagePath,
-                PackageImage = package.ImagePath,
                 TripStart = package.PkgStartDate ?? DateTime.Now,
                 TripEnd = package.PkgEndDate ?? DateTime.Now,
                 Price = package.PkgBasePrice,
@@ -69,9 +64,6 @@ namespace Travel_Agency___Web.Controllers
         [ValidateAntiForgeryToken]
         [Authorize]
         public async Task<IActionResult> Book(BookingViewModel viewModel)
-        [Authorize] // Ensuring the user is authenticated
-        public async Task<IActionResult> Book(BookingViewModel viewModel)
-        public IActionResult RedirectToPurchase(BookingViewModel viewModel)
         {
             viewModel.TripTypes = _context.TripTypes.ToList();
             ModelState.Remove("BookingNo");
@@ -79,36 +71,6 @@ namespace Travel_Agency___Web.Controllers
             {
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 var user = await userManager.FindByIdAsync(userId!);
-                // Get the current user's ID
-                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-                // Fetch the user from the database
-                var user = await userManager.FindByIdAsync(userId!);
-
-                if (user != null && user.CustomerId.HasValue)
-                {
-                    viewModel.CustomerId = user.CustomerId.Value;
-                    var customer = customerManager.GetCustomer(user.CustomerId.Value);
-                    if (customer != null)
-                    {
-                        viewModel.BookingNo = GenerateBookingNumber(customer.CustFirstName);
-                    }
-                    else
-                    {
-                        viewModel.BookingNo = GenerateBookingNumber("Guest");
-                    }
-
-                    var booking = new Booking
-                    {
-                        BookingDate = viewModel.BookingDate,
-                        BookingNo = viewModel.BookingNo,
-                        TravelerCount = viewModel.TravelerCount,
-                        CustomerId = viewModel.CustomerId,
-                        TripTypeId = viewModel.TripTypeId,
-                        PackageId = viewModel.PackageId
-                    };
-                return Unauthorized("User is not logged in or email is missing.");
-            }
 
                 if (user != null && user.CustomerId.HasValue)
                 {
@@ -145,8 +107,6 @@ namespace Travel_Agency___Web.Controllers
                     };
 
                     bookingManager.AddBookingDetails(bookingDetail);
-                    bookingManager.AddBooking(booking);
-            var totalPrice = package.PkgBasePrice * viewModel.TravelerCount;
 
                     return RedirectToAction("Purchase", "Purchase", new
                     {
@@ -160,40 +120,10 @@ namespace Travel_Agency___Web.Controllers
                 {
                     ModelState.AddModelError("", "Customer information not found.");
                 }
-                    var bookingDetail = new BookingDetail
-                    {
-                        BookingId = booking.BookingId,
-                        ItineraryNo = viewModel.CustomerId,
-                        TripStart = viewModel.TripStart,
-                        TripEnd = viewModel.TripEnd,
-                        Description = viewModel.Description,
-                        Destination = viewModel.Destination,
-                        BasePrice = viewModel.Price * viewModel.TravelerCount,
-                        AgencyCommission = viewModel.AgencyCommission,
-                        ClassId = viewModel.ClassId,
-                        ProductSupplierId = 44
-                    };
-
-                    bookingManager.AddBookingDetails(bookingDetail);
-                    viewModel.BookingId = booking.BookingId;
-                    return RedirectToAction("Confirmation", viewModel);
-                }
-                else
-                {
-                    ModelState.AddModelError("", "Customer information not found.");
-                }
             }
 
             viewModel.TripTypes = _context.TripTypes.ToList();
             return View(viewModel);
-            // Redirect to the Purchase page
-            return RedirectToAction("Purchase", "Purchase", new
-            {
-                packageId = viewModel.PackageId,
-                customerId = customer.CustomerId, // Use the retrieved CustomerId
-                travelerCount = viewModel.TravelerCount,
-                totalPrice = totalPrice
-            });
         }
 
 
@@ -220,9 +150,6 @@ namespace Travel_Agency___Web.Controllers
             return File(pdf, "application/pdf", $"Booking_Summary_{booking.BookingNo}.pdf");
         }
 
-            viewModel.TripTypes = _context.TripTypes.ToList();
-            return View(viewModel);
-        
         private byte[] GenerateBookingSummaryPdf(Booking booking)
         {
             var bookingDetail = bookingManager.GetBookingDetails(booking.BookingId);
@@ -270,7 +197,6 @@ namespace Travel_Agency___Web.Controllers
 
         private void DrawTableRow(XGraphics gfx, XFont headerFont, XFont normalFont, string label, string value, ref int yPosition)
         {
-            return "TT01-" + firstName + "-" + DateTime.Now.ToString("yyyyMMdd");
             gfx.DrawRectangle(XBrushes.LightGray, 50, yPosition, 200, 25);
             gfx.DrawRectangle(XBrushes.White, 250, yPosition, 300, 25);
             gfx.DrawString(label, headerFont, XBrushes.Black, new XRect(55, yPosition, 190, 25), XStringFormats.CenterLeft);

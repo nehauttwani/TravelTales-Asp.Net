@@ -21,40 +21,34 @@
                             <p><strong>End Date:</strong> @Model.TripEnd.ToString("MM/dd/yyyy")</p>
                             <hr />
 
-                <!-- Booking Form Section -->
-                <div class="col-md-7">
-                    <div class="d-flex flex-column align-items-center">
-                        <!-- Inclusions Section -->
-                        <div class="w-100 p-3 mb-3 border rounded shadow-sm bg-light">
-                            <h6 class="text-primary">Inclusions</h6>
-                            <ul class="small mb-0">
-                                <li>Accommodation</li>
-                                <li>Meals</li>
-                                <li>Transportation</li>
-                                <li>Tour Guide</li>
-                            </ul>
+                            <p id="totalPriceContainer" style="display: none;">
+                                <strong>Total Price:</strong> $<span id="totalPrice"></span>
+                            </p>
                         </div>
+                        <div class="col-md-7">
+                            <form asp-action="Book" method="post">
+                                <input type="hidden" asp-for="PackageId" />
+                                <input type="hidden" asp-for="PackageName" />
+                                <input type="hidden" asp-for="Price" />
+                                <input type="hidden" asp-for="AgencyCommission" />
+                                <input type="hidden" asp-for="TripStart" value="@Model.TripStart" />
+                                <input type="hidden" asp-for="TripEnd" value="@Model.TripEnd" />
+                                <input type="hidden" asp-for="Description" />
 
-                        <!-- Booking Form -->
-                        <form asp-action="RedirectToPurchase" asp-controller="Booking" method="post" class="w-100 p-3 border rounded shadow-sm bg-light">
-                            <input type="hidden" asp-for="CustomerId" />
-                            <input type="hidden" asp-for="PackageId" />
-                            <input asp-for="TravelerCount" type="hidden" id="hiddenTravelerCount" />
-                            <input asp-for="Price" type="hidden" id="hiddenPrice" />
-                            <ul class="small mb-0">
-                                <li>Accommodation</li>
-                                <li>Meals</li>
-                                <li>Transportation</li>
-                                <li>Tour Guide</li>
-                            </ul>
-                        </div>
+                                <div class="mb-3">
+                                    <label asp-for="TravelerCount" class="form-label">Number of Travelers</label>
+                                    <input asp-for="TravelerCount" class="form-control" id="travelerCount" oninput="updateTotalPrice()" />
+                                    <span asp-validation-for="TravelerCount" class="text-danger"></span>
+                                </div>
 
-                        <!-- Booking Form -->
-                        <form asp-action="RedirectToPurchase" asp-controller="Booking" method="post" class="w-100 p-3 border rounded shadow-sm bg-light">
-                            <input type="hidden" asp-for="CustomerId" />
-                            <input type="hidden" asp-for="PackageId" />
-                            <input asp-for="TravelerCount" type="hidden" id="hiddenTravelerCount" />
-                            <input asp-for="Price" type="hidden" id="hiddenPrice" />
+                                <div class="mb-3">
+                                    <label asp-for="TripTypeId" class="form-label">Trip Type</label>
+                                    <select asp-for="TripTypeId" class="form-select" asp-items="@(new SelectList(Model.TripTypes, "TripTypeId", "Ttname"))">
+                                        <option value="">-- Select Trip Type --</option>
+                                    </select>
+                                    <input type="hidden" asp-for="TripTypeId" />
+                                    <span asp-validation-for="TripTypeId" class="text-danger"></span>
+                                </div>
 
                                 <div class="mb-3">
                                     <label asp-for="Destination" class="form-label">Destination</label>
@@ -69,20 +63,6 @@
                                     <input type="hidden" asp-for="ClassId" />
                                     <span asp-validation-for="ClassId" class="text-danger"></span>
                                 </div>
-                                <div class="mb-3">
-                                    <label asp-for="TripTypeId" class="form-label">Trip Type</label>
-                                    <select asp-for="TripTypeId" class="form-select" asp-items="@(new SelectList(Model.TripTypes, "TripTypeId", "Ttname"))">
-                                        <option value="">-- Select Trip Type --</option>
-                                    </select>
-                                    <span asp-validation-for="TripTypeId" class="text-danger"></span>
-                                </div>
-
-                            <!-- Total Price -->
-                            <div class="mb-3">
-                                <p id="totalPriceContainer" class="small">
-                                    <strong>Total Price:</strong> $<span id="totalPrice" class="text-success">0.00</span>
-                                </p>
-                            </div>
 
                                 <div class="text-center mt-4">
                                     <button type="submit" class="btn btn-primary btn-lg">Book Now</button>
@@ -105,7 +85,7 @@
             var travelers = document.getElementById('travelerCount').value;
             var pricePerPerson = @Model.Price;
             var totalPriceContainer = document.getElementById('totalPriceContainer');
-            var totalPriceSpan = document.getElementById('totalPrice");
+            var totalPriceSpan = document.getElementById('totalPrice');
 
             if (travelers > 0) {
                 var totalPrice = travelers * pricePerPerson;
@@ -117,3 +97,4 @@
         }
     </script>
 }
+

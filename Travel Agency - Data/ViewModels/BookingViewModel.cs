@@ -48,7 +48,7 @@ namespace Travel_Agency___Data.ViewModels
         [Required]
         public decimal AgencyCommission { get; set; }
 
-        public int? ProductSupplierId { get; set; }
+        public int? ProductSupplierId { get; set; } = 44;
 
         public int? BookingId { get; set; }
     }

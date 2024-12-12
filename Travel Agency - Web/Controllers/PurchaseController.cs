@@ -22,6 +22,7 @@ namespace Travel_Agency___Web.Controllers
         [HttpGet]
         public async Task<IActionResult> PurchasedProducts(int customerId)
         {
+            // Fetch purchased products for the given customer
             var products = await _context.Purchases
                 .Where(p => p.CustomerId == customerId)
                 .Select(p => new PurchasedProductViewModel
@@ -31,18 +32,20 @@ namespace Travel_Agency___Web.Controllers
                     Tax = p.Tax,
                     TotalPrice = p.TotalPrice,
                     PurchaseDate = p.PurchaseDate
-                }).ToListAsync();
+                })
+                .ToListAsync();
 
+            // Calculate the total paid amount
             var totalPaid = products.Sum(p => p.TotalPrice);
-            var outstandingBalance = 1000 - totalPaid; // Replace `1000` with the actual customer's credit limit or calculation logic.
 
+            // Create the view model
             var viewModel = new PurchasedProductsSummaryViewModel
             {
                 Products = products,
-                TotalPaid = totalPaid,
-                OutstandingBalance = outstandingBalance
+                TotalPaid = totalPaid
             };
 
+            // Pass the view model to the view
             return View(viewModel);
         }
 

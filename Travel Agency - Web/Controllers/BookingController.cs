@@ -42,7 +42,7 @@ namespace Travel_Agency___Web.Controllers
                 return NotFound();
             }
 
-            
+
             var viewModel = new BookingViewModel
             {
                 PackageId = package.PackageId,

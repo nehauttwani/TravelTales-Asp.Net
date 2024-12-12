@@ -59,7 +59,7 @@ public partial class TravelExpertsContext : IdentityDbContext<User>
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Data Source=localhost\\sqlexpress;Initial Catalog=TravelExperts;Integrated Security=True; TrustServerCertificate=true");
+        => optionsBuilder.UseSqlServer("Data Source=DESKTOP-AABS9BD\\SQLEXPRESS;Initial Catalog=TravelExperts;Integrated Security=True; TrustServerCertificate=true");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -76,6 +76,7 @@ public partial class TravelExpertsContext : IdentityDbContext<User>
         {
             entity.HasOne(d => d.Agency).WithMany(p => p.Agents).HasConstraintName("FK_Agents_Agencies");
         });
+
 
         modelBuilder.Entity<Booking>(entity =>
         {
@@ -173,6 +174,7 @@ public partial class TravelExpertsContext : IdentityDbContext<User>
         modelBuilder.Entity<PackagesProductsSupplier>(entity =>
         {
             entity.HasKey(e => e.PackageProductSupplierId).HasName("PK__Packages__53E8ED9938A61292");
+            entity.HasKey(e => e.PackageProductSupplierId).HasName("PK__Packages__53E8ED99B8A6DCAD");
 
             entity.HasOne(d => d.Package).WithMany(p => p.PackagesProductsSuppliers)
                 .OnDelete(DeleteBehavior.ClientSetNull)

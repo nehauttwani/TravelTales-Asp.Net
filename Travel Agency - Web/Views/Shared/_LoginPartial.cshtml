@@ -6,7 +6,7 @@
 @{
     var currentUser = await userManager.GetUserAsync(User);
     var customer = currentUser != null && currentUser.CustomerId.HasValue
-        ? await customerManager.GetCustomerAsync(currentUser.CustomerId.Value)
+        ?  customerManager.GetCustomer(currentUser.CustomerId.Value)
         : null;
     var displayName = customer != null
         ? $"{customer.CustFirstName} {customer.CustLastName}"
@@ -20,9 +20,14 @@
             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                 <i class="fas fa-user-circle me-1"></i>Welcome, @displayName!
             </a>
+            <ul class="dropdown-menu px-2" aria-labelledby="userDropdown" style="width: 100%">
+                <li style="width: inherit;"><a class="dropdown-item" asp-controller="Account" asp-action="Profile"><i class="fas fa-user me-2"></i>Profile</a></li>
+                <li style="width: inherit;"><a class="dropdown-item" asp-controller="Account" asp-action="ChangePassword"><i class="fas fa-key me-2"></i>Change Password</a></li>
+                <li style="width: inherit;"><a class="dropdown-item" asp-controller="Account" asp-action="Logout"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
             <ul class="dropdown-menu" aria-labelledby="userDropdown">
                 <li><a class="dropdown-item" asp-controller="Account" asp-action="Profile"><i class="fas fa-user me-2"></i>Profile</a></li>
                 <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" asp-controller="Account" asp-action="ChangePassword"><i class="fas fa-key me-2"></i>Change Password</a></li>
                 <li><a class="dropdown-item" asp-controller="Account" asp-action="Logout"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
             </ul>
         </li>

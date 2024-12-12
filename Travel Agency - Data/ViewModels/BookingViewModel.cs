@@ -20,8 +20,11 @@ namespace Travel_Agency___Data.ViewModels
         [Required]
         [Range(1, int.MaxValue, ErrorMessage = "Traveler count must be at least 1")]
         public int TravelerCount { get; set; }
-        [Required]
-        public int CustomerId { get; set; }
+
+        public int? CustomerId { get; set; }
+
+        public string? ClassId { get; set; }
+        public List<Class>? Classes { get; set; }
         public string? TripTypeId { get; set; }
         public List<TripType>? TripTypes { get; set; }
 
@@ -44,5 +47,9 @@ namespace Travel_Agency___Data.ViewModels
         public decimal Price { get; set; }
         [Required]
         public decimal AgencyCommission { get; set; }
+
+        public int? ProductSupplierId { get; set; }
+
+        public int? BookingId { get; set; }
     }
 }

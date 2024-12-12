@@ -1,15 +1,47 @@
-﻿@model Booking
+﻿@model Travel_Agency___Data.ViewModels.BookingViewModel
+@{
+    ViewData["Title"] = "Booking Confirmation";
+}
+<div class="container" style="margin-top: 7rem;">
+    <h2 class="text-center mb-4">Congratulations! Your Booking is Confirmed</h2>
 
-<h2>Booking Confirmation</h2>
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0">Booking Summary</h3>
+        </div>
+        <div class="card-body">
+            <table class="table table-striped">
+                <tbody>
+                    <tr>
+                        <th>Booking Number:</th>
+                        <td>@Model.BookingNo</td>
+                    </tr>
+                    <tr>
+                        <th>Package Name:</th>
+                        <td>@Model.PackageName</td>
+                    </tr>
+                    <tr>
+                        <th>Travel Dates:</th>
+                        <td>@Model.TripStart.ToString("MMM dd, yyyy") - @Model.TripEnd.ToString("MMM dd, yyyy")</td>
+                    </tr>
+                    <tr>
+                        <th>Number of Travelers:</th>
+                        <td>@Model.TravelerCount</td>
+                    </tr>
+                    <tr>
+                        <th>Total Price:</th>
+                        <td>$@Model.Price.ToString("F2")</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 
-<p>Thank you for your booking, @Model.Customer!.CustFirstName @Model.Customer.CustLastName!</p>
+    <div class="text-center mt-4">
+        <a href="@Url.Action("DownloadSummary", "Booking", new { id = Model.BookingId })" class="btn btn-success">
+            <i class="fas fa-download me-2"></i>Download Booking Summary
+        </a>
+        <a asp-controller="Home" asp-action="Index" class="btn btn-primary">Return to Home</a>
+    </div>
+</div>
 
-<h3>Booking Details:</h3>
-<ul>
-    <li>Booking Number: @Model.BookingNo</li>
-    <li>Package: @Model.Package!.PkgName</li>
-    <li>Booking Date: @Model.BookingDate</li>
-    <li>Traveler Count: @Model.TravelerCount</li>
-</ul>
-
-<a asp-controller="Home" asp-action="Index" class="btn btn-primary">Return to Home</a>

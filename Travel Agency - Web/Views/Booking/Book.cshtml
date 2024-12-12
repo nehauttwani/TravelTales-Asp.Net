@@ -41,21 +41,20 @@
                             <input type="hidden" asp-for="PackageId" />
                             <input asp-for="TravelerCount" type="hidden" id="hiddenTravelerCount" />
                             <input asp-for="Price" type="hidden" id="hiddenPrice" />
+                            <ul class="small mb-0">
+                                <li>Accommodation</li>
+                                <li>Meals</li>
+                                <li>Transportation</li>
+                                <li>Tour Guide</li>
+                            </ul>
+                        </div>
 
-                            <!-- Number of Travelers -->
-                            <div class="mb-3">
-                                <label asp-for="TravelerCount" class="form-label small">Number of Travelers</label>
-                                <input asp-for="TravelerCount" class="form-control form-control-sm shadow-sm" id="travelerCount" oninput="updateTravelerCount()" placeholder="Enter number of travelers" />
-                                <span asp-validation-for="TravelerCount" class="text-danger small"></span>
-                            </div>
-
-                                <div class="mb-3">
-                                    <label asp-for="TripTypeId" class="form-label">Trip Type</label>
-                                    <select asp-for="TripTypeId" class="form-select" asp-items="@(new SelectList(Model.TripTypes, "TripTypeId", "Ttname"))">
-                                        <option value="">-- Select Trip Type --</option>
-                                    </select>
-                                    <span asp-validation-for="TripTypeId" class="text-danger"></span>
-                                </div>
+                        <!-- Booking Form -->
+                        <form asp-action="RedirectToPurchase" asp-controller="Booking" method="post" class="w-100 p-3 border rounded shadow-sm bg-light">
+                            <input type="hidden" asp-for="CustomerId" />
+                            <input type="hidden" asp-for="PackageId" />
+                            <input asp-for="TravelerCount" type="hidden" id="hiddenTravelerCount" />
+                            <input asp-for="Price" type="hidden" id="hiddenPrice" />
 
                                 <div class="mb-3">
                                     <label asp-for="Destination" class="form-label">Destination</label>
@@ -70,6 +69,20 @@
                                     <input type="hidden" asp-for="ClassId" />
                                     <span asp-validation-for="ClassId" class="text-danger"></span>
                                 </div>
+                                <div class="mb-3">
+                                    <label asp-for="TripTypeId" class="form-label">Trip Type</label>
+                                    <select asp-for="TripTypeId" class="form-select" asp-items="@(new SelectList(Model.TripTypes, "TripTypeId", "Ttname"))">
+                                        <option value="">-- Select Trip Type --</option>
+                                    </select>
+                                    <span asp-validation-for="TripTypeId" class="text-danger"></span>
+                                </div>
+
+                            <!-- Total Price -->
+                            <div class="mb-3">
+                                <p id="totalPriceContainer" class="small">
+                                    <strong>Total Price:</strong> $<span id="totalPrice" class="text-success">0.00</span>
+                                </p>
+                            </div>
 
                                 <div class="text-center mt-4">
                                     <button type="submit" class="btn btn-primary btn-lg">Book Now</button>
@@ -84,29 +97,22 @@
 </div>
 
 @section Scripts {
-    @Html.Partial("_ValidationScriptsPartial")
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
     <script>
-        function updateTravelerCount() {
-            const travelerCountInput = document.getElementById("travelerCount");
-            const hiddenTravelerCount = document.getElementById("hiddenTravelerCount");
-            const hiddenPrice = document.getElementById("hiddenPrice");
-            const pricePerPerson = parseFloat(@Model.Price);
-            const totalPriceContainer = document.getElementById("totalPriceContainer");
-            const totalPriceSpan = document.getElementById("totalPrice");
+        function updateTotalPrice() {
+            var travelers = document.getElementById('travelerCount').value;
+            var pricePerPerson = @Model.Price;
+            var totalPriceContainer = document.getElementById('totalPriceContainer');
+            var totalPriceSpan = document.getElementById('totalPrice");
 
-            const travelerCount = parseInt(travelerCountInput.value) || 0;
-
-            // Update hidden fields
-            hiddenTravelerCount.value = travelerCount;
-            hiddenPrice.value = travelerCount * pricePerPerson;
-
-            // Calculate and display total price
-            if (travelerCount > 0) {
-                const totalPrice = travelerCount * pricePerPerson;
-                totalPriceContainer.style.display = "block";
+            if (travelers > 0) {
+                var totalPrice = travelers * pricePerPerson;
                 totalPriceSpan.textContent = totalPrice.toFixed(2);
+                totalPriceContainer.style.display = 'block';
             } else {
-                totalPriceContainer.style.display = "none";
+                totalPriceContainer.style.display = 'none';
             }
         }
     </script>

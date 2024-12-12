@@ -19,10 +19,10 @@ namespace Travel_Agency___Web.Controllers
             _purchaseService = purchaseService;
             _context = context;
         }
+
         [HttpGet]
         public async Task<IActionResult> PurchasedProducts(int customerId)
         {
-            // Fetch purchased products for the given customer
             var products = await _context.Purchases
                 .Where(p => p.CustomerId == customerId)
                 .Select(p => new PurchasedProductViewModel
@@ -35,23 +35,16 @@ namespace Travel_Agency___Web.Controllers
                 })
                 .ToListAsync();
 
-            // Calculate the total paid amount
             var totalPaid = products.Sum(p => p.TotalPrice);
 
-            // Create the view model
             var viewModel = new PurchasedProductsSummaryViewModel
             {
                 Products = products,
                 TotalPaid = totalPaid
             };
 
-            // Pass the view model to the view
             return View(viewModel);
         }
-
-
-
-
 
         [HttpGet]
         public IActionResult Purchase(int packageId, int customerId, int travelerCount, decimal totalPrice)
@@ -62,7 +55,6 @@ namespace Travel_Agency___Web.Controllers
                 return NotFound("Package not found.");
             }
 
-            // Fetch wallet balance for the customer
             var walletBalance = _walletService.GetWalletBalanceAsync(customerId).Result;
 
             var viewModel = new PurchaseViewModel
@@ -83,7 +75,6 @@ namespace Travel_Agency___Web.Controllers
         [HttpPost]
         public async Task<IActionResult> ProcessPurchase(int customerId, int packageId, decimal totalPrice)
         {
-            // Fetch the package details
             var package = await _purchaseService.GetPackageAsync(packageId);
             if (package == null)
             {
@@ -91,11 +82,9 @@ namespace Travel_Agency___Web.Controllers
                 return RedirectToAction("Purchase", new { packageId, customerId, travelerCount = 1 });
             }
 
-            // Calculate tax and final total
-            var tax = totalPrice * 0.05m; // Assuming 5% tax
+            var tax = totalPrice * 0.05m;
             var finalPrice = totalPrice + tax;
 
-            // Deduct funds including tax
             var isPaymentSuccessful = await _walletService.DeductFundsAsync(customerId, finalPrice);
             if (!isPaymentSuccessful)
             {
@@ -103,7 +92,6 @@ namespace Travel_Agency___Web.Controllers
                 return RedirectToAction("Purchase", new { packageId, customerId, travelerCount = 1 });
             }
 
-            // Create and save the purchase record
             var purchase = new Purchase
             {
                 CustomerId = customerId,
@@ -112,14 +100,13 @@ namespace Travel_Agency___Web.Controllers
                 Tax = tax,
                 BasePrice = package.PkgBasePrice,
                 TotalPrice = finalPrice,
-                Price = totalPrice, // Total without tax
+                Price = totalPrice,
                 PurchaseDate = DateTime.Now,
                 IsPaid = true
             };
 
             await _purchaseService.SavePurchaseAsync(purchase);
 
-            // Store confirmation details in TempData
             var confirmation = new PurchaseConfirmationViewModel
             {
                 PackageName = package.PkgName,
@@ -127,11 +114,10 @@ namespace Travel_Agency___Web.Controllers
                 Tax = tax,
                 TotalPrice = finalPrice
             };
-            TempData["ConfirmationDetails"] = JsonConvert.SerializeObject(confirmation); // Serialize as JSON
+            TempData["ConfirmationDetails"] = JsonConvert.SerializeObject(confirmation);
 
             return RedirectToAction("Confirmation");
         }
-
 
         [HttpGet]
         public IActionResult Confirmation()

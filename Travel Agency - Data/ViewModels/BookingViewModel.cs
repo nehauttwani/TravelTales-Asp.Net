@@ -14,7 +14,7 @@ namespace Travel_Agency___Data.ViewModels
         public int PackageId { get; set; }
         public string PackageName { get; set; }
 
-        public string? PackageImage{ get; set; }
+        public string? PackageImage { get; set; }
         public DateTime BookingDate { get; set; } = DateTime.Now;
         public string BookingNo { get; set; }
         [Required]
@@ -27,8 +27,6 @@ namespace Travel_Agency___Data.ViewModels
         public List<Class>? Classes { get; set; }
         public string? TripTypeId { get; set; }
         public List<TripType>? TripTypes { get; set; }
-       
-
 
 
         [Required]

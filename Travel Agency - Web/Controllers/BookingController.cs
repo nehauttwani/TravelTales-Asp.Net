@@ -58,7 +58,7 @@ namespace Travel_Agency___Web.Controllers
             ModelState.Remove("BookingNo");
             if (ModelState.IsValid)
             {
-                var customer = customerManager.GetCustomer(viewModel.CustomerId);
+                var customer = await customerManager.GetCustomerAsync(viewModel.CustomerId);
                 if (customer != null)
                 {
                     viewModel.BookingNo = GenerateBookingNumber(customer.CustFirstName);

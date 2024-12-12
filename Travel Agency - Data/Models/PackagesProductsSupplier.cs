@@ -10,7 +10,7 @@ namespace Travel_Agency___Data.Models;
 [Index("PackageId", Name = "PackagesPackages_Products_Suppliers")]
 [Index("ProductSupplierId", Name = "ProductSupplierId")]
 [Index("ProductSupplierId", Name = "Products_SuppliersPackages_Products_Suppliers")]
-[Index("PackageId", "ProductSupplierId", Name = "UQ__Packages__29CA8E95C7152C8E", IsUnique = true)]
+[Index("PackageId", "ProductSupplierId", Name = "UQ__Packages__29CA8E959CAFBA0F", IsUnique = true)]
 public partial class PackagesProductsSupplier
 {
     [Key]

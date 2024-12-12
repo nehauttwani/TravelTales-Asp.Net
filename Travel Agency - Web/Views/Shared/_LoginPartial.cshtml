@@ -1,12 +1,24 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @inject SignInManager<Travel_Agency___Data.Models.User> signInManager
+@inject UserManager<Travel_Agency___Data.Models.User> userManager
+@inject Travel_Agency___Data.ModelManagers.CustomerManager customerManager
+
+@{
+    var currentUser = await userManager.GetUserAsync(User);
+    var customer = currentUser != null && currentUser.CustomerId.HasValue
+        ? await customerManager.GetCustomerAsync(currentUser.CustomerId.Value)
+        : null;
+    var displayName = customer != null
+        ? $"{customer.CustFirstName} {customer.CustLastName}"
+        : User.Identity?.Name;
+}
 
 <ul class="navbar-nav ms-auto">
     @if (signInManager.IsSignedIn(User))
     {
         <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="fas fa-user-circle me-1"></i> @User.Identity!.Name!
+                <i class="fas fa-user-circle me-1"></i>Welcome, @displayName!
             </a>
             <ul class="dropdown-menu" aria-labelledby="userDropdown">
                 <li><a class="dropdown-item" asp-controller="Account" asp-action="Profile"><i class="fas fa-user me-2"></i>Profile</a></li>

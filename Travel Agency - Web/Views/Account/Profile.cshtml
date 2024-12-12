@@ -42,6 +42,16 @@
                     <div class="text-center mt-4">
                         <a href="@Url.Action("EditProfile")" class="btn btn-warning btn-lg">Edit Profile</a>
                     </div>
+
+                    <div class="text-center mt-4">
+                        <a href="@Url.Action("PurchasedProducts", "Purchase", new { customerId = Model.CustomerId })" class="btn btn-danger btn-lg">View Purchased Products</a>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <a href="@Url.Action("Index", "Wallet", new { customerId = Model.CustomerId })" class="btn btn-success btn-lg">View Wallet</a>
+                    </div>
+
+
                 </div>
             </div>
         </div>

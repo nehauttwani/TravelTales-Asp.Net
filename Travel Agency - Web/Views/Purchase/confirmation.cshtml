@@ -1,0 +1,47 @@
+﻿@using Travel_Agency___Data.ViewModels
+@model PurchaseConfirmationViewModel
+
+@{
+
+    ViewData["Title"] = "Payment Confirmation";
+
+}
+<div class="container" style="margin-top: 7rem;">
+    <h2 class="text-center mb-4">Congratulations! Your Payment is Confirmed</h2>
+
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0">Payment Summary</h3>
+        </div>
+        <div class="card-body">
+            <table class="table table-striped">
+                <tbody>
+                    <tr>
+                        <th>Package Name:</th>
+                        <td>@Model.PackageName</td>
+                    </tr>
+                    <tr>
+                        <th>Base Price:</th>
+                        <td>$@Model.BasePrice.ToString("F2")</td>
+                    </tr>
+                    <tr>
+                        <th>Tax (5%):</th>
+                        <td>$@Model.Tax.ToString("F2")</td>
+                    </tr>
+                    <tr>
+                        <th>Total Price:</th>
+                        <td>$@Model.TotalPrice.ToString("F2")</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="text-center mt-4">
+        <a asp-action="DownloadSummary" asp-controller="Purchase" asp-route-id="@Model.PurchaseId" class="btn btn-success">
+            <i class="fas fa-download me-2"></i>Download Payment Summary
+        </a>
+        <a asp-controller="Home" asp-action="Index" class="btn btn-primary">Return to Home</a>
+    </div>
+</div>
+

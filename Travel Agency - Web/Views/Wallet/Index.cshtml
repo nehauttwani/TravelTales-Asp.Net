@@ -1,0 +1,114 @@
+﻿@model Travel_Agency___Data.ViewModels.WalletViewModel
+
+@{
+    ViewData["BodyClass"] = "wallet-page";
+}
+
+<div class="container mt-5 pt-5 wallet-container">
+    <!-- Wallet and Add Funds -->
+    <div class="row g-4">
+        <!-- Wallet Balance -->
+        <div class="col-lg-4">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-primary text-white text-center">
+                    <h4 class="fw-bold mb-0">Wallet</h4>
+                </div>
+                <div class="card-body text-center">
+                    <p class="text-muted mb-2">Current Balance</p>
+                    <h3 class="text-success fw-bold">@Model.CurrentBalance.ToString("C")</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Funds -->
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-light text-primary">
+                    <h5 class="fw-bold mb-0">Add Funds via Credit Card</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.CreditCards != null && Model.CreditCards.Any())
+                    {
+                        <form asp-action="AddFundsWithCreditCard" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="customerId" value="@Model.CustomerId" />
+
+                            <div class="mb-3">
+                                <label for="creditCardId" class="form-label">Select Credit Card</label>
+                                <select id="creditCardId" name="creditCardId" class="form-select shadow-sm" required>
+                                    @foreach (var card in Model.CreditCards)
+                                    {
+                                        <option value="@card.CreditCardId">
+                                            @card.Ccname (**** @card.Ccnumber.Substring(card.Ccnumber.Length - 4))
+                                        </option>
+                                    }
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="amount" class="form-label">Amount</label>
+                                <input type="number" id="amount" name="amount" class="form-control shadow-sm" step="0.01" placeholder="Enter amount" required />
+                            </div>
+
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-success btn-lg shadow">Add Funds</button>
+                            </div>
+                        </form>
+                    }
+                    else
+                    {
+                        <p class="text-danger">No credit cards available. Please add a credit card first.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transaction History -->
+    <div class="card shadow-lg border-0 mt-4">
+        <div class="card-header bg-primary text-white text-center">
+            <h4 class="fw-bold mb-0">Transaction History</h4>
+        </div>
+        <div class="card-body">
+            <table class="table table-bordered table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Date</th>
+                        <th>Amount</th>
+                        <th>Type</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Transactions != null && Model.Transactions.Any())
+                    {
+                        @foreach (var transaction in Model.Transactions)
+                        {
+                            <tr>
+                                <td>@transaction.TransactionDate.ToString("g")</td>
+                                <td class="fw-bold @(transaction.TransactionType == "Deposit" ? "text-success" : "text-danger")">
+                                    @transaction.Amount.ToString("C")
+                                </td>
+                                <td>
+                                    @if (transaction.TransactionType == "Deposit")
+                                    {
+                                        <span class="badge bg-success">Deposit</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">Withdrawal</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="3" class="text-center text-muted">No transactions available.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

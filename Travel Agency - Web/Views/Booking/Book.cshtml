@@ -20,7 +20,6 @@
                             <p><strong>Start Date:</strong> @Model.TripStart.ToString("MM/dd/yyyy")</p>
                             <p><strong>End Date:</strong> @Model.TripEnd.ToString("MM/dd/yyyy")</p>
                             <hr />
-
                             <p id="totalPriceContainer" style="display: none;">
                                 <strong>Total Price:</strong> $<span id="totalPrice"></span>
                             </p>
@@ -31,8 +30,8 @@
                                 <input type="hidden" asp-for="PackageName" />
                                 <input type="hidden" asp-for="Price" />
                                 <input type="hidden" asp-for="AgencyCommission" />
-                                <input type="hidden" asp-for="TripStart" value="@Model.TripStart"/>
-                                <input type="hidden" asp-for="TripEnd" value="@Model.TripEnd"/>
+                                <input type="hidden" asp-for="TripStart" value="@Model.TripStart" />
+                                <input type="hidden" asp-for="TripEnd" value="@Model.TripEnd" />
                                 <input type="hidden" asp-for="Description" />
 
                                 <div class="mb-3">
@@ -46,7 +45,6 @@
                                     <select asp-for="TripTypeId" class="form-select" asp-items="@(new SelectList(Model.TripTypes, "TripTypeId", "Ttname"))">
                                         <option value="">-- Select Trip Type --</option>
                                     </select>
-                                    <input type="hidden" asp-for="TripTypeId" />
                                     <span asp-validation-for="TripTypeId" class="text-danger"></span>
                                 </div>
 
@@ -55,12 +53,12 @@
                                     <input asp-for="Destination" class="form-control" />
                                     <span asp-validation-for="Destination" class="text-danger"></span>
                                 </div>
+
                                 <div class="mb-3">
-                                    <label asp-for="ClassId" class="form-label">Travel Accomodations</label>
+                                    <label asp-for="ClassId" class="form-label">Travel Accommodations</label>
                                     <select asp-for="ClassId" class="form-select" asp-items="@(new SelectList(Model.Classes, "ClassId", "ClassName"))">
-                                        <option value="">-- Select Travel Accomodation Type --</option>
+                                        <option value="">-- Select Travel Accommodation Type --</option>
                                     </select>
-                                    <input type="hidden" asp-for="ClassId" />
                                     <span asp-validation-for="ClassId" class="text-danger"></span>
                                 </div>
 

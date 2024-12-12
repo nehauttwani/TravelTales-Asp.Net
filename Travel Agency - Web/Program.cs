@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Travel_Agency___Data;
 using Travel_Agency___Data.ModelManagers;
 using Travel_Agency___Data.Models;
+using Travel_Agency___Data.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +27,9 @@ builder.Services.AddIdentity<User, IdentityRole>(options => {
 // Register CustomerManager with DI
 builder.Services.AddScoped<CustomerManager>();
 builder.Services.AddScoped<AgentsAndAgenciesManager>();
+builder.Services.AddScoped<WalletService>();
+builder.Services.AddScoped<PurchaseService>();
+
 
 var app = builder.Build();
 

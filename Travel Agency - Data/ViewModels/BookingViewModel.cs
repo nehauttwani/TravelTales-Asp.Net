@@ -14,12 +14,13 @@ namespace Travel_Agency___Data.ViewModels
         public int PackageId { get; set; }
         public string PackageName { get; set; }
 
-        public string? PackageImage{ get; set; }
+        public string? PackageImage { get; set; }
         public DateTime BookingDate { get; set; } = DateTime.Now;
         public string BookingNo { get; set; }
         [Required]
         [Range(1, int.MaxValue, ErrorMessage = "Traveler count must be at least 1")]
         public int TravelerCount { get; set; }
+
         public int? CustomerId { get; set; }
 
         public string? ClassId { get; set; }
@@ -48,6 +49,7 @@ namespace Travel_Agency___Data.ViewModels
         public decimal AgencyCommission { get; set; }
 
         public int? ProductSupplierId { get; set; }
+        public List<ProductsSupplier>? AvailableProductSuppliers { get; set; }
 
         public int? BookingId { get; set; }
     }

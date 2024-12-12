@@ -1,7 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿// BookingController.cs
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
-using System.Threading.Tasks;
+using System.Security.Claims;
 using Travel_Agency___Data;
 using Travel_Agency___Data.ModelManagers;
 using Travel_Agency___Data.Models;
@@ -15,18 +18,19 @@ namespace Travel_Agency___Web.Controllers
         private readonly BookingManager bookingManager;
         private readonly PackageManager packageManager;
         private readonly CustomerManager customerManager;
+        private readonly UserManager<User> userManager;
 
-        // Constructor
-        public BookingController(TravelExpertsContext context)
+        public BookingController(TravelExpertsContext context, UserManager<User> userManager)
         {
             _context = context;
             bookingManager = new BookingManager(_context);
             packageManager = new PackageManager(_context);
             customerManager = new CustomerManager(_context);
+            this.userManager = userManager;
         }
 
-        // GET: Booking
         [HttpGet]
+        [Authorize]
         public IActionResult Book(int id)
         {
             var package = packageManager.GetPackage(id);
@@ -39,96 +43,92 @@ namespace Travel_Agency___Web.Controllers
             {
                 PackageId = package.PackageId,
                 PackageName = package.PkgName,
-                TripStart = package.PkgStartDate ?? DateTime.Now,  // Handle nullable DateTime
-                TripEnd = package.PkgEndDate ?? DateTime.Now,      // Handle nullable DateTime
+                PackageImage = package.ImagePath,
+                TripStart = package.PkgStartDate ?? DateTime.Now,
+                TripEnd = package.PkgEndDate ?? DateTime.Now,
                 Price = package.PkgBasePrice,
                 Description = package.PkgDesc,
-                AgencyCommission = package.PkgAgencyCommission ?? 0,  // Handle nullable decimal
-                TripTypes = _context.TripTypes.ToList()
+                AgencyCommission = package.PkgAgencyCommission ?? 0,
+                TripTypes = _context.TripTypes.ToList(),
+                Classes = _context.Classes.ToList(),
             };
 
             return View(viewModel);
         }
 
-        // POST: Booking
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public async Task<IActionResult> Book(BookingViewModel viewModel)
         {
-            // Load TripTypes for the view
             viewModel.TripTypes = _context.TripTypes.ToList();
+            viewModel.Classes = _context.Classes.ToList();
             ModelState.Remove("BookingNo");
 
             if (ModelState.IsValid)
             {
-                // Ensure TravelerCount is a valid non-nullable int
-                int travelerCount = viewModel.TravelerCount;  // TravelerCount is guaranteed to be non-nullable now
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var user = await userManager.FindByIdAsync(userId!);
 
-                // Fetch customer information
-                var customer = await customerManager.GetCustomerAsync((int)viewModel.CustomerId);
-
-                // Generate BookingNo based on customer info
-                if (customer != null)
+                if (user != null && user.CustomerId.HasValue)
                 {
-                    viewModel.BookingNo = GenerateBookingNumber(customer.CustFirstName);
+                    viewModel.CustomerId = user.CustomerId.Value;
+                    var customer = await customerManager.GetCustomerAsync(user.CustomerId.Value);
+                    viewModel.BookingNo = customer != null
+                        ? GenerateBookingNumber(customer.CustFirstName)
+                        : GenerateBookingNumber("Guest");
+
+                    var booking = new Booking
+                    {
+                        BookingDate = viewModel.BookingDate,
+                        BookingNo = viewModel.BookingNo,
+                        TravelerCount = viewModel.TravelerCount,
+                        CustomerId = viewModel.CustomerId,
+                        TripTypeId = viewModel.TripTypeId,
+                        PackageId = viewModel.PackageId
+                    };
+
+                    bookingManager.AddBooking(booking);
+
+                    // Get a default ProductSupplierId from the database
+                    var defaultProductSupplierId = _context.ProductsSuppliers.First().ProductSupplierId;
+
+                    var bookingDetail = new BookingDetail
+                    {
+                        BookingId = booking.BookingId,
+                        ItineraryNo = viewModel.CustomerId,
+                        TripStart = viewModel.TripStart,
+                        TripEnd = viewModel.TripEnd,
+                        Description = viewModel.Description,
+                        Destination = viewModel.Destination,
+                        BasePrice = viewModel.Price * viewModel.TravelerCount,
+                        AgencyCommission = viewModel.AgencyCommission,
+                        ClassId = viewModel.ClassId,
+                        ProductSupplierId = defaultProductSupplierId  // Set a default value
+                    };
+
+                    bookingManager.AddBookingDetails(bookingDetail);
+
+                    return RedirectToAction("Purchase", "Purchase", new
+                    {
+                        packageId = viewModel.PackageId,
+                        customerId = viewModel.CustomerId,
+                        travelerCount = viewModel.TravelerCount,
+                        totalPrice = bookingDetail.BasePrice
+                    });
                 }
                 else
                 {
-                    viewModel.BookingNo = GenerateBookingNumber("Guest");
+                    ModelState.AddModelError("", "Customer information not found.");
                 }
-
-                // Create a new Booking object
-                var booking = new Booking
-                {
-                    BookingDate = viewModel.BookingDate,
-                    BookingNo = viewModel.BookingNo,
-                    TravelerCount = travelerCount,  // TravelerCount is now guaranteed to be a valid int
-                    CustomerId = viewModel.CustomerId,
-                    TripTypeId = viewModel.TripTypeId,
-                    PackageId = viewModel.PackageId
-                };
-
-                bookingManager.AddBooking(booking);
-
-                // Create a BookingDetail object
-                var bookingDetail = new BookingDetail
-                {
-                    BookingId = booking.BookingId,
-                    ItineraryNo = 1,
-                    TripStart = viewModel.TripStart,
-                    TripEnd = viewModel.TripEnd,
-                    Description = viewModel.Description,
-                    Destination = viewModel.Destination,
-                    BasePrice = viewModel.Price * travelerCount,  // Correctly use travelerCount
-                    AgencyCommission = viewModel.AgencyCommission
-                };
-
-                bookingManager.AddBookingDetails(bookingDetail);
-
-                // Redirect to confirmation
-                return RedirectToAction("Confirmation", new { id = booking.BookingId });
             }
 
-            // Reload TripTypes in case of validation errors
-            viewModel.TripTypes = _context.TripTypes.ToList();
             return View(viewModel);
         }
 
-        // Confirmation Page
-        public IActionResult Confirmation(int id)
-        {
-            var booking = bookingManager.GetBookingInfo(id);
-            if (booking == null)
-            {
-                return NotFound();
-            }
-            return View(booking);
-        }
-
-        // Generate a unique booking number
         private string GenerateBookingNumber(string firstName)
         {
-            return "TE01-" + firstName + "-" + DateTime.Now.ToString("yyyyMMddHHmmss");
+            return "TT01-" + firstName + "-" + DateTime.Now.ToString("yyyyMMdd");
         }
     }
 }

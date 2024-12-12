@@ -1,0 +1,60 @@
+﻿@model Travel_Agency___Data.ViewModels.PurchaseViewModel
+
+<div class="container mt-5">
+    <div class="card shadow-lg border-0">
+        <div class="card-header bg-primary text-white text-center py-4">
+            <h2 class="mb-0">Purchase Package</h2>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <!-- Package Details -->
+                <div class="col-md-8 border-end">
+                    <h4 class="text-success">@Model.PackageName</h4>
+                    <p class="text-muted">@Model.Description</p>
+                    <ul class="list-unstyled">
+                        <li>
+                            <strong>Price Per Person:</strong>
+                            <span class="text-primary">$@Model.PricePerPerson.ToString("F2")</span>
+                        </li>
+                        <li>
+                            <strong>Number of Travelers:</strong>
+                            <span class="text-primary">@Model.TravelerCount</span>
+                        </li>
+                        <li>
+                            <strong>Total Price:</strong>
+                            <span class="text-primary">$@Model.TotalPrice.ToString("F2")</span>
+                        </li>
+                        <li>
+                            <strong>Your Wallet Balance:</strong>
+                            <span class="text-primary">$@Model.WalletBalance.ToString("F2")</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="col-md-4 d-flex flex-column justify-content-center align-items-center">
+                    @if (Model.WalletBalance >= Model.TotalPrice)
+                    {
+                        <form method="post" asp-action="ProcessPurchase" asp-controller="Purchase" class="w-100">
+                            <input type="hidden" asp-for="CustomerId" />
+                            <input type="hidden" asp-for="PackageId" />
+                            <input type="hidden" asp-for="TotalPrice" />
+
+                            <button type="submit" class="btn btn-success btn-lg w-100 mb-3">Pay Now</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <p class="text-danger text-center mb-3">
+                            Insufficient wallet balance. Please add funds to your wallet.
+                        </p>
+                    }
+                    <a href="/Home/Index" class="btn btn-secondary btn-lg w-100">Cancel</a>
+                    <div class="text-center mt-4">
+                        <a asp-controller="Wallet" asp-action="Index" asp-route-customerId="@Model.CustomerId" class="btn btn-info">Manage Wallet</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

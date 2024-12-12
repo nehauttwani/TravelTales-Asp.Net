@@ -127,27 +127,6 @@ namespace Travel_Agency___Data.Migrations
                     b.ToTable("Agents", (string)null);
                 });
 
-            modelBuilder.Entity("Travel_Agency___Data.Models.AgentPassword", b =>
-                {
-                    b.Property<int>("AgentId")
-                        .HasColumnType("int")
-                        .HasColumnName("AgentID");
-
-                    b.Property<bool>("IsAdmin")
-                        .HasColumnType("bit")
-                        .HasColumnName("isAdmin");
-
-                    b.Property<byte[]>("PasswordHash")
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("varbinary(64)");
-
-                    b.HasKey("AgentId")
-                        .HasName("PK__AgentPas__9AC3BFD1800683E3");
-
-                    b.ToTable("AgentPasswords");
-                });
-
             modelBuilder.Entity("Travel_Agency___Data.Models.Booking", b =>
                 {
                     b.Property<int>("BookingId")
@@ -782,17 +761,6 @@ namespace Travel_Agency___Data.Migrations
                     b.Navigation("Agency");
                 });
 
-            modelBuilder.Entity("Travel_Agency___Data.Models.AgentPassword", b =>
-                {
-                    b.HasOne("Travel_Agency___Data.Models.Agent", "Agent")
-                        .WithOne("AgentPassword")
-                        .HasForeignKey("Travel_Agency___Data.Models.AgentPassword", "AgentId")
-                        .IsRequired()
-                        .HasConstraintName("FK__AgentPass__Agent__7F2BE32F");
-
-                    b.Navigation("Agent");
-                });
-
             modelBuilder.Entity("Travel_Agency___Data.Models.Booking", b =>
                 {
                     b.HasOne("Travel_Agency___Data.Models.Customer", "Customer")
@@ -960,8 +928,6 @@ namespace Travel_Agency___Data.Migrations
 
             modelBuilder.Entity("Travel_Agency___Data.Models.Agent", b =>
                 {
-                    b.Navigation("AgentPassword");
-
                     b.Navigation("Customers");
                 });
 

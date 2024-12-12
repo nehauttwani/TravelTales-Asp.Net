@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Travel_Agency___Data.Models;
+
 namespace Travel_Agency___Data;
 
 public partial class TravelExpertsContext : IdentityDbContext<User> 
@@ -22,7 +22,17 @@ public partial class TravelExpertsContext : IdentityDbContext<User>
 
     public virtual DbSet<Agent> Agents { get; set; }
 
-    public virtual DbSet<AgentPassword> AgentPasswords { get; set; }
+    public virtual DbSet<AspNetRole> AspNetRoles { get; set; }
+
+    public virtual DbSet<AspNetRoleClaim> AspNetRoleClaims { get; set; }
+
+    public virtual DbSet<AspNetUser> AspNetUsers { get; set; }
+
+    public virtual DbSet<AspNetUserClaim> AspNetUserClaims { get; set; }
+
+    public virtual DbSet<AspNetUserLogin> AspNetUserLogins { get; set; }
+
+    public virtual DbSet<AspNetUserToken> AspNetUserTokens { get; set; }
 
     public virtual DbSet<Booking> Bookings { get; set; }
 
@@ -108,7 +118,6 @@ public partial class TravelExpertsContext : IdentityDbContext<User>
                 .HasConstraintName("FK__AgentPass__Agent__2A164134");
         });
 
-       
         modelBuilder.Entity<Booking>(entity =>
         {
             entity.HasKey(e => e.BookingId)

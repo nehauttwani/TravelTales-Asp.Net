@@ -12,8 +12,8 @@ using Travel_Agency___Data;
 namespace Travel_Agency___Data.Migrations
 {
     [DbContext(typeof(TravelExpertsContext))]
-    [Migration("20241211083718_Removed-ImagePath")]
-    partial class RemovedImagePath
+    [Migration("20241209184606_identity")]
+    partial class identity
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -261,27 +261,6 @@ namespace Travel_Agency___Data.Migrations
                     b.HasIndex("AgencyId");
 
                     b.ToTable("Agents");
-                });
-
-            modelBuilder.Entity("Travel_Agency___Data.Models.AgentPassword", b =>
-                {
-                    b.Property<int>("AgentId")
-                        .HasColumnType("int")
-                        .HasColumnName("AgentID");
-
-                    b.Property<bool>("IsAdmin")
-                        .HasColumnType("bit")
-                        .HasColumnName("isAdmin");
-
-                    b.Property<byte[]>("PasswordHash")
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("varbinary(64)");
-
-                    b.HasKey("AgentId")
-                        .HasName("PK__AgentPas__9AC3BFD1800683E3");
-
-                    b.ToTable("AgentPasswords");
                 });
 
             modelBuilder.Entity("Travel_Agency___Data.Models.Booking", b =>
@@ -679,7 +658,7 @@ namespace Travel_Agency___Data.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("PackageProductSupplierId")
-                        .HasName("PK__Packages__53E8ED99D057D03C");
+                        .HasName("PK__Packages__53E8ED9911275680");
 
                     b.HasIndex(new[] { "PackageId" }, "PackagesPackages_Products_Suppliers");
 
@@ -687,7 +666,7 @@ namespace Travel_Agency___Data.Migrations
 
                     b.HasIndex(new[] { "ProductSupplierId" }, "Products_SuppliersPackages_Products_Suppliers");
 
-                    b.HasIndex(new[] { "PackageId", "ProductSupplierId" }, "UQ__Packages__29CA8E95AE99F03B")
+                    b.HasIndex(new[] { "PackageId", "ProductSupplierId" }, "UQ__Packages__29CA8E95C7152C8E")
                         .IsUnique();
 
                     b.ToTable("Packages_Products_Suppliers");
@@ -1042,17 +1021,6 @@ namespace Travel_Agency___Data.Migrations
                     b.Navigation("Agency");
                 });
 
-            modelBuilder.Entity("Travel_Agency___Data.Models.AgentPassword", b =>
-                {
-                    b.HasOne("Travel_Agency___Data.Models.Agent", "Agent")
-                        .WithOne("AgentPassword")
-                        .HasForeignKey("Travel_Agency___Data.Models.AgentPassword", "AgentId")
-                        .IsRequired()
-                        .HasConstraintName("FK__AgentPass__Agent__7F2BE32F");
-
-                    b.Navigation("Agent");
-                });
-
             modelBuilder.Entity("Travel_Agency___Data.Models.Booking", b =>
                 {
                     b.HasOne("Travel_Agency___Data.Models.Customer", "Customer")
@@ -1229,8 +1197,6 @@ namespace Travel_Agency___Data.Migrations
 
             modelBuilder.Entity("Travel_Agency___Data.Models.Agent", b =>
                 {
-                    b.Navigation("AgentPassword");
-
                     b.Navigation("Customers");
                 });
 

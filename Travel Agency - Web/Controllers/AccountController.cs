@@ -352,7 +352,7 @@ namespace Travel_Agency___Web.Controllers
             if (user == null)
             {
                 ModelState.AddModelError("", "No user exists with this email address.");
-                return View(model);
+                return View(model); 
             }
             model.ResetToken = await userManager.GeneratePasswordResetTokenAsync(user);
             var result = await userManager.ResetPasswordAsync(user, model.ResetToken, model.Password!);

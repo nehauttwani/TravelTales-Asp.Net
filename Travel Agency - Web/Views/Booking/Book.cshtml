@@ -4,6 +4,9 @@
 }
 <div class="container mb-4" style="margin-top: 7rem;">
     <h2 class="text-center mb-4">Book Your Package</h2>
+    <div class="alert alert-info">
+        You are booking as an authenticated customer. Your customer information will be automatically associated with this booking.
+    </div>
     <div class="row justify-content-center">
         <div class="col-md-10">
             <div class="card shadow">
@@ -39,12 +42,6 @@
                                 </div>
 
                                 <div class="mb-3">
-                                    <label asp-for="CustomerId" class="form-label">Customer ID</label>
-                                    <input asp-for="CustomerId" class="form-control" />
-                                    <span asp-validation-for="CustomerId" class="text-danger"></span>
-                                </div>
-
-                                <div class="mb-3">
                                     <label asp-for="TripTypeId" class="form-label">Trip Type</label>
                                     <select asp-for="TripTypeId" class="form-select" asp-items="@(new SelectList(Model.TripTypes, "TripTypeId", "Ttname"))">
                                         <option value="">-- Select Trip Type --</option>
@@ -57,6 +54,14 @@
                                     <label asp-for="Destination" class="form-label">Destination</label>
                                     <input asp-for="Destination" class="form-control" />
                                     <span asp-validation-for="Destination" class="text-danger"></span>
+                                </div>
+                                <div class="mb-3">
+                                    <label asp-for="ClassId" class="form-label">Travel Accomodations</label>
+                                    <select asp-for="ClassId" class="form-select" asp-items="@(new SelectList(Model.Classes, "ClassId", "ClassName"))">
+                                        <option value="">-- Select Travel Accomodation Type --</option>
+                                    </select>
+                                    <input type="hidden" asp-for="ClassId" />
+                                    <span asp-validation-for="ClassId" class="text-danger"></span>
                                 </div>
 
                                 <div class="text-center mt-4">

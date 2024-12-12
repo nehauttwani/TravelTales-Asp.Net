@@ -1,6 +1,4 @@
-﻿    using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-
+﻿
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Travel_Agency___Data.Models;
@@ -23,13 +21,15 @@ namespace Travel_Agency___Web.Controllers
         public AccountController(
             TravelExpertsContext context,
             SignInManager<User> signInManager,
-            UserManager<User> userManager)
+            UserManager<User> userManager,
+            CustomerManager customerManager,
+            AgentsAndAgenciesManager agentsAndAgenciesManager)
         {
             _context = context;
             this.signInManager = signInManager;
             this.userManager = userManager;
-            _customerManager = new CustomerManager(_context);
-            _agentsAndAgenciesManager = new AgentsAndAgenciesManager(_context);
+            _customerManager = customerManager;
+            _agentsAndAgenciesManager = agentsAndAgenciesManager;
         }
 
         // GET: Account/Register
@@ -43,45 +43,14 @@ namespace Travel_Agency___Web.Controllers
             return View(registerViewModel);
         }
 
-        public ActionResult Login()
-        {
-            return View();
-        }
-
+        // POST: AccountController/Register
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> LoginAsync(LoginViewModal loginViewModal)
-        {
-            if (ModelState.IsValid) //Check if model is valid
-            {
-                var result = await signInManager.PasswordSignInAsync(loginViewModal.Username!, loginViewModal.Password!, loginViewModal.RememberMe, false);
-                if (result.Succeeded)//if successful, go to home page.
-                {
-                    return RedirectToAction("Index", "Home");
-                }
-                else
-                {
-                    ModelState.AddModelError("", "Invalid Login");
-                    return View();
-                }
-            }
-            return View();
-        }
-
-        public async Task<ActionResult> Logout()
-        {
-            //sign out 
-            await signInManager.SignOutAsync();
-            return RedirectToAction("Index", "Home");
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [HttpPost]
         public async Task<ActionResult> Register(RegisterViewModel registerViewModel)
         {
             if (ModelState.IsValid)
             {
+                // Create the user object for Identity
                 User user = new User()
                 {
                     UserName = registerViewModel.CustEmail,
@@ -90,10 +59,12 @@ namespace Travel_Agency___Web.Controllers
                     PhoneNumber = registerViewModel.CustBusPhone
                 };
 
+                // Create the user in Identity
                 var result = await userManager.CreateAsync(user, registerViewModel.Password!);
 
                 if (result.Succeeded)
                 {
+                    // Create the Customer object
                     var customer = new Customer
                     {
                         CustFirstName = registerViewModel.CustFirstName!,
@@ -108,20 +79,30 @@ namespace Travel_Agency___Web.Controllers
                         CustEmail = registerViewModel.CustEmail!
                     };
 
+                    // Add customer asynchronously
                     await _customerManager.AddCustomerAsync(customer);
 
+                    // Link the customer to the user
                     user.CustomerId = customer.CustomerId;
+
+                    // Update the user with the CustomerId
                     await userManager.UpdateAsync(user);
 
+                    // Sign the user in
                     await signInManager.SignInAsync(user, isPersistent: false);
+
+                    // Redirect to the home page after successful registration
                     return RedirectToAction("Index", "Home");
                 }
 
+                // If registration fails, add errors to ModelState
                 foreach (var item in result.Errors)
                 {
                     ModelState.AddModelError("", item.Description);
                 }
             }
+
+            // Return the registration view with any errors
             return View(registerViewModel);
         }
 
@@ -129,69 +110,66 @@ namespace Travel_Agency___Web.Controllers
         public async Task<ActionResult> Profile()
         {
             var user = await userManager.GetUserAsync(User);
-            
-            if (user != null && user.CustomerId.HasValue)
-            {
-                var customer = _customerManager.GetCustomer(user.CustomerId.Value);
-                if (customer == null)
-                {
-                    return RedirectToAction("Login");
-                }
-                var profileViewModel = new ProfileViewModel
-                {
-                    CustomerId = customer.CustomerId,
-                    CustFirstName = customer.CustFirstName,
-                    CustLastName = customer.CustLastName,
-                    CustAddress = customer.CustAddress,
-                    CustCity = customer.CustCity,
-                    CustProv = customer.CustProv,
-                    CustPostal = customer.CustPostal,
-                    CustCountry = customer.CustCountry,
-                    CustHomePhone = customer.CustHomePhone,
-                    CustBusPhone = customer.CustBusPhone,
-                    CustEmail = customer.CustEmail
-                };
-
-                return View(profileViewModel);
-            }
-            else
+            if (user == null)
             {
                 return RedirectToAction("Login");
             }
+
+            var customer = await _customerManager.GetCustomerAsync(user.CustomerId.Value);
+            if (customer == null)
+            {
+                return RedirectToAction("Login");
+            }
+
+            var profileViewModel = new ProfileViewModel
+            {
+                CustomerId = customer.CustomerId,
+                CustFirstName = customer.CustFirstName,
+                CustLastName = customer.CustLastName,
+                CustAddress = customer.CustAddress,
+                CustCity = customer.CustCity,
+                CustProv = customer.CustProv,
+                CustPostal = customer.CustPostal,
+                CustCountry = customer.CustCountry,
+                CustHomePhone = customer.CustHomePhone,
+                CustBusPhone = customer.CustBusPhone,
+                CustEmail = customer.CustEmail
+            };
+
+            return View(profileViewModel);
         }
 
         // GET: Account/EditProfile
         public async Task<ActionResult> EditProfile()
         {
             var user = await userManager.GetUserAsync(User);
-            if (user != null && user.CustomerId.HasValue)
+            if (user == null)
             {
-                var customer =  _customerManager.GetCustomer(user.CustomerId.Value);
-                if (customer == null)
-                {
-                    return RedirectToAction("Login");
-                }
-
-                var profileViewModel = new ProfileViewModel
-                {
-                    CustomerId = customer.CustomerId,
-                    CustFirstName = customer.CustFirstName,
-                    CustLastName = customer.CustLastName,
-                    CustAddress = customer.CustAddress,
-                    CustCity = customer.CustCity,
-                    CustProv = customer.CustProv,
-                    CustPostal = customer.CustPostal,
-                    CustCountry = customer.CustCountry,
-                    CustHomePhone = customer.CustHomePhone,
-                    CustBusPhone = customer.CustBusPhone,
-                    CustEmail = customer.CustEmail
-                };
-
-                return View(profileViewModel);
-            }
-            else {
                 return RedirectToAction("Login");
             }
+
+            var customer = await _customerManager.GetCustomerAsync(user.CustomerId.Value);
+            if (customer == null)
+            {
+                return RedirectToAction("Login");
+            }
+
+            var profileViewModel = new ProfileViewModel
+            {
+                CustomerId = customer.CustomerId,
+                CustFirstName = customer.CustFirstName,
+                CustLastName = customer.CustLastName,
+                CustAddress = customer.CustAddress,
+                CustCity = customer.CustCity,
+                CustProv = customer.CustProv,
+                CustPostal = customer.CustPostal,
+                CustCountry = customer.CustCountry,
+                CustHomePhone = customer.CustHomePhone,
+                CustBusPhone = customer.CustBusPhone,
+                CustEmail = customer.CustEmail
+            };
+
+            return View(profileViewModel);
         }
 
         // POST: Account/EditProfile
@@ -202,86 +180,90 @@ namespace Travel_Agency___Web.Controllers
             if (ModelState.IsValid)
             {
                 var user = await userManager.GetUserAsync(User); // Get the current user
-                if (user != null && user.CustomerId.HasValue)
+                if (user == null)
                 {
-                    // Update customer information
-                    var customer =  _customerManager.GetCustomer(user.CustomerId.Value);
-                    if (customer == null)
-                    {
-                        return RedirectToAction("Login");
-                    }
-
-                    // Update basic customer profile fields
-                    customer.CustFirstName = model.CustFirstName;
-                    customer.CustLastName = model.CustLastName;
-                    customer.CustAddress = model.CustAddress;
-                    customer.CustCity = model.CustCity;
-                    customer.CustProv = model.CustProv;
-                    customer.CustPostal = model.CustPostal;
-                    customer.CustCountry = model.CustCountry;
-                    customer.CustHomePhone = model.CustHomePhone;
-                    customer.CustBusPhone = model.CustBusPhone;
-                    customer.CustEmail = model.CustEmail;
-
-                    // Save changes to customer profile
-                    await _customerManager.UpdateCustomerAsync(customer);
-
-                    // If the email or username is updated, reflect it in the Identity system
-                    if (user.Email != model.CustEmail)
-                    {
-                        user.Email = model.CustEmail;
-                        user.UserName = model.CustEmail; // Update UserName to email
-                        user.NormalizedEmail = model.CustEmail.ToUpper(); // Update NormalizedEmail
-                        user.NormalizedUserName = model.CustEmail.ToUpper(); // Update NormalizedUserName
-
-                        var identityUpdateResult = await userManager.UpdateAsync(user);
-                        if (!identityUpdateResult.Succeeded)
-                        {
-                            // Handle errors if user update fails
-                            foreach (var error in identityUpdateResult.Errors)
-                            {
-                                ModelState.AddModelError("", error.Description);
-                            }
-                            return View("EditProfile", model); // Return to EditProfile view with error messages
-                        }
-                    }
-
-                    // Redirect to Profile page after successful update
-                    return RedirectToAction("Profile");
-
-                }
-                else {
                     return RedirectToAction("Login");
                 }
-                
+
+                // Update customer information
+                var customer = await _customerManager.GetCustomerAsync(user.CustomerId.Value);
+                if (customer == null)
+                {
+                    return RedirectToAction("Login");
+                }
+
+                // Update basic customer profile fields
+                customer.CustFirstName = model.CustFirstName;
+                customer.CustLastName = model.CustLastName;
+                customer.CustAddress = model.CustAddress;
+                customer.CustCity = model.CustCity;
+                customer.CustProv = model.CustProv;
+                customer.CustPostal = model.CustPostal;
+                customer.CustCountry = model.CustCountry;
+                customer.CustHomePhone = model.CustHomePhone;
+                customer.CustBusPhone = model.CustBusPhone;
+                customer.CustEmail = model.CustEmail;
+
+                // Save changes to customer profile
+                await _customerManager.UpdateCustomerAsync(customer);
+
+                // If the email or username is updated, reflect it in the Identity system
+                if (user.Email != model.CustEmail)
+                {
+                    user.Email = model.CustEmail;
+                    user.UserName = model.CustEmail; // Update UserName to email
+                    user.NormalizedEmail = model.CustEmail.ToUpper(); // Update NormalizedEmail
+                    user.NormalizedUserName = model.CustEmail.ToUpper(); // Update NormalizedUserName
+
+                    var identityUpdateResult = await userManager.UpdateAsync(user);
+                    if (!identityUpdateResult.Succeeded)
+                    {
+                        // Handle errors if user update fails
+                        foreach (var error in identityUpdateResult.Errors)
+                        {
+                            ModelState.AddModelError("", error.Description);
+                        }
+                        return View("EditProfile", model); // Return to EditProfile view with error messages
+                    }
+                }
+
+                // Redirect to Profile page after successful update
+                return RedirectToAction("Profile");
             }
 
             return View("EditProfile", model); // Return to EditProfile view with validation errors if model is invalid
         }
 
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateProfilePicture(IFormFile profilePicture)
+        // GET: AccountController/Login
+        public ActionResult Login()
         {
-            if (profilePicture == null || profilePicture.Length == 0)
-            {
-                ModelState.AddModelError("", "Please select a file");
-                return RedirectToAction("Profile");
-            }
+            return View();
+        }
 
-            var user = await userManager.GetUserAsync(User);
-
-            if (user != null && user.CustomerId.HasValue)
+            [HttpPost]
+            [ValidateAntiForgeryToken]
+            public async Task<IActionResult> UpdateProfilePicture(IFormFile profilePicture)
             {
-                var customer = _customerManager.GetCustomer(user.CustomerId.Value);
+                if (profilePicture == null || profilePicture.Length == 0)
+                {
+                    ModelState.AddModelError("", "Please select a file");
+                    return RedirectToAction("Profile");
+                }
+
+                var user = await userManager.GetUserAsync(User);
+                if (user == null)
+                {
+                    return RedirectToAction("Login");
+                }
+
+                var customer = await _customerManager.GetCustomerAsync(user.CustomerId.Value);
                 if (customer == null)
                 {
                     return RedirectToAction("Login");
                 }
 
                 // Create filename based on CustomerId
-                var fileName = $"customer_{customer.CustomerId}__{DateTime.Now.Ticks}.jpg";
+                var fileName = $"customer_{customer.CustomerId}.jpg";
                 var filePath = Path.Combine("wwwroot", "images", "profile_pictures", fileName);
                 var directory = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "profile_pictures");
 
@@ -299,97 +281,33 @@ namespace Travel_Agency___Web.Controllers
 
                 return RedirectToAction("Profile");
             }
-            else
-            {
-                return RedirectToAction("Login");
-            }
-
-            
-        }
-
-        [HttpGet]
-        [Authorize]
-        public IActionResult ChangePassword()
+     
+        // POST: AccountController/Login
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> LoginAsync(LoginViewModal loginViewModal)
         {
-            TempData["PasswordChange"] = true;
+            if (ModelState.IsValid) // Check if model is valid
+            {
+                var result = await signInManager.PasswordSignInAsync(loginViewModal.Username!, loginViewModal.Password!, loginViewModal.RememberMe, false);
+                if (result.Succeeded) // If successful, go to home page
+                {
+                    return RedirectToAction("Index", "Home");
+                }
+                else
+                {
+                    ModelState.AddModelError("", "Invalid Login");
+                    return View();
+                }
+            }
             return View();
         }
 
-        [HttpPost]
-        [Authorize]
-        public async Task<IActionResult> ChangePassword(PasswordOperationsViewModel model)
+        // GET: Account/Logout
+        public async Task<IActionResult> Logout()
         {
-            ModelState.Remove("Email");
-            ModelState.Remove("ResetToken");
-            if (!ModelState.IsValid)
-            {
-                return View(model);
-            }
-
-            var user = await userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                ModelState.AddModelError("", "User not found.");
-                return View(model);
-            }
-
-            var result = await userManager.ChangePasswordAsync(user, model.CurrentPassword!, model.Password!);
-
-            if (result.Succeeded)
-            {
-                await signInManager.RefreshSignInAsync(user);
-                TempData["SuccessMessage"] = "Your password has been changed successfully.";
-                return RedirectToAction("Index", "Home");
-            }
-
-            foreach (var error in result.Errors)
-            {
-                ModelState.AddModelError(string.Empty, error.Description);
-            }
-            return View(model);
+            await signInManager.SignOutAsync();
+            return RedirectToAction("Index", "Home");
         }
-
-
-
-        [HttpGet]
-        public IActionResult ResetPassword(string? token = "")
-        {
-            TempData["PasswordChange"] = true;
-            return View(new PasswordOperationsViewModel { ResetToken = token });
-        }
-
-        // POST: AccountController/Login
-        [HttpPost]
-        public async Task<IActionResult> ResetPassword(PasswordOperationsViewModel model)
-        {
-            ModelState.Remove("CurrentPassword");
-            ModelState.Remove("ResetToken");
-
-            if (!ModelState.IsValid)
-            {
-                return View(model);
-            }
-
-            var user = await userManager.FindByEmailAsync(model.Email);
-            if (user == null)
-            {
-                ModelState.AddModelError("", "No user exists with this email address.");
-                return View(model);
-            }
-            model.ResetToken = await userManager.GeneratePasswordResetTokenAsync(user);
-            var result = await userManager.ResetPasswordAsync(user, model.ResetToken, model.Password!);
-            if (result.Succeeded)
-            {
-                TempData["SuccessMessage"] = "Your password has been reset successfully.";
-                return RedirectToAction("Login");
-            }
-
-            foreach (var error in result.Errors)
-            {
-                ModelState.AddModelError("", error.Description);
-            }
-            return View(model);
-        }
-
     }
 }

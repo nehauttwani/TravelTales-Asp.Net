@@ -20,7 +20,6 @@ namespace Travel_Agency___Data.ViewModels
         [Required]
         [Range(1, int.MaxValue, ErrorMessage = "Traveler count must be at least 1")]
         public int TravelerCount { get; set; }
-
         public int? CustomerId { get; set; }
 
         public string? ClassId { get; set; }

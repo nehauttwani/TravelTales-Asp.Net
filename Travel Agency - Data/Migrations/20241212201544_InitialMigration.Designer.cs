@@ -12,8 +12,8 @@ using Travel_Agency___Data;
 namespace Travel_Agency___Data.Migrations
 {
     [DbContext(typeof(TravelExpertsContext))]
-    [Migration("20241211064656_first")]
-    partial class first
+    [Migration("20241212201544_InitialMigration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -128,6 +128,27 @@ namespace Travel_Agency___Data.Migrations
                     b.HasIndex("AgencyId");
 
                     b.ToTable("Agents");
+                });
+
+            modelBuilder.Entity("Travel_Agency___Data.Models.AgentPassword", b =>
+                {
+                    b.Property<int>("AgentId")
+                        .HasColumnType("int")
+                        .HasColumnName("AgentID");
+
+                    b.Property<bool>("IsAdmin")
+                        .HasColumnType("bit")
+                        .HasColumnName("isAdmin");
+
+                    b.Property<byte[]>("PasswordHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("varbinary(64)");
+
+                    b.HasKey("AgentId")
+                        .HasName("PK__AgentPas__9AC3BFD1A9583711");
+
+                    b.ToTable("AgentPasswords");
                 });
 
             modelBuilder.Entity("Travel_Agency___Data.Models.Booking", b =>
@@ -479,6 +500,10 @@ namespace Travel_Agency___Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PackageId"));
 
+                    b.Property<string>("ImagePath")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
                     b.Property<decimal?>("PkgAgencyCommission")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("money")
@@ -525,7 +550,7 @@ namespace Travel_Agency___Data.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("PackageProductSupplierId")
-                        .HasName("PK__Packages__53E8ED9938A61292");
+                        .HasName("PK__Packages__53E8ED99DE189195");
 
                     b.HasIndex(new[] { "PackageId" }, "PackagesPackages_Products_Suppliers");
 
@@ -533,7 +558,7 @@ namespace Travel_Agency___Data.Migrations
 
                     b.HasIndex(new[] { "ProductSupplierId" }, "Products_SuppliersPackages_Products_Suppliers");
 
-                    b.HasIndex(new[] { "PackageId", "ProductSupplierId" }, "UQ__Packages__29CA8E959CAFBA0F")
+                    b.HasIndex(new[] { "PackageId", "ProductSupplierId" }, "UQ__Packages__29CA8E958F355875")
                         .IsUnique();
 
                     b.ToTable("Packages_Products_Suppliers");
@@ -594,6 +619,53 @@ namespace Travel_Agency___Data.Migrations
                     b.HasIndex(new[] { "SupplierId" }, "SuppliersProducts_Suppliers1");
 
                     b.ToTable("Products_Suppliers");
+                });
+
+            modelBuilder.Entity("Travel_Agency___Data.Models.Purchase", b =>
+                {
+                    b.Property<int>("PurchaseId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PurchaseId"));
+
+                    b.Property<decimal>("BasePrice")
+                        .HasColumnType("decimal(18, 2)");
+
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsPaid")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("PackageId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18, 2)");
+
+                    b.Property<string>("ProductName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<DateTime>("PurchaseDate")
+                        .HasColumnType("datetime");
+
+                    b.Property<decimal>("Tax")
+                        .HasColumnType("decimal(18, 2)");
+
+                    b.Property<decimal>("TotalPrice")
+                        .HasColumnType("decimal(18, 2)");
+
+                    b.HasKey("PurchaseId")
+                        .HasName("PK__Purchase__6B0A6BBE478CBBA1");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("PackageId");
+
+                    b.ToTable("Purchases");
                 });
 
             modelBuilder.Entity("Travel_Agency___Data.Models.Region", b =>
@@ -754,6 +826,64 @@ namespace Travel_Agency___Data.Migrations
                     b.ToTable("TripTypes");
                 });
 
+            modelBuilder.Entity("Travel_Agency___Data.Models.Wallet", b =>
+                {
+                    b.Property<int>("WalletId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("WalletId"));
+
+                    b.Property<decimal>("Balance")
+                        .HasColumnType("decimal(18, 2)");
+
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("int");
+
+                    b.HasKey("WalletId")
+                        .HasName("PK__Wallets__84D4F90E432B759B");
+
+                    b.HasIndex("CustomerId");
+
+                    b.ToTable("Wallets");
+                });
+
+            modelBuilder.Entity("Travel_Agency___Data.Models.WalletTransaction", b =>
+                {
+                    b.Property<int>("TransactionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TransactionId"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18, 2)");
+
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<DateTime>("TransactionDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime")
+                        .HasDefaultValueSql("(getdate())");
+
+                    b.Property<string>("TransactionType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("TransactionId")
+                        .HasName("PK__WalletTr__55433A6BC52C9B9F");
+
+                    b.HasIndex("CustomerId");
+
+                    b.ToTable("WalletTransactions");
+                });
+
             modelBuilder.Entity("Travel_Agency___Data.Models.Agent", b =>
                 {
                     b.HasOne("Travel_Agency___Data.Models.Agency", "Agency")
@@ -762,6 +892,17 @@ namespace Travel_Agency___Data.Migrations
                         .HasConstraintName("FK_Agents_Agencies");
 
                     b.Navigation("Agency");
+                });
+
+            modelBuilder.Entity("Travel_Agency___Data.Models.AgentPassword", b =>
+                {
+                    b.HasOne("Travel_Agency___Data.Models.Agent", "Agent")
+                        .WithOne("AgentPassword")
+                        .HasForeignKey("Travel_Agency___Data.Models.AgentPassword", "AgentId")
+                        .IsRequired()
+                        .HasConstraintName("FK__AgentPass__Agent__0E6E26BF");
+
+                    b.Navigation("Agent");
                 });
 
             modelBuilder.Entity("Travel_Agency___Data.Models.Booking", b =>
@@ -902,6 +1043,25 @@ namespace Travel_Agency___Data.Migrations
                     b.Navigation("Supplier");
                 });
 
+            modelBuilder.Entity("Travel_Agency___Data.Models.Purchase", b =>
+                {
+                    b.HasOne("Travel_Agency___Data.Models.Customer", "Customer")
+                        .WithMany("Purchases")
+                        .HasForeignKey("CustomerId")
+                        .IsRequired()
+                        .HasConstraintName("FK_Purchases_Customers");
+
+                    b.HasOne("Travel_Agency___Data.Models.Package", "Package")
+                        .WithMany("Purchases")
+                        .HasForeignKey("PackageId")
+                        .IsRequired()
+                        .HasConstraintName("FK_Purchases_Packages");
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Package");
+                });
+
             modelBuilder.Entity("Travel_Agency___Data.Models.SupplierContact", b =>
                 {
                     b.HasOne("Travel_Agency___Data.Models.Affiliation", "Affiliation")
@@ -919,6 +1079,29 @@ namespace Travel_Agency___Data.Migrations
                     b.Navigation("Supplier");
                 });
 
+            modelBuilder.Entity("Travel_Agency___Data.Models.Wallet", b =>
+                {
+                    b.HasOne("Travel_Agency___Data.Models.Customer", "Customer")
+                        .WithMany("Wallets")
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_Wallets_Customers");
+
+                    b.Navigation("Customer");
+                });
+
+            modelBuilder.Entity("Travel_Agency___Data.Models.WalletTransaction", b =>
+                {
+                    b.HasOne("Travel_Agency___Data.Models.Customer", "Customer")
+                        .WithMany("WalletTransactions")
+                        .HasForeignKey("CustomerId")
+                        .IsRequired()
+                        .HasConstraintName("FK_WalletTransactions_Customers");
+
+                    b.Navigation("Customer");
+                });
+
             modelBuilder.Entity("Travel_Agency___Data.Models.Affiliation", b =>
                 {
                     b.Navigation("SupplierContacts");
@@ -931,6 +1114,8 @@ namespace Travel_Agency___Data.Migrations
 
             modelBuilder.Entity("Travel_Agency___Data.Models.Agent", b =>
                 {
+                    b.Navigation("AgentPassword");
+
                     b.Navigation("Customers");
                 });
 
@@ -951,6 +1136,12 @@ namespace Travel_Agency___Data.Migrations
                     b.Navigation("CreditCards");
 
                     b.Navigation("CustomersRewards");
+
+                    b.Navigation("Purchases");
+
+                    b.Navigation("WalletTransactions");
+
+                    b.Navigation("Wallets");
                 });
 
             modelBuilder.Entity("Travel_Agency___Data.Models.Fee", b =>
@@ -963,6 +1154,8 @@ namespace Travel_Agency___Data.Migrations
                     b.Navigation("Bookings");
 
                     b.Navigation("PackagesProductsSuppliers");
+
+                    b.Navigation("Purchases");
                 });
 
             modelBuilder.Entity("Travel_Agency___Data.Models.Product", b =>

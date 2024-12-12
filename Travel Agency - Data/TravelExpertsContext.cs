@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Travel_Agency___Data.Models;
+
 
 namespace Travel_Agency___Data;
 
@@ -21,6 +23,8 @@ public partial class TravelExpertsContext : IdentityDbContext<User>
     public virtual DbSet<Agency> Agencies { get; set; }
 
     public virtual DbSet<Agent> Agents { get; set; }
+
+    public virtual DbSet<AgentPassword> AgentPasswords { get; set; }
 
     public virtual DbSet<Booking> Bookings { get; set; }
 
@@ -46,6 +50,8 @@ public partial class TravelExpertsContext : IdentityDbContext<User>
 
     public virtual DbSet<ProductsSupplier> ProductsSuppliers { get; set; }
 
+    public virtual DbSet<Purchase> Purchases { get; set; }
+
     public virtual DbSet<Region> Regions { get; set; }
 
     public virtual DbSet<Reward> Rewards { get; set; }
@@ -56,15 +62,19 @@ public partial class TravelExpertsContext : IdentityDbContext<User>
 
     public virtual DbSet<TripType> TripTypes { get; set; }
 
+    public virtual DbSet<Wallet> Wallets { get; set; }
+
+    public virtual DbSet<WalletTransaction> WalletTransactions { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Data Source=DESKTOP-AABS9BD\\SQLEXPRESS;Initial Catalog=TravelExperts;Integrated Security=True; TrustServerCertificate=true");
+        => optionsBuilder.UseSqlServer("Data Source=localhost\\sqlexpress;Initial Catalog=TravelExperts;Integrated Security=True; TrustServerCertificate=true");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-    
-    modelBuilder.Entity<Affiliation>(entity =>
+
+        modelBuilder.Entity<Affiliation>(entity =>
         {
             entity.HasKey(e => e.AffilitationId)
                 .HasName("aaaaaAffiliations_PK")
@@ -76,6 +86,16 @@ public partial class TravelExpertsContext : IdentityDbContext<User>
             entity.HasOne(d => d.Agency).WithMany(p => p.Agents).HasConstraintName("FK_Agents_Agencies");
         });
 
+        modelBuilder.Entity<AgentPassword>(entity =>
+        {
+            entity.HasKey(e => e.AgentId).HasName("PK__AgentPas__9AC3BFD1A9583711");
+
+            entity.Property(e => e.AgentId).ValueGeneratedNever();
+
+            entity.HasOne(d => d.Agent).WithOne(p => p.AgentPassword)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__AgentPass__Agent__0E6E26BF");
+        });
 
         modelBuilder.Entity<Booking>(entity =>
         {
@@ -172,8 +192,7 @@ public partial class TravelExpertsContext : IdentityDbContext<User>
 
         modelBuilder.Entity<PackagesProductsSupplier>(entity =>
         {
-            entity.HasKey(e => e.PackageProductSupplierId).HasName("PK__Packages__53E8ED9938A61292");
-            entity.HasKey(e => e.PackageProductSupplierId).HasName("PK__Packages__53E8ED99B8A6DCAD");
+            entity.HasKey(e => e.PackageProductSupplierId).HasName("PK__Packages__53E8ED99DE189195");
 
             entity.HasOne(d => d.Package).WithMany(p => p.PackagesProductsSuppliers)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -202,6 +221,19 @@ public partial class TravelExpertsContext : IdentityDbContext<User>
             entity.HasOne(d => d.Product).WithMany(p => p.ProductsSuppliers).HasConstraintName("Products_Suppliers_FK00");
 
             entity.HasOne(d => d.Supplier).WithMany(p => p.ProductsSuppliers).HasConstraintName("Products_Suppliers_FK01");
+        });
+
+        modelBuilder.Entity<Purchase>(entity =>
+        {
+            entity.HasKey(e => e.PurchaseId).HasName("PK__Purchase__6B0A6BBE478CBBA1");
+
+            entity.HasOne(d => d.Customer).WithMany(p => p.Purchases)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Purchases_Customers");
+
+            entity.HasOne(d => d.Package).WithMany(p => p.Purchases)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Purchases_Packages");
         });
 
         modelBuilder.Entity<Region>(entity =>
@@ -244,6 +276,24 @@ public partial class TravelExpertsContext : IdentityDbContext<User>
             entity.HasKey(e => e.TripTypeId)
                 .HasName("aaaaaTripTypes_PK")
                 .IsClustered(false);
+        });
+
+        modelBuilder.Entity<Wallet>(entity =>
+        {
+            entity.HasKey(e => e.WalletId).HasName("PK__Wallets__84D4F90E432B759B");
+
+            entity.HasOne(d => d.Customer).WithMany(p => p.Wallets).HasConstraintName("FK_Wallets_Customers");
+        });
+
+        modelBuilder.Entity<WalletTransaction>(entity =>
+        {
+            entity.HasKey(e => e.TransactionId).HasName("PK__WalletTr__55433A6BC52C9B9F");
+
+            entity.Property(e => e.TransactionDate).HasDefaultValueSql("(getdate())");
+
+            entity.HasOne(d => d.Customer).WithMany(p => p.WalletTransactions)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_WalletTransactions_Customers");
         });
 
         OnModelCreatingPartial(modelBuilder);

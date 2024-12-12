@@ -44,9 +44,11 @@ namespace Travel_Agency___Data.ModelManagers
             }
         }
 
-        public Customer GetCustomer(int id)
+        // Asynchronously retrieve customer by ID
+        public async Task<Customer> GetCustomerAsync(int id)
         {
-            return _context.Customers.FirstOrDefault(x => x.CustomerId == id);
+            return await _context.Customers
+                                 .FirstOrDefaultAsync(x => x.CustomerId == id);  // Use async method here
         }
     }
 }

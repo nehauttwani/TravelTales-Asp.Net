@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Travel_Agency___Data.Models;
 using Travel_Agency___Data.Services;
@@ -10,14 +11,47 @@ namespace Travel_Agency___Web.Controllers
     {
         private readonly WalletService _walletService;
         private readonly PurchaseService _purchaseService;
+        private readonly TravelExpertsContext _context;
 
-        public PurchaseController(WalletService walletService, PurchaseService purchaseService)
+        public PurchaseController(WalletService walletService, PurchaseService purchaseService, TravelExpertsContext context)
         {
             _walletService = walletService;
             _purchaseService = purchaseService;
+            _context = context;
+        }
+        [HttpGet]
+        public async Task<IActionResult> PurchasedProducts(int customerId)
+        {
+            var products = await _context.Purchases
+                .Where(p => p.CustomerId == customerId)
+                .Select(p => new PurchasedProductViewModel
+                {
+                    ProductName = p.ProductName,
+                    BasePrice = p.BasePrice,
+                    Tax = p.Tax,
+                    TotalPrice = p.TotalPrice,
+                    PurchaseDate = p.PurchaseDate
+                }).ToListAsync();
+
+            var totalPaid = products.Sum(p => p.TotalPrice);
+            var outstandingBalance = 1000 - totalPaid; // Replace `1000` with the actual customer's credit limit or calculation logic.
+
+            var viewModel = new PurchasedProductsSummaryViewModel
+            {
+                Products = products,
+                TotalPaid = totalPaid,
+                OutstandingBalance = outstandingBalance
+            };
+
+            return View(viewModel);
         }
 
+
+
+
+
         [HttpGet]
+        
         public async Task<IActionResult> Purchase(int packageId, int customerId, int travelerCount = 1)
         {
             // Fetch package details

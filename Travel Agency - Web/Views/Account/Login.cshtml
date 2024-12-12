@@ -28,8 +28,8 @@
 
                         <div class="mb-3 position-relative">
                             <label asp-for="Password" class="control-label"></label>
-                            <input asp-for="Password" class="form-control" type="password" id="password-input" placeholder="Enter your password"/>
-                            <span class="position-absolute" style="right: 3%; top: 20%; cursor: pointer;">
+                            <input asp-for="Password" class="form-control position-relative" type="password" id="password-input" placeholder="Enter your password"/>
+                            <span class="position-absolute" style="right: 3%; top: 49%; cursor: pointer;">
                                 <i class="fas fa-eye" id="password-toggle-icon" onclick="togglePasswordVisibility()"></i>
                             </span>
                             <span asp-validation-for="Password" class="text-danger"></span>

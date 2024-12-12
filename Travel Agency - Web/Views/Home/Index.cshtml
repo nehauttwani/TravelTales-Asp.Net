@@ -3,6 +3,10 @@
     ViewData["ActivePage"] = "Home";
 }
 
+<head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/countup.js/2.0.8/countUp.min.js"></script>
+</head>
+
 <div>
     @if (TempData["SuccessMessage"] != null)
     {
@@ -16,20 +20,104 @@
             }, 3000);
         </script>
     }
+<div>
 
-    <!-- Hero Section -->
-    <section class="hero-section position-relative">
-        <img src="~/images/hero-image.jpg" alt="Travel destination" class="img-fluid w-100">
-        <div class="position-absolute top-50 start-50 translate-middle text-center text-white">
-            <h1 class="display-4 fw-bold mb-4">Discover Your Next Adventure</h1>
-            <form class="d-flex justify-content-center">
-                <input type="text" class="form-control me-2" placeholder="Where do you want to go?">
-                <button class="btn btn-primary" type="submit">Search</button>
-            </form>
-        </div>
-    </section>
+        <!-- Hero Section -->
+        <section class="hero-section position-relative">
+            <img src="~/images/hero-image.jpg" alt="Travel destination" class="img-fluid w-100">
+            <div class="position-absolute top-50 start-50 translate-middle text-center text-white">
+                <h1 class="display-4 fw-bold mb-4" style="color: white;background: #09095866;">
+                    Discover Your Next Adventure
+                </h1>
+                <form class="d-flex justify-content-center">
+                    <input type="text" class="form-control me-2" placeholder="Where do you want to go?">
+                    <button class="btn btn-primary" type="submit">Search</button>
+                </form>
+            </div>
+        </section>
+    <h1 class="text-center mb-1 fw-bold">
+        Discover, Explore, and Experience with Travel Tales
+    </h1>
 
-    <!-- Services Section -->
+        <section class="about-us py-5 bg-light">
+            <div class="container">
+                <h2 class="text-center mb-4 fw-bold">About Travel Tales</h2>
+                <p class="text-center">Travel Tales is your trusted partner in creating unforgettable journeys. With over a decade of experience, we specialize in crafting personalized travel experiences that cater to your unique preferences and desires.</p>
+            </div>
+        </section>
+
+        <section class="featured-destinations py-5">
+            <div class="container">
+                <h2 class="text-center mb-4 fw-bold">Featured Destinations</h2>
+                <div id="destinationCarousel" class="carousel slide" data-bs-ride="carousel">
+                    <div class="carousel-inner">
+                        <div class="carousel-item active">
+                            <div class="carousel-image-container">
+                                <img src="~/images/destination-1.jpg" class="d-block w-100 h-100 object-fit-cover" alt="Destination 1">
+                            </div>
+                            <div class="carousel-caption d-none d-md-block">
+                                <h5>Exotic Beach Getaway</h5>
+                                <p>Experience paradise on Earth</p>
+                            </div>
+                        </div>
+                        <div class="carousel-item">
+                            <div class="carousel-image-container">
+                                <img src="~/images/destination-2.jpg" class="d-block w-100 h-100 object-fit-cover" alt="Destination 2">
+                            </div>
+                            <div class="carousel-caption d-none d-md-block">
+                                <h5>Mountain Adventure</h5>
+                                <p>Conquer new heights</p>
+                            </div>
+                        </div>
+                        <div class="carousel-item">
+                            <div class="carousel-image-container">
+                                <img src="~/images/destination-3.jpg" class="d-block w-100 h-100 object-fit-cover" alt="Destination 3">
+                            </div>
+                            <div class="carousel-caption d-none d-md-block">
+                                <h5>Cultural Exploration</h5>
+                                <p>Immerse yourself in rich traditions</p>
+                            </div>
+                        </div>
+                        <div class="carousel-item">
+                            <div class="carousel-image-container">
+                                <img src="~/images/destination-4.jpg" class="d-block w-100 h-100 object-fit-cover" alt="Destination 3">
+                            </div>
+                            <div class="carousel-caption d-none d-md-block">
+                                <h5>Old City Vibes</h5>
+                                <p>Dive yourself in ancient monuments and historical findings.</p>
+                            </div>
+                        </div>
+                        <div class="carousel-item">
+                            <div class="carousel-image-container">
+                                <img src="~/images/destination-5.jpg" class="d-block w-100 h-100 object-fit-cover" alt="Destination 3">
+                            </div>
+                            <div class="carousel-caption d-none d-md-block">
+                                <h5>Mindful Peace</h5>
+                                <p>Find yourself at peace and enjoy this beauty to satisfy your soul.</p>
+                            </div>
+                        </div>
+                        <div class="carousel-item">
+                            <div class="carousel-image-container">
+                                <img src="~/images/destination-6.jpg" class="d-block w-100 h-100 object-fit-cover" alt="Destination 3">
+                            </div>
+                            <div class="carousel-caption d-none d-md-block">
+                                <h5>Mesmerizing Sculptures</h5>
+                                <p>Immerse yourself in rich traditions of this old country and it's art.'</p>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#destinationCarousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#destinationCarousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
     <section class="services-section py-5 bg-light">
         <div class="container">
             <h2 class="text-center mb-5 fw-bold">Our Services</h2>
@@ -39,8 +127,19 @@
                         <div class="card-body text-center">
                             <img src="./images/plane.png" alt="Flight reservation" class="mb-3" height="100" width="100" />
                             <h3 class="card-title">Flight Reservation</h3>
-                            <p class="card-text">Book domestic and international flights with ease.</p>
-                            <a href="#" class="btn btn-outline-primary">Learn More</a>
+                            <ul class="list-unstyled text-left">
+                                <li>
+                                    <i class="fas fa-check-circle text-success me-2"></i>Book
+                                    domestic and international flights with ease
+                                </li>
+                                <li>
+                                    <i class="fas fa-check-circle text-success me-2"></i>Compare prices and schedules from various
+                                    airlines
+                                </li>
+                                <li>
+                                    <i class="fas fa-check-circle text-success me-2"></i>Secure online payment and instant confirmation
+                                </li>
+                            </ul>
                         </div>
                     </div>
                 </div>
@@ -49,8 +148,21 @@
                         <div class="card-body text-center">
                             <img src="./images/hotel.png" alt="Hotel reservation" class="mb-3" height="100" width="100" />
                             <h3 class="card-title">Hotel Reservation</h3>
-                            <p class="card-text">Choose from a wide range of accommodations worldwide.</p>
-                            <a href="#" class="btn btn-outline-primary">Learn More</a>
+                            <ul class="list-unstyled text-left">
+                                <li>
+                                    <i class="fas fa-check-circle text-success me-2"></i>Choose from a wide range of hotels, apartments,
+                                    and
+                                    resorts
+                                </li>
+                                <li>
+                                    <i class="fas fa-check-circle text-success me-2"></i>Get
+                                    unbeatable rates and exclusive discounts
+                                </li>
+                                <li>
+                                    <i class="fas fa-check-circle text-success me-2"></i>Filter options by location, price, and
+                                    amenities
+                                </li>
+                            </ul>
                         </div>
                     </div>
                 </div>
@@ -59,8 +171,20 @@
                         <div class="card-body text-center">
                             <img src="./images/tour-guide.png" alt="Tour guide" class="mb-3" height="100" width="100" />
                             <h3 class="card-title">Tour Guide</h3>
-                            <p class="card-text">Explore new destinations with expert local guides.</p>
-                            <a href="#" class="btn btn-outline-primary">Learn More</a>
+                            <ul class="list-unstyled text-left">
+                                <li>
+                                    <i class="fas fa-check-circle text-success me-2"></i>Explore new destinations with expert guides
+                                </li>
+                                <li>
+                                    <i class="fas fa-check-circle text-success me-2"></i>Customized itineraries for individuals and
+                                    groups
+                                </li>
+                                <li>
+                                    <i class="fas fa-check-circle text-success me-2"></i>Insider knowledge of local culture, history,
+                                    and
+                                    attractions
+                                </li>
+                            </ul>
                         </div>
                     </div>
                 </div>
@@ -68,79 +192,80 @@
         </div>
     </section>
 
-    <!-- Featured Destinations -->
-    <section class="featured-destinations py-5">
-        <div class="container">
-            <h2 class="text-center mb-5 fw-bold">Featured Destinations</h2>
-            <div class="row">
-                @foreach (var destination in new[] { "Paris", "Bali", "New York", "Tokyo" })
-                {
-                    <div class="col-md-3 mb-4">
-                        <div class="card">
-                            <img src="~/images/@(destination.ToLower()).jpg" class="card-img-top" alt="@destination">
-                            <div class="card-body">
-                                <h5 class="card-title">@destination</h5>
-                                <p class="card-text">Experience the magic of @destination.</p>
-                                <a href="#" class="btn btn-primary">Explore</a>
+
+    <h2 class="text-center mb-5 fw-bold">Our Packages Crafted Just For You</h2>
+    <div class="text-center mb-4">
+        <a href="@Url.Action("Index", "Package")" class="btn btn-primary btn-lg">View Packages</a>
+    </div>
+
+    <section style="color: #000; padding-bottom: 30px">
+        <div class="container py-5">
+            <div class="row d-flex justify-content-center">
+                <div class="col-md-10 col-xl-8 text-center">
+                    <h3 class="fw-bold mb-4">Testimonials</h3>
+                    <p class="mb-4 pb-2 mb-md-5 pb-md-0">
+                        Our clients share their experiences with Travel Tales Agency.
+                        Read what they have to say about our exceptional service and
+                        unforgettable travel experiences.
+                    </p>
+                </div>
+            </div>
+
+            <div class="row text-center">
+                <div class="col-md-4 mb-4 mb-md-0">
+                    <div class="card">
+                        <div class="card-body py-4 mt-2">
+                            <div class="d-flex justify-content-center mb-4">
+                                <img src="./images/man.jpeg" class="rounded-circle shadow-1-strong" width="100" height="100"
+                                     alt="David Patel" />
                             </div>
+                            <h5 class="font-weight-bold">David Patel</h5>
+                            <h6 class="font-weight-bold my-3">Honeymooner</h6>
+                            <p class="mb-2">
+                                <i class="fas fa-quote-left pe-2"></i>Exceptional service!
+                                Emily at Travel Tales agency helped me plan an unforgettable
+                                honeymoon in Bali. 5/5 stars, Highly Recommended!
+                            </p>
                         </div>
                     </div>
-                }
-            </div>
-        </div>
-    </section>
-
-    <!-- Packages Section -->
-    <section class="packages-section py-5 bg-light">
-        <div class="container">
-            <h2 class="text-center mb-5 fw-bold">Our Packages Crafted Just For You</h2>
-            <div class="text-center mb-4">
-                <a href="@Url.Action("Index", "Package")" class="btn btn-primary btn-lg">View Packages</a>
-            </div>
-        </div>
-    </section>
-
-    <!-- Testimonials Section -->
-    <section class="testimonials-section py-5">
-        <div class="container">
-            <h2 class="text-center mb-5 fw-bold">What Our Clients Say</h2>
-            <div id="testimonialCarousel" class="carousel slide" data-bs-ride="carousel">
-                <div class="carousel-inner">
-                    <div class="carousel-item active">
-                        <div class="testimonial-item text-center">
-                            <img src="./images/man.jpeg" class="rounded-circle mb-3" width="100" height="100" alt="David Patel">
-                            <h5>David Patel</h5>
-                            <p class="text-muted">Honeymooner</p>
-                            <p>"Exceptional service! Emily at Travel Tales agency helped me plan an unforgettable honeymoon in Bali. 5/5 stars, Highly Recommended!"</p>
-                            <div class="stars">
-                                @for (int i = 0; i < 5; i++)
-                                {
-                                    <i class="fas fa-star text-warning"></i>
-                                }
+                </div>
+                <div class="col-md-4 mb-4 mb-md-0">
+                    <div class="card">
+                        <div class="card-body py-4 mt-2">
+                            <div class="d-flex justify-content-center mb-4">
+                                <img src="./images/woman.jpeg" class="rounded-circle shadow-1-strong" width="100" height="100"
+                                     alt="Sophia Rodriguez" />
                             </div>
+                            <h5 class="font-weight-bold">Sophia Rodriguez</h5>
+                            <h6 class="font-weight-bold my-3">Luxury Traveler</h6>
+                            <p class="mb-2">
+                                <i class="fas fa-quote-left pe-2"></i>Travel Tales
+                                exceeded my expectations! Their team helped me navigate visa
+                                requirements and found me a luxury resort in Dubai.
+                            </p>
                         </div>
                     </div>
-                    <!-- Add more carousel items for other testimonials -->
                 </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Newsletter Signup -->
-    <section class="newsletter-section py-5 bg-primary text-white">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-md-6">
-                    <h2 class="mb-3">Subscribe to Our Newsletter</h2>
-                    <p>Get the latest travel deals and updates straight to your inbox!</p>
-                </div>
-                <div class="col-md-6">
-                    <form class="d-flex">
-                        <input type="email" class="form-control me-2" placeholder="Enter your email">
-                        <button class="btn btn-light" type="submit">Subscribe</button>
-                    </form>
+                <div class="col-md-4 mb-0">
+                    <div class="card">
+                        <div class="card-body py-4 mt-2">
+                            <div class="d-flex justify-content-center mb-4">
+                                <img src="./images/samplewoman2.jpeg" class="rounded-circle shadow-1-strong" width="100" height="100"
+                                     alt="Rachel Lee" />
+                            </div>
+                            <h5 class="font-weight-bold">Rachel Lee</h5>
+                            <h6 class="font-weight-bold my-3">Frequent Traveler</h6>
+                            <p class="mb-2">
+                                <i class="fas fa-quote-left pe-2"></i>They took care of
+                                everything from flights to hotel reservations. Highly
+                                recommend their tour guide services too! 10/10 would use
+                                again.
+                            </p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 </div>
+

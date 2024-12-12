@@ -49,6 +49,9 @@ public partial class Customer
     public virtual Agent? Agent { get; set; }
 
     [InverseProperty("Customer")]
+    public virtual ICollection<AspNetUser> AspNetUsers { get; set; } = new List<AspNetUser>();
+
+    [InverseProperty("Customer")]
     public virtual ICollection<Booking> Bookings { get; set; } = new List<Booking>();
 
     [InverseProperty("Customer")]

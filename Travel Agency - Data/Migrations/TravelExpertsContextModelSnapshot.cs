@@ -497,10 +497,6 @@ namespace Travel_Agency___Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PackageId"));
 
-                    b.Property<string>("ImagePath")
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
                     b.Property<decimal?>("PkgAgencyCommission")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("money")

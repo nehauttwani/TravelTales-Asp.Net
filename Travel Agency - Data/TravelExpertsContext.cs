@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Travel_Agency___Data.Models;
-
 namespace Travel_Agency___Data;
 
 public partial class TravelExpertsContext : IdentityDbContext<User> 
@@ -85,6 +84,7 @@ public partial class TravelExpertsContext : IdentityDbContext<User>
                 .IsUnique()
                 .HasFilter("([NormalizedName] IS NOT NULL)");
         });
+            entity.HasKey(e => e.AgentId).HasName("PK__AgentPas__9AC3BFD140CCD791");
 
         modelBuilder.Entity<AspNetUser>(entity =>
         {
@@ -103,8 +103,12 @@ public partial class TravelExpertsContext : IdentityDbContext<User>
                         j.ToTable("AspNetUserRoles");
                         j.HasIndex(new[] { "RoleId" }, "IX_AspNetUserRoles_RoleId");
                     });
+            entity.HasOne(d => d.Agent).WithOne(p => p.AgentPassword)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__AgentPass__Agent__2A164134");
         });
 
+       
         modelBuilder.Entity<Booking>(entity =>
         {
             entity.HasKey(e => e.BookingId)
@@ -201,6 +205,7 @@ public partial class TravelExpertsContext : IdentityDbContext<User>
         modelBuilder.Entity<PackagesProductsSupplier>(entity =>
         {
             entity.HasKey(e => e.PackageProductSupplierId).HasName("PK__Packages__53E8ED9938A61292");
+            entity.HasKey(e => e.PackageProductSupplierId).HasName("PK__Packages__53E8ED99B8A6DCAD");
 
             entity.HasOne(d => d.Package).WithMany(p => p.PackagesProductsSuppliers)
                 .OnDelete(DeleteBehavior.ClientSetNull)

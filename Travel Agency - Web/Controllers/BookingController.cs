@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿// BookingController.cs
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -21,7 +22,6 @@ namespace Travel_Agency___Web.Controllers
         private readonly CustomerManager customerManager;
         private readonly UserManager<User> userManager;
 
-
         public BookingController(TravelExpertsContext context, UserManager<User> userManager)
         {
             _context = context;
@@ -30,6 +30,7 @@ namespace Travel_Agency___Web.Controllers
             customerManager = new CustomerManager(_context);
             this.userManager = userManager;
 
+            this.userManager = userManager;
         }
 
         [HttpGet]
@@ -42,7 +43,6 @@ namespace Travel_Agency___Web.Controllers
                 return NotFound();
             }
 
-            
             var viewModel = new BookingViewModel
             {
                 PackageId = package.PackageId,
@@ -62,31 +62,23 @@ namespace Travel_Agency___Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize] // Ensuring the user is authenticated
+        [Authorize]
         public async Task<IActionResult> Book(BookingViewModel viewModel)
         {
             viewModel.TripTypes = _context.TripTypes.ToList();
             ModelState.Remove("BookingNo");
             if (ModelState.IsValid)
             {
-                // Get the current user's ID
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-                // Fetch the user from the database
                 var user = await userManager.FindByIdAsync(userId!);
 
                 if (user != null && user.CustomerId.HasValue)
                 {
                     viewModel.CustomerId = user.CustomerId.Value;
                     var customer = customerManager.GetCustomer(user.CustomerId.Value);
-                    if (customer != null)
-                    {
-                        viewModel.BookingNo = GenerateBookingNumber(customer.CustFirstName);
-                    }
-                    else
-                    {
-                        viewModel.BookingNo = GenerateBookingNumber("Guest");
-                    }
+                    viewModel.BookingNo = customer != null
+                        ? GenerateBookingNumber(customer.CustFirstName)
+                        : GenerateBookingNumber("Guest");
 
                     var booking = new Booking
                     {
@@ -111,12 +103,18 @@ namespace Travel_Agency___Web.Controllers
                         BasePrice = viewModel.Price * viewModel.TravelerCount,
                         AgencyCommission = viewModel.AgencyCommission,
                         ClassId = viewModel.ClassId,
-                        ProductSupplierId = 44
+                        ProductSupplierId = viewModel.ProductSupplierId
                     };
 
                     bookingManager.AddBookingDetails(bookingDetail);
-                    viewModel.BookingId = booking.BookingId;
-                    return RedirectToAction("Confirmation", viewModel);
+
+                    return RedirectToAction("Purchase", "Purchase", new
+                    {
+                        packageId = viewModel.PackageId,
+                        customerId = viewModel.CustomerId,
+                        travelerCount = viewModel.TravelerCount,
+                        totalPrice = bookingDetail.BasePrice
+                    });
                 }
                 else
                 {
@@ -152,7 +150,6 @@ namespace Travel_Agency___Web.Controllers
             return File(pdf, "application/pdf", $"Booking_Summary_{booking.BookingNo}.pdf");
         }
 
-        
         private byte[] GenerateBookingSummaryPdf(Booking booking)
         {
             var bookingDetail = bookingManager.GetBookingDetails(booking.BookingId);

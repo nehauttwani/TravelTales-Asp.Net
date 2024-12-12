@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Travel_Agency___Data.Models;
 
@@ -11,9 +12,11 @@ using Travel_Agency___Data.Models;
 namespace Travel_Agency___Data.Migrations
 {
     [DbContext(typeof(TravelExpertsContext))]
-    partial class TravelExpertsContextModelSnapshot : ModelSnapshot
+    [Migration("20241210035505_PendingChangesMigration")]
+    partial class PendingChangesMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -22,186 +25,7 @@ namespace Travel_Agency___Data.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("AspNetRoleAspNetUser", b =>
-                {
-                    b.Property<string>("RoleId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("RoleId", "UserId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("AspNetRoleAspNetUser");
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("NormalizedName")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("NormalizedName")
-                        .IsUnique()
-                        .HasDatabaseName("RoleNameIndex")
-                        .HasFilter("[NormalizedName] IS NOT NULL");
-
-                    b.ToTable("AspNetRoles", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ClaimType")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ClaimValue")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("RoleId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RoleId");
-
-                    b.ToTable("AspNetRoleClaims", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUser", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("AccessFailedCount")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Email")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<bool>("EmailConfirmed")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("LockoutEnabled")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTimeOffset?>("LockoutEnd")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("NormalizedEmail")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("NormalizedUserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("PasswordHash")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PhoneNumber")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("PhoneNumberConfirmed")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("SecurityStamp")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("TwoFactorEnabled")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("UserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("NormalizedEmail")
-                        .HasDatabaseName("EmailIndex");
-
-                    b.HasIndex("NormalizedUserName")
-                        .IsUnique()
-                        .HasDatabaseName("UserNameIndex")
-                        .HasFilter("[NormalizedUserName] IS NOT NULL");
-
-                    b.ToTable("AspNetUsers", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ClaimType")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ClaimValue")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("AspNetUserClaims", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
-                {
-                    b.Property<string>("LoginProvider")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("ProviderKey")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("ProviderDisplayName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("LoginProvider", "ProviderKey");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("AspNetUserLogins", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
+            modelBuilder.Entity("AspNetUserRole", b =>
                 {
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
@@ -211,28 +35,9 @@ namespace Travel_Agency___Data.Migrations
 
                     b.HasKey("UserId", "RoleId");
 
-                    b.HasIndex("RoleId");
+                    b.HasIndex(new[] { "RoleId" }, "IX_AspNetUserRoles_RoleId");
 
                     b.ToTable("AspNetUserRoles", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
-                {
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("LoginProvider")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Value")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("UserId", "LoginProvider", "Name");
-
-                    b.ToTable("AspNetUserTokens", (string)null);
                 });
 
             modelBuilder.Entity("Travel_Agency___Data.Models.Affiliation", b =>
@@ -254,7 +59,7 @@ namespace Travel_Agency___Data.Migrations
 
                     SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("AffilitationId"), false);
 
-                    b.ToTable("Affiliations", (string)null);
+                    b.ToTable("Affiliations");
                 });
 
             modelBuilder.Entity("Travel_Agency___Data.Models.Agency", b =>
@@ -295,7 +100,7 @@ namespace Travel_Agency___Data.Migrations
 
                     b.HasKey("AgencyId");
 
-                    b.ToTable("Agencies", (string)null);
+                    b.ToTable("Agencies");
                 });
 
             modelBuilder.Entity("Travel_Agency___Data.Models.Agent", b =>
@@ -337,7 +142,7 @@ namespace Travel_Agency___Data.Migrations
 
                     b.HasIndex("AgencyId");
 
-                    b.ToTable("Agents", (string)null);
+                    b.ToTable("Agents");
                 });
 
             modelBuilder.Entity("Travel_Agency___Data.Models.AspNetRole", b =>
@@ -358,7 +163,11 @@ namespace Travel_Agency___Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("AspNetRole");
+                    b.HasIndex(new[] { "NormalizedName" }, "RoleNameIndex")
+                        .IsUnique()
+                        .HasFilter("([NormalizedName] IS NOT NULL)");
+
+                    b.ToTable("AspNetRoles");
                 });
 
             modelBuilder.Entity("Travel_Agency___Data.Models.AspNetRoleClaim", b =>
@@ -383,7 +192,7 @@ namespace Travel_Agency___Data.Migrations
 
                     b.HasIndex(new[] { "RoleId" }, "IX_AspNetRoleClaims_RoleId");
 
-                    b.ToTable("AspNetRoleClaim");
+                    b.ToTable("AspNetRoleClaims");
                 });
 
             modelBuilder.Entity("Travel_Agency___Data.Models.AspNetUser", b =>
@@ -449,7 +258,11 @@ namespace Travel_Agency___Data.Migrations
 
                     b.HasIndex(new[] { "CustomerId" }, "IX_AspNetUsers_CustomerId");
 
-                    b.ToTable("AspNetUser");
+                    b.HasIndex(new[] { "NormalizedUserName" }, "UserNameIndex")
+                        .IsUnique()
+                        .HasFilter("([NormalizedUserName] IS NOT NULL)");
+
+                    b.ToTable("AspNetUsers");
                 });
 
             modelBuilder.Entity("Travel_Agency___Data.Models.AspNetUserClaim", b =>
@@ -474,7 +287,7 @@ namespace Travel_Agency___Data.Migrations
 
                     b.HasIndex(new[] { "UserId" }, "IX_AspNetUserClaims_UserId");
 
-                    b.ToTable("AspNetUserClaim");
+                    b.ToTable("AspNetUserClaims");
                 });
 
             modelBuilder.Entity("Travel_Agency___Data.Models.AspNetUserLogin", b =>
@@ -496,7 +309,7 @@ namespace Travel_Agency___Data.Migrations
 
                     b.HasIndex(new[] { "UserId" }, "IX_AspNetUserLogins_UserId");
 
-                    b.ToTable("AspNetUserLogin");
+                    b.ToTable("AspNetUserLogins");
                 });
 
             modelBuilder.Entity("Travel_Agency___Data.Models.AspNetUserToken", b =>
@@ -515,7 +328,7 @@ namespace Travel_Agency___Data.Migrations
 
                     b.HasKey("UserId", "LoginProvider", "Name");
 
-                    b.ToTable("AspNetUserToken");
+                    b.ToTable("AspNetUserTokens");
                 });
 
             modelBuilder.Entity("Travel_Agency___Data.Models.Booking", b =>
@@ -563,7 +376,7 @@ namespace Travel_Agency___Data.Migrations
 
                     b.HasIndex(new[] { "TripTypeId" }, "TripTypesBookings");
 
-                    b.ToTable("Bookings", (string)null);
+                    b.ToTable("Bookings");
                 });
 
             modelBuilder.Entity("Travel_Agency___Data.Models.BookingDetail", b =>
@@ -581,7 +394,9 @@ namespace Travel_Agency___Data.Migrations
                         .HasColumnType("money");
 
                     b.Property<int?>("BookingId")
-                        .HasColumnType("int");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
 
                     b.Property<string>("ClassId")
                         .HasMaxLength(5)
@@ -603,7 +418,9 @@ namespace Travel_Agency___Data.Migrations
                         .HasColumnType("float");
 
                     b.Property<int?>("ProductSupplierId")
-                        .HasColumnType("int");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
 
                     b.Property<string>("RegionId")
                         .HasMaxLength(5)
@@ -615,7 +432,10 @@ namespace Travel_Agency___Data.Migrations
                     b.Property<DateTime?>("TripStart")
                         .HasColumnType("datetime");
 
-                    b.HasKey("BookingDetailId");
+                    b.HasKey("BookingDetailId")
+                        .HasName("aaaaaBookingDetails_PK");
+
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("BookingDetailId"), false);
 
                     b.HasIndex(new[] { "FeeId" }, "Agency Fee Code");
 
@@ -635,7 +455,7 @@ namespace Travel_Agency___Data.Migrations
 
                     b.HasIndex(new[] { "ProductSupplierId" }, "Products_SuppliersBookingDetails");
 
-                    b.ToTable("BookingDetails", (string)null);
+                    b.ToTable("BookingDetails");
                 });
 
             modelBuilder.Entity("Travel_Agency___Data.Models.Class", b =>
@@ -653,9 +473,12 @@ namespace Travel_Agency___Data.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.HasKey("ClassId");
+                    b.HasKey("ClassId")
+                        .HasName("aaaaaClasses_PK");
 
-                    b.ToTable("Classes", (string)null);
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("ClassId"), false);
+
+                    b.ToTable("Classes");
                 });
 
             modelBuilder.Entity("Travel_Agency___Data.Models.CreditCard", b =>
@@ -685,11 +508,14 @@ namespace Travel_Agency___Data.Migrations
                     b.Property<int>("CustomerId")
                         .HasColumnType("int");
 
-                    b.HasKey("CreditCardId");
+                    b.HasKey("CreditCardId")
+                        .HasName("aaaaaCreditCards_PK");
+
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("CreditCardId"), false);
 
                     b.HasIndex(new[] { "CustomerId" }, "CustomersCreditCards");
 
-                    b.ToTable("CreditCards", (string)null);
+                    b.ToTable("CreditCards");
                 });
 
             modelBuilder.Entity("Travel_Agency___Data.Models.Customer", b =>
@@ -751,11 +577,14 @@ namespace Travel_Agency___Data.Migrations
                         .HasMaxLength(2)
                         .HasColumnType("nvarchar(2)");
 
-                    b.HasKey("CustomerId");
+                    b.HasKey("CustomerId")
+                        .HasName("aaaaaCustomers_PK");
+
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("CustomerId"), false);
 
                     b.HasIndex(new[] { "AgentId" }, "EmployeesCustomers");
 
-                    b.ToTable("Customers", (string)null);
+                    b.ToTable("Customers");
                 });
 
             modelBuilder.Entity("Travel_Agency___Data.Models.CustomersReward", b =>
@@ -771,13 +600,16 @@ namespace Travel_Agency___Data.Migrations
                         .HasMaxLength(25)
                         .HasColumnType("nvarchar(25)");
 
-                    b.HasKey("CustomerId", "RewardId");
+                    b.HasKey("CustomerId", "RewardId")
+                        .HasName("aaaaaCustomers_Rewards_PK");
+
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("CustomerId", "RewardId"), false);
 
                     b.HasIndex(new[] { "CustomerId" }, "CustomersCustomers_Rewards");
 
                     b.HasIndex(new[] { "RewardId" }, "RewardsCustomers_Rewards");
 
-                    b.ToTable("Customers_Rewards", (string)null);
+                    b.ToTable("Customers_Rewards");
                 });
 
             modelBuilder.Entity("Travel_Agency___Data.Models.Employee", b =>
@@ -811,7 +643,7 @@ namespace Travel_Agency___Data.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.ToTable("Employees", (string)null);
+                    b.ToTable("Employees");
                 });
 
             modelBuilder.Entity("Travel_Agency___Data.Models.Fee", b =>
@@ -832,7 +664,10 @@ namespace Travel_Agency___Data.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.HasKey("FeeId");
+                    b.HasKey("FeeId")
+                        .HasName("aaaaaFees_PK");
+
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("FeeId"), false);
 
                     b.ToTable("Fees");
                 });
@@ -846,7 +681,9 @@ namespace Travel_Agency___Data.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PackageId"));
 
                     b.Property<decimal?>("PkgAgencyCommission")
-                        .HasColumnType("money");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("money")
+                        .HasDefaultValue(0m);
 
                     b.Property<decimal>("PkgBasePrice")
                         .HasColumnType("money");
@@ -866,7 +703,10 @@ namespace Travel_Agency___Data.Migrations
                     b.Property<DateTime?>("PkgStartDate")
                         .HasColumnType("datetime");
 
-                    b.HasKey("PackageId");
+                    b.HasKey("PackageId")
+                        .HasName("aaaaaPackages_PK");
+
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("PackageId"), false);
 
                     b.ToTable("Packages");
                 });
@@ -885,7 +725,8 @@ namespace Travel_Agency___Data.Migrations
                     b.Property<int>("ProductSupplierId")
                         .HasColumnType("int");
 
-                    b.HasKey("PackageProductSupplierId");
+                    b.HasKey("PackageProductSupplierId")
+                        .HasName("PK__Packages__53E8ED9911275680");
 
                     b.HasIndex(new[] { "PackageId" }, "PackagesPackages_Products_Suppliers");
 
@@ -893,10 +734,10 @@ namespace Travel_Agency___Data.Migrations
 
                     b.HasIndex(new[] { "ProductSupplierId" }, "Products_SuppliersPackages_Products_Suppliers");
 
-                    b.HasIndex(new[] { "PackageId", "ProductSupplierId" }, "UQ__Packages__29CA8E959CAFBA0F")
+                    b.HasIndex(new[] { "PackageId", "ProductSupplierId" }, "UQ__Packages__29CA8E95C7152C8E")
                         .IsUnique();
 
-                    b.ToTable("Packages_Products_Suppliers", (string)null);
+                    b.ToTable("Packages_Products_Suppliers");
                 });
 
             modelBuilder.Entity("Travel_Agency___Data.Models.Product", b =>
@@ -912,11 +753,14 @@ namespace Travel_Agency___Data.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.HasKey("ProductId");
+                    b.HasKey("ProductId")
+                        .HasName("aaaaaProducts_PK");
+
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("ProductId"), false);
 
                     b.HasIndex(new[] { "ProductId" }, "ProductId");
 
-                    b.ToTable("Products", (string)null);
+                    b.ToTable("Products");
                 });
 
             modelBuilder.Entity("Travel_Agency___Data.Models.ProductsSupplier", b =>
@@ -928,12 +772,17 @@ namespace Travel_Agency___Data.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProductSupplierId"));
 
                     b.Property<int?>("ProductId")
-                        .HasColumnType("int");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
 
                     b.Property<int?>("SupplierId")
                         .HasColumnType("int");
 
-                    b.HasKey("ProductSupplierId");
+                    b.HasKey("ProductSupplierId")
+                        .HasName("aaaaaProducts_Suppliers_PK");
+
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("ProductSupplierId"), false);
 
                     b.HasIndex(new[] { "SupplierId" }, "Product Supplier ID");
 
@@ -945,7 +794,7 @@ namespace Travel_Agency___Data.Migrations
 
                     b.HasIndex(new[] { "SupplierId" }, "SuppliersProducts_Suppliers1");
 
-                    b.ToTable("Products_Suppliers", (string)null);
+                    b.ToTable("Products_Suppliers");
                 });
 
             modelBuilder.Entity("Travel_Agency___Data.Models.Region", b =>
@@ -958,7 +807,10 @@ namespace Travel_Agency___Data.Migrations
                         .HasMaxLength(25)
                         .HasColumnType("nvarchar(25)");
 
-                    b.HasKey("RegionId");
+                    b.HasKey("RegionId")
+                        .HasName("aaaaaRegions_PK");
+
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("RegionId"), false);
 
                     b.ToTable("Regions");
                 });
@@ -979,7 +831,10 @@ namespace Travel_Agency___Data.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.HasKey("RewardId");
+                    b.HasKey("RewardId")
+                        .HasName("aaaaaRewards_PK");
+
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("RewardId"), false);
 
                     b.ToTable("Rewards");
                 });
@@ -996,20 +851,20 @@ namespace Travel_Agency___Data.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
-                    b.HasKey("SupplierId");
+                    b.HasKey("SupplierId")
+                        .HasName("aaaaaSuppliers_PK");
+
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("SupplierId"), false);
 
                     b.HasIndex(new[] { "SupplierId" }, "SupplierId");
 
-                    b.ToTable("Suppliers", (string)null);
+                    b.ToTable("Suppliers");
                 });
 
             modelBuilder.Entity("Travel_Agency___Data.Models.SupplierContact", b =>
                 {
                     b.Property<int>("SupplierContactId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SupplierContactId"));
 
                     b.Property<string>("AffiliationId")
                         .HasMaxLength(10)
@@ -1065,15 +920,20 @@ namespace Travel_Agency___Data.Migrations
                         .HasColumnName("SupConURL");
 
                     b.Property<int?>("SupplierId")
-                        .HasColumnType("int");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
 
-                    b.HasKey("SupplierContactId");
+                    b.HasKey("SupplierContactId")
+                        .HasName("aaaaaSupplierContacts_PK");
+
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("SupplierContactId"), false);
 
                     b.HasIndex(new[] { "AffiliationId" }, "AffiliationsSupCon");
 
                     b.HasIndex(new[] { "SupplierId" }, "SuppliersSupCon");
 
-                    b.ToTable("SupplierContacts", (string)null);
+                    b.ToTable("SupplierContacts");
                 });
 
             modelBuilder.Entity("Travel_Agency___Data.Models.TripType", b =>
@@ -1087,12 +947,15 @@ namespace Travel_Agency___Data.Migrations
                         .HasColumnType("nvarchar(25)")
                         .HasColumnName("TTName");
 
-                    b.HasKey("TripTypeId");
+                    b.HasKey("TripTypeId")
+                        .HasName("aaaaaTripTypes_PK");
+
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("TripTypeId"), false);
 
                     b.ToTable("TripTypes");
                 });
 
-            modelBuilder.Entity("AspNetRoleAspNetUser", b =>
+            modelBuilder.Entity("AspNetUserRole", b =>
                 {
                     b.HasOne("Travel_Agency___Data.Models.AspNetRole", null)
                         .WithMany()
@@ -1101,57 +964,6 @@ namespace Travel_Agency___Data.Migrations
                         .IsRequired();
 
                     b.HasOne("Travel_Agency___Data.Models.AspNetUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
-                {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
-                {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
-                {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
-                {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
-                {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1249,23 +1061,28 @@ namespace Travel_Agency___Data.Migrations
                 {
                     b.HasOne("Travel_Agency___Data.Models.Booking", "Booking")
                         .WithMany("BookingDetails")
-                        .HasForeignKey("BookingId");
+                        .HasForeignKey("BookingId")
+                        .HasConstraintName("FK_BookingDetails_Bookings");
 
                     b.HasOne("Travel_Agency___Data.Models.Class", "Class")
                         .WithMany("BookingDetails")
-                        .HasForeignKey("ClassId");
+                        .HasForeignKey("ClassId")
+                        .HasConstraintName("FK_BookingDetails_Classes");
 
                     b.HasOne("Travel_Agency___Data.Models.Fee", "Fee")
                         .WithMany("BookingDetails")
-                        .HasForeignKey("FeeId");
+                        .HasForeignKey("FeeId")
+                        .HasConstraintName("FK_BookingDetails_Fees");
 
                     b.HasOne("Travel_Agency___Data.Models.ProductsSupplier", "ProductSupplier")
                         .WithMany("BookingDetails")
-                        .HasForeignKey("ProductSupplierId");
+                        .HasForeignKey("ProductSupplierId")
+                        .HasConstraintName("FK_BookingDetails_Products_Suppliers");
 
                     b.HasOne("Travel_Agency___Data.Models.Region", "Region")
                         .WithMany("BookingDetails")
-                        .HasForeignKey("RegionId");
+                        .HasForeignKey("RegionId")
+                        .HasConstraintName("FK_BookingDetails_Regions");
 
                     b.Navigation("Booking");
 
@@ -1283,8 +1100,8 @@ namespace Travel_Agency___Data.Migrations
                     b.HasOne("Travel_Agency___Data.Models.Customer", "Customer")
                         .WithMany("CreditCards")
                         .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("CreditCards_FK00");
 
                     b.Navigation("Customer");
                 });
@@ -1293,7 +1110,8 @@ namespace Travel_Agency___Data.Migrations
                 {
                     b.HasOne("Travel_Agency___Data.Models.Agent", "Agent")
                         .WithMany("Customers")
-                        .HasForeignKey("AgentId");
+                        .HasForeignKey("AgentId")
+                        .HasConstraintName("FK_Customers_Agents");
 
                     b.Navigation("Agent");
                 });
@@ -1303,14 +1121,14 @@ namespace Travel_Agency___Data.Migrations
                     b.HasOne("Travel_Agency___Data.Models.Customer", "Customer")
                         .WithMany("CustomersRewards")
                         .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("Customers_Rewards_FK00");
 
                     b.HasOne("Travel_Agency___Data.Models.Reward", "Reward")
                         .WithMany("CustomersRewards")
                         .HasForeignKey("RewardId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("Customers_Rewards_FK01");
 
                     b.Navigation("Customer");
 
@@ -1322,14 +1140,14 @@ namespace Travel_Agency___Data.Migrations
                     b.HasOne("Travel_Agency___Data.Models.Package", "Package")
                         .WithMany("PackagesProductsSuppliers")
                         .HasForeignKey("PackageId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("Packages_Products_Supplie_FK00");
 
                     b.HasOne("Travel_Agency___Data.Models.ProductsSupplier", "ProductSupplier")
                         .WithMany("PackagesProductsSuppliers")
                         .HasForeignKey("ProductSupplierId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("Packages_Products_Supplie_FK01");
 
                     b.Navigation("Package");
 
@@ -1340,11 +1158,13 @@ namespace Travel_Agency___Data.Migrations
                 {
                     b.HasOne("Travel_Agency___Data.Models.Product", "Product")
                         .WithMany("ProductsSuppliers")
-                        .HasForeignKey("ProductId");
+                        .HasForeignKey("ProductId")
+                        .HasConstraintName("Products_Suppliers_FK00");
 
                     b.HasOne("Travel_Agency___Data.Models.Supplier", "Supplier")
                         .WithMany("ProductsSuppliers")
-                        .HasForeignKey("SupplierId");
+                        .HasForeignKey("SupplierId")
+                        .HasConstraintName("Products_Suppliers_FK01");
 
                     b.Navigation("Product");
 
@@ -1355,11 +1175,13 @@ namespace Travel_Agency___Data.Migrations
                 {
                     b.HasOne("Travel_Agency___Data.Models.Affiliation", "Affiliation")
                         .WithMany("SupplierContacts")
-                        .HasForeignKey("AffiliationId");
+                        .HasForeignKey("AffiliationId")
+                        .HasConstraintName("SupplierContacts_FK00");
 
                     b.HasOne("Travel_Agency___Data.Models.Supplier", "Supplier")
                         .WithMany("SupplierContacts")
-                        .HasForeignKey("SupplierId");
+                        .HasForeignKey("SupplierId")
+                        .HasConstraintName("SupplierContacts_FK01");
 
                     b.Navigation("Affiliation");
 

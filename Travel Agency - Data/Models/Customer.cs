@@ -44,6 +44,8 @@ public partial class Customer
 
     public int? AgentId { get; set; }
 
+   
+
     [ForeignKey("AgentId")]
     [InverseProperty("Customers")]
     public virtual Agent? Agent { get; set; }

@@ -97,24 +97,6 @@ namespace Travel_Agency___Web.Controllers
                         TripTypeId = viewModel.TripTypeId,
                         PackageId = viewModel.PackageId
                     };
-                var customer = await customerManager.GetCustomerAsync(viewModel.CustomerId);
-                if (customer != null)
-                {
-                    viewModel.BookingNo = GenerateBookingNumber(customer.CustFirstName);
-                }
-                else
-                {
-                    viewModel.BookingNo = GenerateBookingNumber("Guest");
-                }
-                var booking = new Booking
-                {
-                    BookingDate = viewModel.BookingDate,
-                    BookingNo = viewModel.BookingNo,
-                    TravelerCount = viewModel.TravelerCount,
-                    CustomerId = viewModel.CustomerId,
-                    TripTypeId = viewModel.TripTypeId,
-                    PackageId = viewModel.PackageId
-                };
 
                     bookingManager.AddBooking(booking);
 
@@ -134,7 +116,6 @@ namespace Travel_Agency___Web.Controllers
 
                     bookingManager.AddBookingDetails(bookingDetail);
                     viewModel.BookingId = booking.BookingId;
-
                     return RedirectToAction("Confirmation", viewModel);
                 }
                 else

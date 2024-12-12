@@ -6,7 +6,7 @@
 @{
     var currentUser = await userManager.GetUserAsync(User);
     var customer = currentUser != null && currentUser.CustomerId.HasValue
-        ? await customerManager.GetCustomerAsync(currentUser.CustomerId.Value)
+        ?  customerManager.GetCustomer(currentUser.CustomerId.Value)
         : null;
     var displayName = customer != null
         ? $"{customer.CustFirstName} {customer.CustLastName}"

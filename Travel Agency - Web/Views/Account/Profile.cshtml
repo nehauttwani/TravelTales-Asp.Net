@@ -15,7 +15,9 @@
                     <div class="text-center mb-4">
                         <img src="@imagePath" alt="Profile Picture"
                              style="width: 200px; height: 200px; border-radius: 50%;"
-                             onerror="this.src='/images/default-profile.png'" />
+                             onerror="this.src='/images/profile_pictures/defaultimage.png'" />
+
+                        
 
                         <form asp-action="UpdateProfilePicture" method="post" enctype="multipart/form-data" class="mt-3">
                             <div class="form-group">

@@ -10,10 +10,6 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-// Register services directly
-builder.Services.AddScoped<WalletService>();
-builder.Services.AddScoped<PurchaseService>();
-
 // Register DbContext
 builder.Services.AddDbContext<TravelExpertsContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("TravelExpertsConnectionString"),
@@ -31,6 +27,12 @@ builder.Services.AddIdentity<User, IdentityRole>(options => {
 // Register CustomerManager with DI
 builder.Services.AddScoped<CustomerManager>();
 builder.Services.AddScoped<AgentsAndAgenciesManager>();
+
+// Register additional services
+builder.Services.AddScoped<CustomerManager>();
+builder.Services.AddScoped<AgentsAndAgenciesManager>();
+builder.Services.AddScoped<WalletService>();
+builder.Services.AddScoped<PurchaseService>();
 
 var app = builder.Build();
 

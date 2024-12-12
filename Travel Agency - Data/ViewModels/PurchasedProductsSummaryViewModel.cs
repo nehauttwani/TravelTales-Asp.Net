@@ -6,7 +6,6 @@ namespace Travel_Agency___Data.ViewModels
     {
         public List<PurchasedProductViewModel> Products { get; set; } = new();
         public decimal TotalPaid { get; set; }
-        public decimal OutstandingBalance { get; set; }
     }
 
     public class PurchasedProductViewModel

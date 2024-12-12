@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Travel_Agency___Data;
 
@@ -11,9 +12,11 @@ using Travel_Agency___Data;
 namespace Travel_Agency___Data.Migrations
 {
     [DbContext(typeof(TravelExpertsContext))]
-    partial class TravelExpertsContextModelSnapshot : ModelSnapshot
+    [Migration("20241211213356_second")]
+    partial class second
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

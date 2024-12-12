@@ -20,4 +20,57 @@ UPDATE Packages
 SET ImagePath = '/images/package-4.jpg'
 WHERE PackageId = 4;
 
+-- 1) Create the Wallets table
+CREATE TABLE Wallets (
+    WalletId INT IDENTITY(1,1) PRIMARY KEY, -- Primary key
+    CustomerId INT NOT NULL, -- Foreign key to the Customers table
+    Balance DECIMAL(18, 2) NOT NULL, -- Wallet balance
+    CONSTRAINT FK_Wallets_Customers FOREIGN KEY (CustomerId) REFERENCES Customers(CustomerId) ON DELETE CASCADE
+);
+
+
+
+
+-- 2) Create the Purchases table
+IF OBJECT_ID('dbo.Purchases', 'U') IS NOT NULL
+DROP TABLE dbo.Purchases;
+GO
+
+CREATE TABLE Purchases (
+    PurchaseId INT IDENTITY(1,1) PRIMARY KEY, -- Primary Key
+    CustomerId INT NOT NULL, -- Foreign Key for Customer
+    PackageId INT NOT NULL, -- Foreign Key for Package
+    ProductName NVARCHAR(255) NOT NULL, -- Product or Package Name
+    Tax DECIMAL(18,2) NOT NULL, -- Tax amount
+    BasePrice DECIMAL(18,2) NOT NULL, -- Base Price
+    TotalPrice DECIMAL(18,2) NOT NULL, -- Total Price (BasePrice + Tax)
+    Price DECIMAL(18,2) NOT NULL, -- Price Per Person
+    PurchaseDate DATETIME NOT NULL, -- Purchase Date
+    IsPaid BIT NOT NULL -- Payment Status (Paid or Not)
+);
+GO
+
+-- Add foreign key relationships if necessary (optional)
+
+ALTER TABLE Purchases
+ADD CONSTRAINT FK_Purchases_Customers
+FOREIGN KEY (CustomerId) REFERENCES Customers(CustomerId);
+GO
+
+ALTER TABLE Purchases
+ADD CONSTRAINT FK_Purchases_Packages
+FOREIGN KEY (PackageId) REFERENCES Packages(PackageId);
+GO
+
+
+-- 3) Create the WalletTransactions table----
+CREATE TABLE WalletTransactions (
+    TransactionId INT IDENTITY(1,1) PRIMARY KEY,
+    CustomerId INT NOT NULL,
+    TransactionDate DATETIME NOT NULL DEFAULT GETDATE(),
+    Amount DECIMAL(18,2) NOT NULL,
+    TransactionType NVARCHAR(50) NOT NULL, -- e.g., Deposit, Withdrawal
+    Description NVARCHAR(255) NULL,
+    CONSTRAINT FK_WalletTransactions_Customers FOREIGN KEY (CustomerId) REFERENCES Customers(CustomerId)
+);
 

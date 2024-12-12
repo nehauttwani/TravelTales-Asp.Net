@@ -37,7 +37,8 @@ namespace Travel_Agency___Web.Controllers
         {
             var registerViewModel = new RegisterViewModel()
             {
-                Agents = _agentsAndAgenciesManager.GetAgents()
+                // Ensure that Agents is not null by using null-coalescing operator
+                Agents = _agentsAndAgenciesManager.GetAgents() ?? new List<Agent>()
             };
             return View(registerViewModel);
         }
@@ -107,8 +108,7 @@ namespace Travel_Agency___Web.Controllers
                         CustEmail = registerViewModel.CustEmail!
                     };
 
-                    _customerManager.AddCustomerAsync(customer);
-                    await _context.SaveChangesAsync();
+                    await _customerManager.AddCustomerAsync(customer);
 
                     user.CustomerId = customer.CustomerId;
                     await userManager.UpdateAsync(user);
@@ -281,7 +281,7 @@ namespace Travel_Agency___Web.Controllers
                 }
 
                 // Create filename based on CustomerId
-                var fileName = $"customer_{customer.CustomerId}.jpg";
+                var fileName = $"customer_{customer.CustomerId}__{DateTime.Now.Ticks}.jpg";
                 var filePath = Path.Combine("wwwroot", "images", "profile_pictures", fileName);
                 var directory = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "profile_pictures");
 

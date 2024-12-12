@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-
+using Microsoft.AspNetCore.Http;
 namespace Travel_Agency___Data.ViewModels
 {
     public class ProfileViewModel
@@ -45,6 +45,10 @@ namespace Travel_Agency___Data.ViewModels
         [StringLength(50)]
         public string CustEmail { get; set; }
 
-        //public string ProfilePicture { get; set; }
+        public IFormFile? ProfilePictureFile { get; set; }
+
+       public string ProfilePicturePath => $"/images/profile_pictures/customer_{CustomerId}.jpg";
+   
+
     }
 }

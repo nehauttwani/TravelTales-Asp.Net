@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Travel_Agency___Data.Models;
 using Travel_Agency___Data.ModelManagers;
@@ -239,6 +240,48 @@ namespace Travel_Agency___Web.Controllers
             return View();
         }
 
+            [HttpPost]
+            [ValidateAntiForgeryToken]
+            public async Task<IActionResult> UpdateProfilePicture(IFormFile profilePicture)
+            {
+                if (profilePicture == null || profilePicture.Length == 0)
+                {
+                    ModelState.AddModelError("", "Please select a file");
+                    return RedirectToAction("Profile");
+                }
+
+                var user = await userManager.GetUserAsync(User);
+                if (user == null)
+                {
+                    return RedirectToAction("Login");
+                }
+
+                var customer = await _customerManager.GetCustomerAsync(user.CustomerId.Value);
+                if (customer == null)
+                {
+                    return RedirectToAction("Login");
+                }
+
+                // Create filename based on CustomerId
+                var fileName = $"customer_{customer.CustomerId}.jpg";
+                var filePath = Path.Combine("wwwroot", "images", "profile_pictures", fileName);
+                var directory = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "profile_pictures");
+
+                // Create directory if it doesn't exist
+                if (!Directory.Exists(directory))
+                {
+                    Directory.CreateDirectory(directory);
+                }
+
+                // Save file
+                using (var fileStream = new FileStream(Path.Combine(Directory.GetCurrentDirectory(), filePath), FileMode.Create))
+                {
+                    await profilePicture.CopyToAsync(fileStream);
+                }
+
+                return RedirectToAction("Profile");
+            }
+     
         // POST: AccountController/Login
         [HttpPost]
         [ValidateAntiForgeryToken]

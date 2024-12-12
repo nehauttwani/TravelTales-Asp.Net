@@ -48,6 +48,15 @@
     border-radius: 0.7rem;
 }
 
+.carousel-image-container {
+    height: 400px; /* Adjust this value to set the desired fixed height */
+    overflow: hidden;
+}
+
+.object-fit-cover {
+    object-fit: cover;
+}
+
 .carousel-caption {
     background-color: #041441b4;
 }

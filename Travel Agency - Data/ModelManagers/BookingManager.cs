@@ -31,7 +31,8 @@ namespace Travel_Agency___Data.ModelManagers
 
         }
 
-        public Booking? GetBookingInfo(int Id) {
+        public Booking? GetBookingInfo(int Id)
+        {
             var booking = _context.Bookings
                 .Include(b => b.Customer)
                 .Include(b => b.Package)
@@ -40,5 +41,12 @@ namespace Travel_Agency___Data.ModelManagers
             else return null;
         }
 
+        public BookingDetail? GetBookingDetails(int bookingId)
+        {
+            var bookingDetail = _context.BookingDetails
+                .FirstOrDefault(b => b.BookingId == bookingId);
+            if (bookingDetail != null) return bookingDetail;
+            else return null;
+        }
     }
 }

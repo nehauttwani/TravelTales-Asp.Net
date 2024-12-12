@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Configuration;
 using System.Linq;
+using System.Net.Mail;
+using System.Net;
 using Travel_Agency___Data;
 using Travel_Agency___Data.ModelManagers;
 using Travel_Agency___Data.Models;
@@ -14,14 +17,16 @@ namespace Travel_Agency___Web.Controllers
         private readonly BookingManager bookingManager;
         private readonly PackageManager packageManager;
         private readonly CustomerManager customerManager;
+        private readonly IConfiguration _configuration;
 
 
-        public BookingController(TravelExpertsContext context)
+        public BookingController(TravelExpertsContext context, IConfiguration configuration)
         {
             _context = context;
             bookingManager = new BookingManager(_context);
             packageManager = new PackageManager(_context);
             customerManager = new CustomerManager(_context);
+            _configuration = configuration; // Inject configuration to access appsettings.json
         }
 
         [HttpGet]
@@ -109,8 +114,68 @@ namespace Travel_Agency___Web.Controllers
                 return NotFound();
             }
 
+            // Send a confirmation email to the customer
+            SendConfirmationEmail(booking);
             return View(booking);
         }
+
+        private void SendConfirmationEmail(Booking booking)
+        {
+            try
+            {
+                // Get email settings from configuration
+                var smtpServer = _configuration["EmailSettings:SmtpServer"];
+                var port = int.Parse(_configuration["EmailSettings:Port"]);
+                var senderEmail = _configuration["EmailSettings:SenderEmail"];
+                var senderPassword = _configuration["EmailSettings:SenderPassword"];
+
+                using (var smtpClient = new SmtpClient(smtpServer, port))
+                {
+                    smtpClient.Credentials = new NetworkCredential(senderEmail, senderPassword);
+                    smtpClient.EnableSsl = true;
+
+                    if (booking.CustomerId.HasValue)
+                    {
+                        var customerEmail = customerManager.GetCustomer(booking.CustomerId.Value)?.CustEmail;
+                        if (string.IsNullOrEmpty(customerEmail))
+                        {
+                            Console.WriteLine("Customer email not found. Skipping email notification.");
+                            return;
+                        }
+
+                        var subject = "Booking Confirmation - Travel Agency";
+                        var body = $@"
+                    Dear {booking.Customer?.CustFirstName} {booking.Customer?.CustLastName},
+
+                    Thank you for your booking! Here are your booking details:
+                    - Booking Number: {booking.BookingNo}
+                    - Package: {booking.Package?.PkgName}
+                    - Booking Date: {booking.BookingDate:MM/dd/yyyy}
+                    - Traveler Count: {booking.TravelerCount}
+
+                    We look forward to serving you.
+
+                    Best regards,
+                    Travel Agency Team
+                ";
+
+                        var mailMessage = new MailMessage(senderEmail, customerEmail, subject, body);
+                        smtpClient.Send(mailMessage);
+
+                        Console.WriteLine("Booking confirmation email sent successfully.");
+                    }
+                    else
+                    {
+                        Console.WriteLine("CustomerId is null. Cannot send email.");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to send email: {ex.Message}");
+            }
+        
+    }
 
         private string GenerateBookingNumber(string firstName)
         {

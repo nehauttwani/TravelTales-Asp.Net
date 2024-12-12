@@ -26,26 +26,6 @@
                         <!-- Profile Fields -->
                         <h4 class="mb-3">Profile Information</h4>
 
-                        <!-- Profile Picture -->
-                        <div class="mb-3">
-                            <label for="ProfilePicture" class="form-label">Profile Picture:</label>
-                            <input type="file" name="ProfilePicture" class="form-control" />
-                            <span asp-validation-for="ProfilePicture" class="text-danger"></span>
-
-                            <!-- Display current profile picture if exists -->
-                            @if (Model.ProfilePicture != null && Model.ProfilePicture.Length > 0)
-                            {
-                                <div class="mt-3">
-                                    <h5>Current Profile Picture:</h5>
-                                    <img src="@Url.Action("GetProfileImage", "Account")" alt="Profile Picture" class="img-fluid" style="max-height: 200px; width: auto;" />
-                                </div>
-                            }
-                            else
-                            {
-                                <p>No profile picture uploaded.</p>
-                            }
-                        </div>
-
                         <!-- Other Profile Fields -->
                         <div class="mb-3">
                             <label for="CustFirstName" class="form-label">First Name:</label>

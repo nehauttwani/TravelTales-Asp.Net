@@ -11,6 +11,5 @@ namespace Travel_Agency___Data.Models
 
         public Customer Customer { get; set; }
 
-        //public string ProfilePicture { get; set; } 
     }
 }

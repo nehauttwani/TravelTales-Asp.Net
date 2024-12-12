@@ -48,5 +48,9 @@ namespace Travel_Agency___Data.ModelManagers
         {
             return _context.Customers.FirstOrDefault(x => x.CustomerId == id);
         }
+        public Customer? GetCustomerByEmail(string email)
+        {
+            return _context.Customers.FirstOrDefault(c => c.CustEmail == email);
+        }
     }
 }

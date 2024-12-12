@@ -48,6 +48,7 @@ namespace Travel_Agency___Web.Controllers
                 PackageId = package.PackageId,
                 PackageName = package.PkgName,
                 PackageImage= package.ImagePath,
+                PackageImage = package.ImagePath,
                 TripStart = package.PkgStartDate ?? DateTime.Now,
                 TripEnd = package.PkgEndDate ?? DateTime.Now,
                 Price = package.PkgBasePrice,
@@ -64,10 +65,11 @@ namespace Travel_Agency___Web.Controllers
         [ValidateAntiForgeryToken]
         [Authorize] // Ensuring the user is authenticated
         public async Task<IActionResult> Book(BookingViewModel viewModel)
+        public IActionResult RedirectToPurchase(BookingViewModel viewModel)
         {
-            viewModel.TripTypes = _context.TripTypes.ToList();
-            ModelState.Remove("BookingNo");
-            if (ModelState.IsValid)
+            // Validate logged-in user
+            var userEmail = User.Identity.Name; // Get the logged-in user's email
+            if (string.IsNullOrEmpty(userEmail))
             {
                 // Get the current user's ID
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -97,8 +99,25 @@ namespace Travel_Agency___Web.Controllers
                         TripTypeId = viewModel.TripTypeId,
                         PackageId = viewModel.PackageId
                     };
+                return Unauthorized("User is not logged in or email is missing.");
+            }
+
+            // Fetch customer details
+            var customer = customerManager.GetCustomerByEmail(userEmail);
+            if (customer == null)
+            {
+                return Unauthorized("Customer not found.");
+            }
+
+            // Recalculate total price for safety
+            var package = packageManager.GetPackage(viewModel.PackageId);
+            if (package == null)
+            {
+                return NotFound("Package not found.");
+            }
 
                     bookingManager.AddBooking(booking);
+            var totalPrice = package.PkgBasePrice * viewModel.TravelerCount;
 
                     var bookingDetail = new BookingDetail
                     {
@@ -126,6 +145,14 @@ namespace Travel_Agency___Web.Controllers
 
             viewModel.TripTypes = _context.TripTypes.ToList();
             return View(viewModel);
+            // Redirect to the Purchase page
+            return RedirectToAction("Purchase", "Purchase", new
+            {
+                packageId = viewModel.PackageId,
+                customerId = customer.CustomerId, // Use the retrieved CustomerId
+                travelerCount = viewModel.TravelerCount,
+                totalPrice = totalPrice
+            });
         }
 
 

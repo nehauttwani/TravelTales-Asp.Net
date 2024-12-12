@@ -21,20 +21,32 @@
                             <p><strong>End Date:</strong> @Model.TripEnd.ToString("MM/dd/yyyy")</p>
                             <hr />
 
-                            <p id="totalPriceContainer" style="display: none;">
-                                <strong>Total Price:</strong> $<span id="totalPrice"></span>
-                            </p>
+                <!-- Booking Form Section -->
+                <div class="col-md-7">
+                    <div class="d-flex flex-column align-items-center">
+                        <!-- Inclusions Section -->
+                        <div class="w-100 p-3 mb-3 border rounded shadow-sm bg-light">
+                            <h6 class="text-primary">Inclusions</h6>
+                            <ul class="small mb-0">
+                                <li>Accommodation</li>
+                                <li>Meals</li>
+                                <li>Transportation</li>
+                                <li>Tour Guide</li>
+                            </ul>
                         </div>
-                        <div class="col-md-7">
-                            <form asp-action="Purchase" asp-controller="Purchase" method="get">
-                                <input type="hidden" asp-for="PackageId" />
-                                <input type="hidden" id="hiddenTravelerCount" name="travelerCount" value="@Model.TravelerCount" /> <!-- Bind dynamically -->
 
-                                <div class="mb-3">
-                                    <label asp-for="TravelerCount" class="form-label">Number of Travelers</label>
-                                    <input asp-for="TravelerCount" class="form-control" id="travelerCount" oninput="updateTravelerCount()" />
-                                    <span asp-validation-for="TravelerCount" class="text-danger"></span>
-                                </div>
+                        <!-- Booking Form -->
+                        <form asp-action="RedirectToPurchase" asp-controller="Booking" method="post" class="w-100 p-3 border rounded shadow-sm bg-light">
+                            <input type="hidden" asp-for="CustomerId" />
+                            <input type="hidden" asp-for="PackageId" />
+                            <input asp-for="TravelerCount" type="hidden" id="hiddenTravelerCount" />
+                            <input asp-for="Price" type="hidden" id="hiddenPrice" />
+
+                            <div class="mb-3">
+                                <label asp-for="TravelerCount" class="form-label small">Number of Travelers</label>
+                                <input asp-for="TravelerCount" class="form-control form-control-sm shadow-sm" id="travelerCount" oninput="updateTravelerCount()" placeholder="Enter number of travelers" />
+                                <span asp-validation-for="TravelerCount" class="text-danger small"></span>
+                            </div>
 
                                 <div class="mb-3">
                                     <label asp-for="TripTypeId" class="form-label">Trip Type</label>
@@ -74,10 +86,27 @@
     @Html.Partial("_ValidationScriptsPartial")
     <script>
         function updateTravelerCount() {
-            // Update the hidden field with the value entered in the traveler count input
             const travelerCountInput = document.getElementById("travelerCount");
             const hiddenTravelerCount = document.getElementById("hiddenTravelerCount");
-            hiddenTravelerCount.value = travelerCountInput.value;
+            const hiddenPrice = document.getElementById("hiddenPrice");
+            const pricePerPerson = parseFloat(@Model.Price);
+            const totalPriceContainer = document.getElementById("totalPriceContainer");
+            const totalPriceSpan = document.getElementById("totalPrice");
+
+            const travelerCount = parseInt(travelerCountInput.value) || 0;
+
+            // Update hidden fields
+            hiddenTravelerCount.value = travelerCount;
+            hiddenPrice.value = travelerCount * pricePerPerson;
+
+            // Calculate and display total price
+            if (travelerCount > 0) {
+                const totalPrice = travelerCount * pricePerPerson;
+                totalPriceContainer.style.display = "block";
+                totalPriceSpan.textContent = totalPrice.toFixed(2);
+            } else {
+                totalPriceContainer.style.display = "none";
+            }
         }
     </script>
 }

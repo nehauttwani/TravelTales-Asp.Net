@@ -27,6 +27,8 @@ namespace Travel_Agency___Data.ViewModels
         public List<Class>? Classes { get; set; }
         public string? TripTypeId { get; set; }
         public List<TripType>? TripTypes { get; set; }
+       
+
 
 
         [Required]

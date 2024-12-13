@@ -93,7 +93,7 @@ namespace Travel_Agency___Web.Controllers
                         CustPostal = registerViewModel.CustPostal!,
                         CustCountry = registerViewModel.CustCountry!,
                         CustHomePhone = registerViewModel.CustHomePhone!,
-                        CustBusPhone = registerViewModel.CustBusPhone!,
+                        CustBusPhone = registerViewModel.CustBusPhone,
                         CustEmail = registerViewModel.CustEmail!
                     };
 

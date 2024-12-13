@@ -94,6 +94,22 @@
                         </a>
                     </div>
 
+                    <div class="text-center mt-4">
+                        <a href="@Url.Action("Edit", "Preferences", new { customerId = Model.CustomerId })"
+                           class="btn btn-primary btn-lg">
+                            <i class="fas fa-compass me-2"></i>Add Travel Preferences
+                        </a>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <a href="@Url.Action("Index", "Preferences", new { customerId = Model.CustomerId })"
+                           class="btn btn-primary btn-lg">
+                            <i class="fas fa-compass me-2"></i>My Travel Preferences
+                        </a>
+                    </div>
+
+                 
+
                     <!-- Add this where you want the button to appear -->
                     <div class="text-center mt-4">
                         <a asp-controller="Booking"

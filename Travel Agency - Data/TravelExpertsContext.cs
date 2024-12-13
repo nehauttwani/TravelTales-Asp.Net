@@ -61,6 +61,8 @@ public partial class TravelExpertsContext : IdentityDbContext<User>
     public virtual DbSet<SupplierContact> SupplierContacts { get; set; }
 
     public virtual DbSet<TripType> TripTypes { get; set; }
+    public virtual DbSet<TravelPreference> TravelPreferences { get; set; }
+
 
     public virtual DbSet<Wallet> Wallets { get; set; }
 

@@ -1,0 +1,115 @@
+﻿@model Travel_Agency___Data.ViewModels.TravelPreferenceViewModel
+
+<div class="container mb-4" style="margin-top: 7rem;">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                    <h3 class="mb-0">My Travel Preferences</h3>
+                    <a asp-action="Edit" class="btn btn-light btn-sm">
+                        <i class="fas fa-edit me-2"></i>Edit Preferences
+                    </a>
+                </div>
+                <div class="card-body">
+                    @if (Model.PreferredClimate == null && Model.SelectedActivities.Count == 0
+                    && Model.TravelCompanion == null && Model.PreferredLocation == null)
+                    {
+                        <div class="text-center py-4">
+                            <i class="fas fa-compass fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No travel preferences set yet</h5>
+                            <a asp-action="Edit" class="btn btn-primary mt-3">
+                                <i class="fas fa-plus me-2"></i>Set Your Preferences
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="row">
+                            <!-- Preferred Climate -->
+                            <div class="col-md-6 mb-4">
+                                <div class="preference-box">
+                                    <h5><i class="fas fa-sun me-2 text-warning"></i>Preferred Climate</h5>
+                                    <p class="mb-0">@(Model.PreferredClimate ?? "Not specified")</p>
+                                </div>
+                            </div>
+
+                            <!-- Travel Companion -->
+                            <div class="col-md-6 mb-4">
+                                <div class="preference-box">
+                                    <h5><i class="fas fa-users me-2 text-info"></i>Travel Companion</h5>
+                                    <p class="mb-0">@(Model.TravelCompanion ?? "Not specified")</p>
+                                </div>
+                            </div>
+
+                            <!-- Preferred Location -->
+                            <div class="col-md-6 mb-4">
+                                <div class="preference-box">
+                                    <h5><i class="fas fa-map-marker-alt me-2 text-danger"></i>Preferred Location</h5>
+                                    <p class="mb-0">@(Model.PreferredLocation ?? "Not specified")</p>
+                                </div>
+                            </div>
+
+                            <!-- Activities -->
+                            <div class="col-12">
+                                <div class="preference-box">
+                                    <h5><i class="fas fa-hiking me-2 text-success"></i>Preferred Activities</h5>
+                                    @if (Model.SelectedActivities.Any())
+                                    {
+                                        <div class="d-flex flex-wrap gap-2">
+                                            @foreach (var activity in Model.SelectedActivities)
+                                            {
+                                                <span class="badge bg-primary">@activity</span>
+                                            }
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <p class="mb-0">No activities selected</p>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .preference-box {
+        background-color: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        height: 100%;
+        transition: transform 0.2s;
+    }
+
+        .preference-box:hover {
+            transform: translateY(-5px);
+        }
+
+        .preference-box h5 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+    .badge {
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+        margin: 0.2rem;
+        border-radius: 20px;
+    }
+
+    .card {
+        border: none;
+        border-radius: 15px;
+    }
+
+    .card-header {
+        border-top-left-radius: 15px !important;
+        border-top-right-radius: 15px !important;
+    }
+</style>

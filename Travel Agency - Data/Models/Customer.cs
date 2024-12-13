@@ -37,7 +37,7 @@ public partial class Customer
     public string? CustHomePhone { get; set; }
 
     [StringLength(20)]
-    public string CustBusPhone { get; set; } = null!;
+    public string? CustBusPhone { get; set; } = null!;
 
     [StringLength(50)]
     public string CustEmail { get; set; } = null!;

@@ -264,73 +264,65 @@ namespace Travel_Agency___Web.Controllers
         {
             try
             {
-                // Check if file exists
                 if (profilePicture == null || profilePicture.Length == 0)
                 {
                     TempData["ErrorMessage"] = "Please select a file";
                     return RedirectToAction("Profile");
                 }
 
-                // Check file size (e.g., 2MB limit)
-                const int maxFileSize = 2 * 1024 * 1024; // 2MB in bytes
-                if (profilePicture.Length > maxFileSize)
+                var user = await userManager.GetUserAsync(User);
+                if (user?.CustomerId == null)
                 {
-                    TempData["ErrorMessage"] = "File size must be less than 2MB";
-                    return RedirectToAction("Profile");
+                    return RedirectToAction("Login");
                 }
 
-                // Check file type
-                var allowedTypes = new[] { "image/jpeg", "image/jpg", "image/png" };
-                if (!allowedTypes.Contains(profilePicture.ContentType.ToLower()))
+                // Validate file
+                var extension = Path.GetExtension(profilePicture.FileName).ToLowerInvariant();
+                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png" };
+
+                if (!allowedExtensions.Contains(extension))
                 {
                     TempData["ErrorMessage"] = "Only .jpg, .jpeg and .png files are allowed";
                     return RedirectToAction("Profile");
                 }
 
-                var user = await userManager.GetUserAsync(User);
-                if (user == null)
+                if (profilePicture.Length > 2 * 1024 * 1024) // 2MB
                 {
-                    _logger.LogWarning("User not found when trying to update profile picture");
-                    return RedirectToAction("Login");
+                    TempData["ErrorMessage"] = "File size must be less than 2MB";
+                    return RedirectToAction("Profile");
                 }
-
-                var customer = await _customerManager.GetCustomerAsync(user.CustomerId.Value);
-                if (customer == null)
-                {
-                    _logger.LogWarning($"Customer not found for user {user.Id} when trying to update profile picture");
-                    return RedirectToAction("Login");
-                }
-
-                // Create filename based on CustomerId
-                var fileName = $"customer_{customer.CustomerId}{Path.GetExtension(profilePicture.FileName)}";
-                var directory = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "profile_pictures");
-                var filePath = Path.Combine(directory, fileName);
 
                 // Create directory if it doesn't exist
-                if (!Directory.Exists(directory))
-                {
-                    Directory.CreateDirectory(directory);
-                }
+                var directory = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "profile_pictures");
+                Directory.CreateDirectory(directory);
 
-                // Delete existing file if it exists
-                if (System.IO.File.Exists(filePath))
+                // Create filename with original extension
+                var fileName = $"customer_{user.CustomerId}{extension}";
+                var filePath = Path.Combine(directory, fileName);
+
+                // Delete existing files with same name but different extensions
+                foreach (var ext in allowedExtensions)
                 {
-                    System.IO.File.Delete(filePath);
+                    var existingFile = Path.Combine(directory, $"customer_{user.CustomerId}{ext}");
+                    if (System.IO.File.Exists(existingFile))
+                    {
+                        System.IO.File.Delete(existingFile);
+                    }
                 }
 
                 // Save new file
-                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                using (var stream = new FileStream(filePath, FileMode.Create))
                 {
-                    await profilePicture.CopyToAsync(fileStream);
+                    await profilePicture.CopyToAsync(stream);
                 }
 
-                _logger.LogInformation($"Profile picture updated successfully for customer {customer.CustomerId}");
                 TempData["SuccessMessage"] = "Profile picture updated successfully";
+                _logger.LogInformation($"Profile picture updated for user {user.Id}");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error uploading profile picture");
-                TempData["ErrorMessage"] = "Error uploading profile picture";
+                _logger.LogError(ex, "Error updating profile picture");
+                TempData["ErrorMessage"] = "Error updating profile picture";
             }
 
             return RedirectToAction("Profile");

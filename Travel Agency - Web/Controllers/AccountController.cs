@@ -6,6 +6,7 @@ using Travel_Agency___Data.ModelManagers;
 using Travel_Agency___Data.ViewModels;
 using System.Threading.Tasks;
 using Travel_Agency___Data;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Travel_Agency___Web.Controllers
 {
@@ -303,8 +304,95 @@ namespace Travel_Agency___Web.Controllers
             return View();
         }
 
-        // GET: Account/Logout
-        public async Task<IActionResult> Logout()
+        [HttpGet]
+        [Authorize]
+        public IActionResult ChangePassword()
+        {
+            TempData["PasswordChange"] = true;
+            return View();
+        }
+
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> ChangePassword(PasswordOperationsViewModel model)
+        {
+            ModelState.Remove("Email");
+            ModelState.Remove("ResetToken");
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var user = await userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                ModelState.AddModelError("", "User not found.");
+                return View(model);
+            }
+
+            var result = await userManager.ChangePasswordAsync(user, model.CurrentPassword!, model.Password!);
+
+            if (result.Succeeded)
+            {
+                await signInManager.RefreshSignInAsync(user);
+                TempData["SuccessMessage"] = "Your password has been changed successfully.";
+                return RedirectToAction("Index", "Home");
+            }
+
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
+            return View(model);
+        }
+
+
+
+        [HttpGet]
+        public IActionResult ResetPassword(string? token = "")
+        {
+            TempData["PasswordChange"] = true;
+            return View(new PasswordOperationsViewModel { ResetToken = token });
+        }
+
+        // POST: AccountController/Login
+        [HttpPost]
+        public async Task<IActionResult> ResetPassword(PasswordOperationsViewModel model)
+        {
+            ModelState.Remove("CurrentPassword");
+            ModelState.Remove("ResetToken");
+
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var user = await userManager.FindByEmailAsync(model.Email);
+            if (user == null)
+            {
+                ModelState.AddModelError("", "No user exists with this email address.");
+                return View(model);
+            }
+            model.ResetToken = await userManager.GeneratePasswordResetTokenAsync(user);
+            var result = await userManager.ResetPasswordAsync(user, model.ResetToken, model.Password!);
+            if (result.Succeeded)
+            {
+                TempData["SuccessMessage"] = "Your password has been reset successfully.";
+                return RedirectToAction("Login");
+            }
+
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError("", error.Description);
+            }
+            return View(model);
+        }
+
+    
+
+
+// GET: Account/Logout
+public async Task<IActionResult> Logout()
         {
             await signInManager.SignOutAsync();
             return RedirectToAction("Index", "Home");

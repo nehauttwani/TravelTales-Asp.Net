@@ -29,6 +29,7 @@ builder.Services.AddScoped<CustomerManager>();
 builder.Services.AddScoped<AgentsAndAgenciesManager>();
 builder.Services.AddScoped<WalletService>();
 builder.Services.AddScoped<PurchaseService>();
+builder.Services.AddScoped<Travel_Agency___Data.Services.EmailService>();
 
 builder.Services.AddLogging(builder =>
 {

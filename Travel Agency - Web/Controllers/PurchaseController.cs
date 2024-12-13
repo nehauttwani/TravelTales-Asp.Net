@@ -15,12 +15,18 @@ namespace Travel_Agency___Web.Controllers
         private readonly WalletService _walletService;
         private readonly PurchaseService _purchaseService;
         private readonly TravelExpertsContext _context;
+        private readonly ILogger<PurchaseController> _logger;
 
-        public PurchaseController(WalletService walletService, PurchaseService purchaseService, TravelExpertsContext context)
+        public PurchaseController(
+            WalletService walletService,
+            PurchaseService purchaseService,
+            TravelExpertsContext context,
+            ILogger<PurchaseController> logger)
         {
             _walletService = walletService;
             _purchaseService = purchaseService;
             _context = context;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -50,29 +56,44 @@ namespace Travel_Agency___Web.Controllers
         }
 
         [HttpGet]
-        public IActionResult Purchase(int packageId, int customerId, int travelerCount, decimal totalPrice)
+        public async Task<IActionResult> Purchase(int packageId, int customerId, int travelerCount, decimal? totalPrice)
         {
-            var package = _context.Packages.FirstOrDefault(p => p.PackageId == packageId);
-            if (package == null)
+            try
             {
-                return NotFound("Package not found.");
+                _logger.LogInformation($"Purchase action called with packageId: {packageId}, customerId: {customerId}, travelerCount: {travelerCount}, totalPrice: {totalPrice}");
+
+                var package = await _context.Packages
+                    .FirstOrDefaultAsync(p => p.PackageId == packageId);
+
+                if (package == null)
+                {
+                    TempData["ErrorMessage"] = "Package not found.";
+                    return RedirectToAction("Index", "Home");
+                }
+
+                var walletBalance = await _walletService.GetWalletBalanceAsync(customerId);
+                var calculatedTotalPrice = totalPrice ?? (package.PkgBasePrice * travelerCount);
+
+                var viewModel = new PurchaseViewModel
+                {
+                    PackageId = packageId,
+                    CustomerId = customerId,
+                    PackageName = package.PkgName,
+                    Description = package.PkgDesc,
+                    PricePerPerson = package.PkgBasePrice,
+                    TravelerCount = travelerCount,
+                    TotalPrice = calculatedTotalPrice,
+                    WalletBalance = walletBalance
+                };
+
+                return View(viewModel);
             }
-
-            var walletBalance = _walletService.GetWalletBalanceAsync(customerId).Result;
-
-            var viewModel = new PurchaseViewModel
+            catch (Exception ex)
             {
-                PackageId = package.PackageId,
-                CustomerId = customerId,
-                PackageName = package.PkgName,
-                Description = package.PkgDesc,
-                PricePerPerson = package.PkgBasePrice,
-                TravelerCount = travelerCount,
-                TotalPrice = totalPrice,
-                WalletBalance = walletBalance
-            };
-
-            return View(viewModel);
+                _logger.LogError(ex, "Error in Purchase action");
+                TempData["ErrorMessage"] = "An error occurred while processing your request.";
+                return RedirectToAction("Index", "Home");
+            }
         }
 
         [HttpPost]

@@ -8,6 +8,8 @@ using Travel_Agency___Data.ModelManagers;
 using Travel_Agency___Data.Models;
 using Travel_Agency___Data.Services;
 using Travel_Agency___Data.ViewModels;
+using System.Text.Json;
+
 
 namespace Travel_Agency___Web.Controllers
 {
@@ -160,35 +162,76 @@ namespace Travel_Agency___Web.Controllers
                         // Get package details for email
                         var package = packageManager.GetPackage(viewModel.PackageId);
 
-                        // Create confirmation model
-                        var confirmationModel = new BookingConfirmationModel
-                        {
-                            BookingNo = booking.BookingNo,
-                            CustomerName = $"{customer.CustFirstName} {customer.CustLastName}",
-                            PackageName = package.PkgName,
-                            TripStart = viewModel.TripStart,
-                            TripEnd = viewModel.TripEnd,
-                            TravelerCount = viewModel.TravelerCount,
-                            TotalPrice = bookingDetail.BasePrice ?? 0m
-                        };
+                        _logger.LogInformation($"Booking created successfully. BookingId: {booking.BookingId}");
+                        _logger.LogInformation($"Booking details created successfully. BasePrice: {bookingDetail.BasePrice}");
 
-                        // Send confirmation email
-                        await _emailService.SendBookingConfirmationEmailAsync(user.Email, confirmationModel);
+#if DEBUG
+                        // Skip email sending in development
+                        _logger.LogInformation($"Email sending skipped in development for user: {user.Email}");
+#else
+                try
+                {
+                    // Create confirmation model
+                    var confirmationModel = new BookingConfirmationModel
+                    {
+                        BookingNo = booking.BookingNo,
+                        CustomerName = $"{customer.CustFirstName} {customer.CustLastName}",
+                        PackageName = package.PkgName,
+                        TripStart = viewModel.TripStart,
+                        TripEnd = viewModel.TripEnd,
+                        TravelerCount = viewModel.TravelerCount,
+                        TotalPrice = bookingDetail.BasePrice ?? 0m
+                    };
+
+                    // Send confirmation email
+                    await _emailService.SendBookingConfirmationEmailAsync(user.Email, confirmationModel);
+                    _logger.LogInformation($"Confirmation email sent to: {user.Email}");
+                }
+                catch (Exception emailEx)
+                {
+                    // Log email error but don't stop the booking process
+                    _logger.LogError(emailEx, "Failed to send confirmation email");
+                }
+#endif
 
                         TempData["SuccessMessage"] = "Booking confirmed! A confirmation email has been sent to your email address.";
+
+                        // Log redirect parameters
+                        _logger.LogInformation($"Redirecting to Purchase with parameters: " +
+                            $"packageId={viewModel.PackageId}, " +
+                            $"customerId={viewModel.CustomerId}, " +
+                            $"travelerCount={viewModel.TravelerCount}, " +
+                            $"totalPrice={bookingDetail.BasePrice}");
+
+                        // Store booking details in TempData as backup
+                        TempData["BookingDetails"] = JsonSerializer.Serialize(new
+                        {
+                            packageId = viewModel.PackageId,
+                            customerId = viewModel.CustomerId,
+                            travelerCount = viewModel.TravelerCount,
+                            totalPrice = bookingDetail.BasePrice ?? 0
+                        });
 
                         return RedirectToAction("Purchase", "Purchase", new
                         {
                             packageId = viewModel.PackageId,
                             customerId = viewModel.CustomerId,
                             travelerCount = viewModel.TravelerCount,
-                            totalPrice = bookingDetail.BasePrice
+                            totalPrice = bookingDetail.BasePrice ?? 0
                         });
                     }
                     else
                     {
+                        _logger.LogWarning($"Customer information not found for user ID: {userId}");
                         ModelState.AddModelError("", "Customer information not found.");
                     }
+                }
+                else
+                {
+                    var errors = string.Join("; ", ModelState.Values
+                        .SelectMany(v => v.Errors)
+                        .Select(e => e.ErrorMessage));
+                    _logger.LogWarning($"ModelState is invalid: {errors}");
                 }
             }
             catch (Exception ex)
@@ -197,6 +240,7 @@ namespace Travel_Agency___Web.Controllers
                 ModelState.AddModelError("", "An error occurred while processing your booking.");
             }
 
+            _logger.LogWarning("Returning to Book view due to errors");
             return View(viewModel);
         }
 

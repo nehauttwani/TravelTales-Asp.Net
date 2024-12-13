@@ -1,32 +1,68 @@
-﻿
-@model IEnumerable<Travel_Agency___Data.Models.Package>
+﻿@model IEnumerable<Travel_Agency___Data.Models.Package>
 
 @{
     ViewData["Title"] = "View Packages";
     ViewData["ActivePage"] = "Package";
 }
 
-<div class="container contenedor text-center mt-5">
-    <h1 class="text-center">Available Travel Packages</h1>
-    <div class="row">
+<div class="container" style="margin-top: 100px;">
+    <h1 class="text-center mb-5">Available Travel Packages</h1>
+
+    <div class="row g-4">
         @foreach (var item in Model)
         {
-            <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
-                <div class="container_foto">
-                    <img src="@item.ImagePath?.Substring(1)" alt="@item.PkgName" />
-                    <article class="text-left">
-                        <h2>@item.PkgName</h2>
-                        <h4>@item.PkgDesc</h4>
-                        <p>Start Date: @item.PkgStartDate</p>
-                        <p>End Date: @item.PkgEndDate</p>
-                        <p>Price: $@item.PkgBasePrice.ToString("F2")</p>
-                    </article>
-                    <div class="ver_mas text-center">
-                        <a href="@Url.Action("Book", "Booking", new { id = item.PackageId })" class="btn btn-primary book-now">Book Now</a>
+            <div class="col-lg-4 col-md-6 col-sm-12">
+                <div class="card h-100 border-0 shadow-sm">
+                    @{
+                        var imagePath = !string.IsNullOrEmpty(item.ImagePath)
+                        ? item.ImagePath.StartsWith("/")
+                        ? item.ImagePath.Substring(1)
+                        : item.ImagePath
+                        : "images/default-package.jpg";
+                    }
+
+                    <img src="@imagePath"
+                         class="card-img-top"
+                         alt="@item.PkgName"
+                         style="height: 200px; object-fit: cover;"
+                         onerror="this.src='/images/default-package.jpg';" />
+
+                    <div class="card-body">
+                        <h5 class="card-title text-primary">@item.PkgName</h5>
+                        <p class="card-text text-muted">@item.PkgDesc</p>
+
+                        <div class="package-details">
+                            <div class="mb-2">
+                                <small class="text-muted">Start Date</small>
+                                <div class="fw-semibold">
+                                    @(item.PkgStartDate?.ToString("MMM dd, yyyy") ?? "Contact for dates")
+                                </div>
+                            </div>
+
+                            <div class="mb-2">
+                                <small class="text-muted">End Date</small>
+                                <div class="fw-semibold">
+                                    @(item.PkgEndDate?.ToString("MMM dd, yyyy") ?? "Contact for dates")
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <small class="text-muted">Price</small>
+                                <div class="h5 text-primary mb-0">
+                                    $@item.PkgBasePrice.ToString("F2")
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-center mt-3">
+                            <a href="@Url.Action("Book", "Booking", new { id = item.PackageId })"
+                               class="btn btn-outline-primary w-100">
+                                Book Now
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
         }
     </div>
 </div>
-

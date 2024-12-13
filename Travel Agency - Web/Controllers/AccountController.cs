@@ -6,6 +6,10 @@ using Travel_Agency___Data.ModelManagers;
 using Travel_Agency___Data.ViewModels;
 using System.Threading.Tasks;
 using Travel_Agency___Data;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Logging;
+using SixLabors.ImageSharp;
+using System.IO;
 
 namespace Travel_Agency___Web.Controllers
 {
@@ -16,6 +20,7 @@ namespace Travel_Agency___Web.Controllers
         private readonly AgentsAndAgenciesManager _agentsAndAgenciesManager;
         private readonly SignInManager<User> signInManager;
         private readonly UserManager<User> userManager;
+        private readonly ILogger<AccountController> _logger; 
 
         // Constructor
         public AccountController(
@@ -23,24 +28,37 @@ namespace Travel_Agency___Web.Controllers
             SignInManager<User> signInManager,
             UserManager<User> userManager,
             CustomerManager customerManager,
-            AgentsAndAgenciesManager agentsAndAgenciesManager)
+            AgentsAndAgenciesManager agentsAndAgenciesManager,
+            ILogger<AccountController> logger) 
         {
             _context = context;
             this.signInManager = signInManager;
             this.userManager = userManager;
             _customerManager = customerManager;
             _agentsAndAgenciesManager = agentsAndAgenciesManager;
+            _logger = logger; 
         }
 
         // GET: Account/Register
         public ActionResult Register()
         {
-            var registerViewModel = new RegisterViewModel()
+            try
             {
-                // Ensure that Agents is not null by using null-coalescing operator
-                Agents = _agentsAndAgenciesManager.GetAgents() ?? new List<Agent>()
-            };
-            return View(registerViewModel);
+                var agents = _agentsAndAgenciesManager.GetAgents() ?? new List<Agent>();
+                var registerViewModel = new RegisterViewModel
+                {
+                    Agents = agents
+                };
+                return View(registerViewModel);
+            }
+            catch (Exception ex)
+            {
+                // Log the error
+                return View(new RegisterViewModel
+                {
+                    Agents = new List<Agent>() 
+                });
+            }
         }
 
         // POST: AccountController/Register
@@ -75,7 +93,7 @@ namespace Travel_Agency___Web.Controllers
                         CustPostal = registerViewModel.CustPostal!,
                         CustCountry = registerViewModel.CustCountry!,
                         CustHomePhone = registerViewModel.CustHomePhone!,
-                        CustBusPhone = registerViewModel.CustBusPhone!,
+                        CustBusPhone = registerViewModel.CustBusPhone,
                         CustEmail = registerViewModel.CustEmail!
                     };
 
@@ -240,54 +258,82 @@ namespace Travel_Agency___Web.Controllers
             return View();
         }
 
-            [HttpPost]
-            [ValidateAntiForgeryToken]
-            public async Task<IActionResult> UpdateProfilePicture(IFormFile profilePicture)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateProfilePicture(IFormFile profilePicture)
+        {
+            try
             {
                 if (profilePicture == null || profilePicture.Length == 0)
                 {
-                    ModelState.AddModelError("", "Please select a file");
+                    TempData["ErrorMessage"] = "Please select a file";
                     return RedirectToAction("Profile");
                 }
 
                 var user = await userManager.GetUserAsync(User);
-                if (user == null)
+                if (user?.CustomerId == null)
                 {
                     return RedirectToAction("Login");
                 }
 
-                var customer = await _customerManager.GetCustomerAsync(user.CustomerId.Value);
-                if (customer == null)
+                // Validate file
+                var extension = Path.GetExtension(profilePicture.FileName).ToLowerInvariant();
+                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png" };
+
+                if (!allowedExtensions.Contains(extension))
                 {
-                    return RedirectToAction("Login");
+                    TempData["ErrorMessage"] = "Only .jpg, .jpeg and .png files are allowed";
+                    return RedirectToAction("Profile");
                 }
 
-                // Create filename based on CustomerId
-                var fileName = $"customer_{customer.CustomerId}.jpg";
-                var filePath = Path.Combine("wwwroot", "images", "profile_pictures", fileName);
-                var directory = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "profile_pictures");
+                if (profilePicture.Length > 2 * 1024 * 1024) // 2MB
+                {
+                    TempData["ErrorMessage"] = "File size must be less than 2MB";
+                    return RedirectToAction("Profile");
+                }
 
                 // Create directory if it doesn't exist
-                if (!Directory.Exists(directory))
+                var directory = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "profile_pictures");
+                Directory.CreateDirectory(directory);
+
+                // Create filename with original extension
+                var fileName = $"customer_{user.CustomerId}{extension}";
+                var filePath = Path.Combine(directory, fileName);
+
+                // Delete existing files with same name but different extensions
+                foreach (var ext in allowedExtensions)
                 {
-                    Directory.CreateDirectory(directory);
+                    var existingFile = Path.Combine(directory, $"customer_{user.CustomerId}{ext}");
+                    if (System.IO.File.Exists(existingFile))
+                    {
+                        System.IO.File.Delete(existingFile);
+                    }
                 }
 
-                // Save file
-                using (var fileStream = new FileStream(Path.Combine(Directory.GetCurrentDirectory(), filePath), FileMode.Create))
+                // Save new file
+                using (var stream = new FileStream(filePath, FileMode.Create))
                 {
-                    await profilePicture.CopyToAsync(fileStream);
+                    await profilePicture.CopyToAsync(stream);
                 }
 
-                return RedirectToAction("Profile");
+                TempData["SuccessMessage"] = "Profile picture updated successfully";
+                _logger.LogInformation($"Profile picture updated for user {user.Id}");
             }
-     
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating profile picture");
+                TempData["ErrorMessage"] = "Error updating profile picture";
+            }
+
+            return RedirectToAction("Profile");
+        }
+
         // POST: AccountController/Login
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> LoginAsync(LoginViewModal loginViewModal)
         {
-            if (ModelState.IsValid) // Check if model is valid
+            if (ModelState.IsValid) 
             {
                 var result = await signInManager.PasswordSignInAsync(loginViewModal.Username!, loginViewModal.Password!, loginViewModal.RememberMe, false);
                 if (result.Succeeded) // If successful, go to home page
@@ -303,8 +349,95 @@ namespace Travel_Agency___Web.Controllers
             return View();
         }
 
-        // GET: Account/Logout
-        public async Task<IActionResult> Logout()
+        [HttpGet]
+        [Authorize]
+        public IActionResult ChangePassword()
+        {
+            TempData["PasswordChange"] = true;
+            return View();
+        }
+
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> ChangePassword(PasswordOperationsViewModel model)
+        {
+            ModelState.Remove("Email");
+            ModelState.Remove("ResetToken");
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var user = await userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                ModelState.AddModelError("", "User not found.");
+                return View(model);
+            }
+
+            var result = await userManager.ChangePasswordAsync(user, model.CurrentPassword!, model.Password!);
+
+            if (result.Succeeded)
+            {
+                await signInManager.RefreshSignInAsync(user);
+                TempData["SuccessMessage"] = "Your password has been changed successfully.";
+                return RedirectToAction("Index", "Home");
+            }
+
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
+            return View(model);
+        }
+
+
+
+        [HttpGet]
+        public IActionResult ResetPassword(string? token = "")
+        {
+            TempData["PasswordChange"] = true;
+            return View(new PasswordOperationsViewModel { ResetToken = token });
+        }
+
+        // POST: AccountController/Login
+        [HttpPost]
+        public async Task<IActionResult> ResetPassword(PasswordOperationsViewModel model)
+        {
+            ModelState.Remove("CurrentPassword");
+            ModelState.Remove("ResetToken");
+
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var user = await userManager.FindByEmailAsync(model.Email);
+            if (user == null)
+            {
+                ModelState.AddModelError("", "No user exists with this email address.");
+                return View(model);
+            }
+            model.ResetToken = await userManager.GeneratePasswordResetTokenAsync(user);
+            var result = await userManager.ResetPasswordAsync(user, model.ResetToken, model.Password!);
+            if (result.Succeeded)
+            {
+                TempData["SuccessMessage"] = "Your password has been reset successfully.";
+                return RedirectToAction("Login");
+            }
+
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError("", error.Description);
+            }
+            return View(model);
+        }
+
+    
+
+
+// GET: Account/Logout
+public async Task<IActionResult> Logout()
         {
             await signInManager.SignOutAsync();
             return RedirectToAction("Index", "Home");

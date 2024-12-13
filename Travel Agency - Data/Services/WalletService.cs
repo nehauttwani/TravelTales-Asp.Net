@@ -3,12 +3,15 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Travel_Agency___Data.Models;
 using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
 
 namespace Travel_Agency___Data.Services
 {
     public class WalletService
     {
         private readonly TravelExpertsContext _context;
+        private readonly ILogger<WalletService> _logger;
+
 
         public WalletService(TravelExpertsContext context)
         {
@@ -106,6 +109,53 @@ namespace Travel_Agency___Data.Services
 
             // Simulate payment success (this can be replaced with actual payment gateway logic)
             return true;
+        }
+
+        public async Task<bool> AddCreditCardAsync(CreditCard creditCard)
+        {
+            try
+            {
+                // Basic validation
+                if (string.IsNullOrEmpty(creditCard.Ccnumber) ||
+                    string.IsNullOrEmpty(creditCard.Ccname) ||
+                    creditCard.Ccexpiry < DateTime.Now)
+                {
+                    return false;
+                }
+
+                _context.CreditCards.Add(creditCard);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error adding credit card for CustomerId: {CustomerId}",
+                                creditCard.CustomerId);
+                return false;
+            }
+        }
+        public async Task<bool> DeleteCreditCardAsync(int customerId, int creditCardId)
+        {
+            try
+            {
+                var creditCard = await _context.CreditCards
+                    .FirstOrDefaultAsync(cc => cc.CreditCardId == creditCardId && cc.CustomerId == customerId);
+
+                if (creditCard == null)
+                {
+                    return false;
+                }
+
+                _context.CreditCards.Remove(creditCard);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting credit card. CustomerId: {CustomerId}, CreditCardId: {CreditCardId}",
+                    customerId, creditCardId);
+                return false;
+            }
         }
     }
 }

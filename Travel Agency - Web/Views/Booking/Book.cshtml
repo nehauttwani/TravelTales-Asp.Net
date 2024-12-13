@@ -3,71 +3,102 @@
     ViewData["Title"] = "Book Package";
 }
 <div class="container mb-4" style="margin-top: 7rem;">
-    <h2 class="text-center mb-4">Book Your Package</h2>
-    <div class="alert alert-info">
-        You are booking as an authenticated customer. Your customer information will be automatically associated with this booking.
-    </div>
-    <div class="row justify-content-center">
-        <div class="col-md-10">
-            <div class="card shadow">
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-5">
-                            <img src="@Model.PackageImage" alt="@Model.PackageName" class="img-fluid mb-3">
-                            <h4>@Model.PackageName</h4>
-                            <p>@Model.Description</p>
-                            <p><strong>Price:</strong> $@Model.Price.ToString("F2") per person</p>
-                            <p><strong>Start Date:</strong> @Model.TripStart.ToString("MM/dd/yyyy")</p>
-                            <p><strong>End Date:</strong> @Model.TripEnd.ToString("MM/dd/yyyy")</p>
-                            <hr />
-                            <p id="totalPriceContainer" style="display: none;">
-                                <strong>Total Price:</strong> $<span id="totalPrice"></span>
-                            </p>
-                        </div>
-                        <div class="col-md-7">
-                            <form asp-action="Book" method="post">
-                                <input type="hidden" asp-for="PackageId" />
-                                <input type="hidden" asp-for="PackageName" />
-                                <input type="hidden" asp-for="Price" />
-                                <input type="hidden" asp-for="AgencyCommission" />
-                                <input type="hidden" asp-for="TripStart" value="@Model.TripStart" />
-                                <input type="hidden" asp-for="TripEnd" value="@Model.TripEnd" />
-                                <input type="hidden" asp-for="Description" />
+    <div class="card shadow">
+        <div class="card-header bg-dark text-white">
+            <h3 class="mb-0 text-center">Book Your Package</h3>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>You are booking as an authenticated customer.
+            </div>
 
-                                <div class="mb-3">
-                                    <label asp-for="TravelerCount" class="form-label">Number of Travelers</label>
-                                    <input asp-for="TravelerCount" class="form-control" id="travelerCount" oninput="updateTotalPrice()" />
-                                    <span asp-validation-for="TravelerCount" class="text-danger"></span>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label asp-for="TripTypeId" class="form-label">Trip Type</label>
-                                    <select asp-for="TripTypeId" class="form-select" asp-items="@(new SelectList(Model.TripTypes, "TripTypeId", "Ttname"))">
-                                        <option value="">-- Select Trip Type --</option>
-                                    </select>
-                                    <span asp-validation-for="TripTypeId" class="text-danger"></span>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label asp-for="Destination" class="form-label">Destination</label>
-                                    <input asp-for="Destination" class="form-control" />
-                                    <span asp-validation-for="Destination" class="text-danger"></span>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label asp-for="ClassId" class="form-label">Travel Accommodations</label>
-                                    <select asp-for="ClassId" class="form-select" asp-items="@(new SelectList(Model.Classes, "ClassId", "ClassName"))">
-                                        <option value="">-- Select Travel Accommodation Type --</option>
-                                    </select>
-                                    <span asp-validation-for="ClassId" class="text-danger"></span>
-                                </div>
-
-                                <div class="text-center mt-4">
-                                    <button type="submit" class="btn btn-primary btn-lg">Book Now</button>
-                                </div>
-                            </form>
+            <div class="row">
+                <!-- Package Details Column -->
+                <div class="col-md-5">
+                    <img src="@Model.PackageImage" alt="@Model.PackageName" class="img-fluid rounded mb-3">
+                    <div class="package-details p-3 bg-light rounded">
+                        <h4>@Model.PackageName</h4>
+                        <p>@Model.Description</p>
+                        <p><i class="fas fa-tag me-2"></i><strong>Price:</strong> $@Model.Price.ToString("F2") per person</p>
+                        <p><i class="fas fa-calendar me-2"></i><strong>Start:</strong> @Model.TripStart.ToString("MMM dd, yyyy")</p>
+                        <p><i class="fas fa-calendar-check me-2"></i><strong>End:</strong> @Model.TripEnd.ToString("MMM dd, yyyy")</p>
+                        <hr />
+                        <div id="totalPriceContainer" class="alert alert-success" style="display: none;">
+                            <strong>Total Price:</strong> $<span id="totalPrice"></span>
                         </div>
                     </div>
+                </div>
+
+                <!-- Booking Form Column -->
+                <div class="col-md-7">
+                    <form asp-action="Book" method="post">
+                        @Html.AntiForgeryToken()
+
+                        <!-- Hidden Fields -->
+                        <input type="hidden" asp-for="PackageId" />
+                        <input type="hidden" asp-for="PackageName" />
+                        <input type="hidden" asp-for="Price" />
+                        <input type="hidden" asp-for="AgencyCommission" />
+                        <input type="hidden" asp-for="TripStart" />
+                        <input type="hidden" asp-for="TripEnd" />
+                        <input type="hidden" asp-for="Description" />
+                        <input type="hidden" asp-for="BookingDate" value="@DateTime.Now" />
+
+                        <!-- Form Fields -->
+                        <div class="mb-3">
+                            <label asp-for="TravelerCount" class="form-label">
+                                <i class="fas fa-users me-2"></i>Number of Travelers
+                            </label>
+                            <input asp-for="TravelerCount"
+                                   class="form-control"
+                                   id="travelerCount"
+                                   min="1"
+                                   value="1"
+                                   oninput="updateTotalPrice()" />
+                            <span asp-validation-for="TravelerCount" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="TripTypeId" class="form-label">
+                                <i class="fas fa-plane me-2"></i>Trip Type
+                            </label>
+                            <select asp-for="TripTypeId"
+                                    class="form-select"
+                                    asp-items="@(new SelectList(Model.TripTypes, "TripTypeId", "Ttname"))">
+                                <option value="">-- Select Trip Type --</option>
+                            </select>
+                            <span asp-validation-for="TripTypeId" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Destination" class="form-label">
+                                <i class="fas fa-map-marker-alt me-2"></i>Destination
+                            </label>
+                            <input asp-for="Destination" class="form-control" required />
+                            <span asp-validation-for="Destination" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="ClassId" class="form-label">
+                                <i class="fas fa-hotel me-2"></i>Travel Accommodations
+                            </label>
+                            <select asp-for="ClassId"
+                                    class="form-select"
+                                    asp-items="@(new SelectList(Model.Classes, "ClassId", "ClassName"))">
+                                <option value="">-- Select Accommodation Type --</option>
+                            </select>
+                            <span asp-validation-for="ClassId" class="text-danger"></span>
+                        </div>
+
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-book me-2"></i>Book Now
+                            </button>
+                            <a asp-controller="Package" asp-action="Index" class="btn btn-secondary ms-2">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </a>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -80,7 +111,7 @@
     }
     <script>
         function updateTotalPrice() {
-            var travelers = document.getElementById('travelerCount').value;
+            var travelers = parseInt(document.getElementById('travelerCount').value) || 0;
             var pricePerPerson = @Model.Price;
             var totalPriceContainer = document.getElementById('totalPriceContainer');
             var totalPriceSpan = document.getElementById('totalPrice');
@@ -93,5 +124,10 @@
                 totalPriceContainer.style.display = 'none';
             }
         }
+
+        // Initialize total price on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateTotalPrice();
+        });
     </script>
 }

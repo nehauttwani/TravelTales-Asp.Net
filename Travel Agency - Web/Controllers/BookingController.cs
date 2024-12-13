@@ -1,14 +1,15 @@
-﻿// BookingController.cs
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
 using System.Security.Claims;
 using Travel_Agency___Data;
 using Travel_Agency___Data.ModelManagers;
 using Travel_Agency___Data.Models;
+using Travel_Agency___Data.Services;
 using Travel_Agency___Data.ViewModels;
+using System.Text.Json;
+
 
 namespace Travel_Agency___Web.Controllers
 {
@@ -19,14 +20,22 @@ namespace Travel_Agency___Web.Controllers
         private readonly PackageManager packageManager;
         private readonly CustomerManager customerManager;
         private readonly UserManager<User> userManager;
+        private readonly EmailService _emailService;
+        private readonly ILogger<BookingController> _logger;
 
-        public BookingController(TravelExpertsContext context, UserManager<User> userManager)
+        public BookingController(
+            TravelExpertsContext context,
+            UserManager<User> userManager,
+            EmailService emailService,
+            ILogger<BookingController> logger)
         {
             _context = context;
             bookingManager = new BookingManager(_context);
             packageManager = new PackageManager(_context);
             customerManager = new CustomerManager(_context);
             this.userManager = userManager;
+            _emailService = emailService;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -56,73 +65,182 @@ namespace Travel_Agency___Web.Controllers
             return View(viewModel);
         }
 
+
+        //testing 
+
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> SendTestEmail()
+        {
+            try
+            {
+                var user = await userManager.GetUserAsync(User);
+                if (user == null)
+                {
+                    TempData["ErrorMessage"] = "User not found.";
+                    return RedirectToAction("Index", "Home");
+                }
+
+                var testBooking = new BookingConfirmationModel
+                {
+                    BookingNo = "TEST-" + DateTime.Now.ToString("yyyyMMddHHmmss"),
+                    CustomerName = user.FullName ?? "Test Customer",
+                    PackageName = "Test Package",
+                    TripStart = DateTime.Now.AddDays(7),
+                    TripEnd = DateTime.Now.AddDays(14),
+                    TravelerCount = 2,
+                    TotalPrice = 1999.99m
+                };
+
+                await _emailService.SendBookingConfirmationEmailAsync(user.Email, testBooking);
+                TempData["SuccessMessage"] = $"Test email sent successfully to {user.Email}";
+                _logger.LogInformation($"Test email sent to {user.Email}");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error sending test email");
+                TempData["ErrorMessage"] = "Failed to send test email: " + ex.Message;
+            }
+
+            return RedirectToAction("Profile", "Account");
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize]
         public async Task<IActionResult> Book(BookingViewModel viewModel)
         {
-            viewModel.TripTypes = _context.TripTypes.ToList();
-            viewModel.Classes = _context.Classes.ToList();
-            ModelState.Remove("BookingNo");
-
-            if (ModelState.IsValid)
+            try
             {
-                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                var user = await userManager.FindByIdAsync(userId!);
+                viewModel.TripTypes = _context.TripTypes.ToList();
+                viewModel.Classes = _context.Classes.ToList();
+                ModelState.Remove("BookingNo");
 
-                if (user != null && user.CustomerId.HasValue)
+                if (ModelState.IsValid)
                 {
-                    viewModel.CustomerId = user.CustomerId.Value;
-                    var customer = await customerManager.GetCustomerAsync(user.CustomerId.Value);
-                    viewModel.BookingNo = customer != null
-                        ? GenerateBookingNumber(customer.CustFirstName)
-                        : GenerateBookingNumber("Guest");
+                    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                    var user = await userManager.FindByIdAsync(userId!);
 
-                    var booking = new Booking
+                    if (user != null && user.CustomerId.HasValue)
                     {
-                        BookingDate = viewModel.BookingDate,
-                        BookingNo = viewModel.BookingNo,
-                        TravelerCount = viewModel.TravelerCount,
-                        CustomerId = viewModel.CustomerId,
-                        TripTypeId = viewModel.TripTypeId,
-                        PackageId = viewModel.PackageId
-                    };
+                        viewModel.CustomerId = user.CustomerId.Value;
+                        var customer = await customerManager.GetCustomerAsync(user.CustomerId.Value);
+                        viewModel.BookingNo = customer != null
+                            ? GenerateBookingNumber(customer.CustFirstName)
+                            : GenerateBookingNumber("Guest");
 
-                    bookingManager.AddBooking(booking);
+                        var booking = new Booking
+                        {
+                            BookingDate = viewModel.BookingDate,
+                            BookingNo = viewModel.BookingNo,
+                            TravelerCount = viewModel.TravelerCount,
+                            CustomerId = viewModel.CustomerId,
+                            TripTypeId = viewModel.TripTypeId,
+                            PackageId = viewModel.PackageId
+                        };
 
-                    // Get a default ProductSupplierId from the database
-                    var defaultProductSupplierId = _context.ProductsSuppliers.First().ProductSupplierId;
+                        bookingManager.AddBooking(booking);
 
-                    var bookingDetail = new BookingDetail
+                        var defaultProductSupplierId = _context.ProductsSuppliers.First().ProductSupplierId;
+
+                        var bookingDetail = new BookingDetail
+                        {
+                            BookingId = booking.BookingId,
+                            ItineraryNo = viewModel.CustomerId,
+                            TripStart = viewModel.TripStart,
+                            TripEnd = viewModel.TripEnd,
+                            Description = viewModel.Description,
+                            Destination = viewModel.Destination,
+                            BasePrice = viewModel.Price * viewModel.TravelerCount,
+                            AgencyCommission = viewModel.AgencyCommission,
+                            ClassId = viewModel.ClassId,
+                            ProductSupplierId = defaultProductSupplierId
+                        };
+
+                        bookingManager.AddBookingDetails(bookingDetail);
+
+                        // Get package details for email
+                        var package = packageManager.GetPackage(viewModel.PackageId);
+
+                        _logger.LogInformation($"Booking created successfully. BookingId: {booking.BookingId}");
+                        _logger.LogInformation($"Booking details created successfully. BasePrice: {bookingDetail.BasePrice}");
+
+#if DEBUG
+                        // Skip email sending in development
+                        _logger.LogInformation($"Email sending skipped in development for user: {user.Email}");
+#else
+                try
+                {
+                    // Create confirmation model
+                    var confirmationModel = new BookingConfirmationModel
                     {
-                        BookingId = booking.BookingId,
-                        ItineraryNo = viewModel.CustomerId,
+                        BookingNo = booking.BookingNo,
+                        CustomerName = $"{customer.CustFirstName} {customer.CustLastName}",
+                        PackageName = package.PkgName,
                         TripStart = viewModel.TripStart,
                         TripEnd = viewModel.TripEnd,
-                        Description = viewModel.Description,
-                        Destination = viewModel.Destination,
-                        BasePrice = viewModel.Price * viewModel.TravelerCount,
-                        AgencyCommission = viewModel.AgencyCommission,
-                        ClassId = viewModel.ClassId,
-                        ProductSupplierId = defaultProductSupplierId  // Set a default value
+                        TravelerCount = viewModel.TravelerCount,
+                        TotalPrice = bookingDetail.BasePrice ?? 0m
                     };
 
-                    bookingManager.AddBookingDetails(bookingDetail);
+                    // Send confirmation email
+                    await _emailService.SendBookingConfirmationEmailAsync(user.Email, confirmationModel);
+                    _logger.LogInformation($"Confirmation email sent to: {user.Email}");
+                }
+                catch (Exception emailEx)
+                {
+                    // Log email error but don't stop the booking process
+                    _logger.LogError(emailEx, "Failed to send confirmation email");
+                }
+#endif
 
-                    return RedirectToAction("Purchase", "Purchase", new
+                        TempData["SuccessMessage"] = "Booking confirmed! A confirmation email has been sent to your email address.";
+
+                        // Log redirect parameters
+                        _logger.LogInformation($"Redirecting to Purchase with parameters: " +
+                            $"packageId={viewModel.PackageId}, " +
+                            $"customerId={viewModel.CustomerId}, " +
+                            $"travelerCount={viewModel.TravelerCount}, " +
+                            $"totalPrice={bookingDetail.BasePrice}");
+
+                        // Store booking details in TempData as backup
+                        TempData["BookingDetails"] = JsonSerializer.Serialize(new
+                        {
+                            packageId = viewModel.PackageId,
+                            customerId = viewModel.CustomerId,
+                            travelerCount = viewModel.TravelerCount,
+                            totalPrice = bookingDetail.BasePrice ?? 0
+                        });
+
+                        return RedirectToAction("Purchase", "Purchase", new
+                        {
+                            packageId = viewModel.PackageId,
+                            customerId = viewModel.CustomerId,
+                            travelerCount = viewModel.TravelerCount,
+                            totalPrice = bookingDetail.BasePrice ?? 0
+                        });
+                    }
+                    else
                     {
-                        packageId = viewModel.PackageId,
-                        customerId = viewModel.CustomerId,
-                        travelerCount = viewModel.TravelerCount,
-                        totalPrice = bookingDetail.BasePrice
-                    });
+                        _logger.LogWarning($"Customer information not found for user ID: {userId}");
+                        ModelState.AddModelError("", "Customer information not found.");
+                    }
                 }
                 else
                 {
-                    ModelState.AddModelError("", "Customer information not found.");
+                    var errors = string.Join("; ", ModelState.Values
+                        .SelectMany(v => v.Errors)
+                        .Select(e => e.ErrorMessage));
+                    _logger.LogWarning($"ModelState is invalid: {errors}");
                 }
             }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error processing booking");
+                ModelState.AddModelError("", "An error occurred while processing your booking.");
+            }
 
+            _logger.LogWarning("Returning to Book view due to errors");
             return View(viewModel);
         }
 

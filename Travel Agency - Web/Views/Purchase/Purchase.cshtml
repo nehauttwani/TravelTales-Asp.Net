@@ -1,34 +1,52 @@
 ﻿@model Travel_Agency___Data.ViewModels.PurchaseViewModel
 
-<div class="container mt-5">
+<div class="container mb-4" style="margin-top: 7rem;">
     <div class="card shadow-lg border-0">
-        <div class="card-header bg-primary text-white text-center py-4">
-            <h2 class="mb-0">Purchase Package</h2>
+        <div class="card-header bg-dark text-white text-center py-4">
+            <h3 class="mb-0">Complete Your Purchase</h3>
         </div>
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show m-3" role="alert">
+                @TempData["ErrorMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
         <div class="card-body">
             <div class="row">
                 <!-- Package Details -->
                 <div class="col-md-8 border-end">
-                    <h4 class="text-success">@Model.PackageName</h4>
-                    <p class="text-muted">@Model.Description</p>
-                    <ul class="list-unstyled">
-                        <li>
-                            <strong>Price Per Person:</strong>
-                            <span class="text-primary">$@Model.PricePerPerson.ToString("F2")</span>
-                        </li>
-                        <li>
-                            <strong>Number of Travelers:</strong>
-                            <span class="text-primary">@Model.TravelerCount</span>
-                        </li>
-                        <li>
-                            <strong>Total Price:</strong>
-                            <span class="text-primary">$@Model.TotalPrice.ToString("F2")</span>
-                        </li>
-                        <li>
-                            <strong>Your Wallet Balance:</strong>
-                            <span class="text-primary">$@Model.WalletBalance.ToString("F2")</span>
-                        </li>
-                    </ul>
+                    <h4 class="text-success mb-4">@Model.PackageName</h4>
+                    <p class="text-muted mb-4">@Model.Description</p>
+
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            <ul class="list-unstyled mb-0">
+                                <li class="mb-3">
+                                    <i class="fas fa-user-friends me-2 text-primary"></i>
+                                    <strong>Price Per Person:</strong>
+                                    <span class="float-end text-primary">$@Model.PricePerPerson.ToString("F2")</span>
+                                </li>
+                                <li class="mb-3">
+                                    <i class="fas fa-users me-2 text-primary"></i>
+                                    <strong>Number of Travelers:</strong>
+                                    <span class="float-end text-primary">@Model.TravelerCount</span>
+                                </li>
+                                <li class="mb-3">
+                                    <i class="fas fa-tag me-2 text-primary"></i>
+                                    <strong>Total Price:</strong>
+                                    <span class="float-end text-primary">$@Model.TotalPrice.ToString("F2")</span>
+                                </li>
+                                <li>
+                                    <i class="fas fa-wallet me-2 text-primary"></i>
+                                    <strong>Your Wallet Balance:</strong>
+                                    <span class="float-end text-primary">$@Model.WalletBalance.ToString("F2")</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Action Buttons -->
@@ -40,19 +58,31 @@
                             <input type="hidden" asp-for="PackageId" />
                             <input type="hidden" asp-for="TotalPrice" />
 
-                            <button type="submit" class="btn btn-success btn-lg w-100 mb-3">Pay Now</button>
+                            <button type="submit" class="btn btn-success btn-lg w-100 mb-3">
+                                <i class="fas fa-credit-card me-2"></i>Complete Purchase
+                            </button>
                         </form>
                     }
                     else
                     {
-                        <p class="text-danger text-center mb-3">
-                            Insufficient wallet balance. Please add funds to your wallet.
-                        </p>
+                        <div class="alert alert-warning text-center mb-3">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Insufficient wallet balance.<br />Please add funds to continue.
+                        </div>
+
+                        <a asp-controller="Wallet"
+                           asp-action="Index"
+                           asp-route-customerId="@Model.CustomerId"
+                           class="btn btn-primary btn-lg w-100 mb-3">
+                            <i class="fas fa-wallet me-2"></i>Add Funds
+                        </a>
                     }
-                    <a href="/Home/Index" class="btn btn-secondary btn-lg w-100">Cancel</a>
-                    <div class="text-center mt-4">
-                        <a asp-controller="Wallet" asp-action="Index" asp-route-customerId="@Model.CustomerId" class="btn btn-info">Manage Wallet</a>
-                    </div>
+
+                    <a asp-controller="Package"
+                       asp-action="Index"
+                       class="btn btn-secondary btn-lg w-100">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </a>
                 </div>
             </div>
         </div>

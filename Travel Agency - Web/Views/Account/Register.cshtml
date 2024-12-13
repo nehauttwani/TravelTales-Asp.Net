@@ -86,7 +86,7 @@
                                             <span asp-validation-for="CustHomePhone" class="text-danger"></span>
                                         </div>
                                         <div class="mb-3">
-                                            <label asp-for="CustBusPhone" class="form-label">Business Phone (optional)</label>
+                                            <label asp-for="CustBusPhone" class="form-label">Business Phone(optional)</label>
                                             <input asp-for="CustBusPhone" class="form-control" oninput="formatPhoneNumber(this)" />
                                             <span asp-validation-for="CustBusPhone" class="text-danger"></span>
                                         </div>
@@ -109,7 +109,12 @@
                                     <div class="col-md-6">
                                         <div class="mb-3">
                                             <label asp-for="AgentId" class="form-label">Preferred Agent (optional)</label>
-                                            <select asp-for="AgentId" class="form-select" asp-items="@(new SelectList(Model?.Agents, "AgentId", "AgtFirstName", "AgtLastName"))">
+                                            <select asp-for="AgentId" class="form-select"
+                                                    asp-items='@(Model?.Agents != null ?
+                                                      new SelectList(Model.Agents, "AgentId",
+                                                                 "AgtFirstName", "AgtLastName",
+                                                                                                     null) :
+                                                                  new SelectList(new List<Agent>()))'>
                                                 <option value="">-- Select Agent --</option>
                                             </select>
                                         </div>

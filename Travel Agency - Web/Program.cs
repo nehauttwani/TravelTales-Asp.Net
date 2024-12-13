@@ -30,6 +30,11 @@ builder.Services.AddScoped<AgentsAndAgenciesManager>();
 builder.Services.AddScoped<WalletService>();
 builder.Services.AddScoped<PurchaseService>();
 
+builder.Services.AddLogging(builder =>
+{
+    builder.AddConsole();
+    builder.AddDebug();
+});
 
 var app = builder.Build();
 

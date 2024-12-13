@@ -7,6 +7,9 @@ using Travel_Agency___Data.ViewModels;
 using System.Threading.Tasks;
 using Travel_Agency___Data;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Logging;
+using SixLabors.ImageSharp;
+using System.IO;
 
 namespace Travel_Agency___Web.Controllers
 {
@@ -17,6 +20,7 @@ namespace Travel_Agency___Web.Controllers
         private readonly AgentsAndAgenciesManager _agentsAndAgenciesManager;
         private readonly SignInManager<User> signInManager;
         private readonly UserManager<User> userManager;
+        private readonly ILogger<AccountController> _logger; 
 
         // Constructor
         public AccountController(
@@ -24,13 +28,15 @@ namespace Travel_Agency___Web.Controllers
             SignInManager<User> signInManager,
             UserManager<User> userManager,
             CustomerManager customerManager,
-            AgentsAndAgenciesManager agentsAndAgenciesManager)
+            AgentsAndAgenciesManager agentsAndAgenciesManager,
+            ILogger<AccountController> logger) 
         {
             _context = context;
             this.signInManager = signInManager;
             this.userManager = userManager;
             _customerManager = customerManager;
             _agentsAndAgenciesManager = agentsAndAgenciesManager;
+            _logger = logger; 
         }
 
         // GET: Account/Register
@@ -50,7 +56,7 @@ namespace Travel_Agency___Web.Controllers
                 // Log the error
                 return View(new RegisterViewModel
                 {
-                    Agents = new List<Agent>() // Provide empty list instead of null
+                    Agents = new List<Agent>() 
                 });
             }
         }
@@ -252,32 +258,53 @@ namespace Travel_Agency___Web.Controllers
             return View();
         }
 
-            [HttpPost]
-            [ValidateAntiForgeryToken]
-            public async Task<IActionResult> UpdateProfilePicture(IFormFile profilePicture)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateProfilePicture(IFormFile profilePicture)
+        {
+            try
             {
+                // Check if file exists
                 if (profilePicture == null || profilePicture.Length == 0)
                 {
-                    ModelState.AddModelError("", "Please select a file");
+                    TempData["ErrorMessage"] = "Please select a file";
+                    return RedirectToAction("Profile");
+                }
+
+                // Check file size (e.g., 2MB limit)
+                const int maxFileSize = 2 * 1024 * 1024; // 2MB in bytes
+                if (profilePicture.Length > maxFileSize)
+                {
+                    TempData["ErrorMessage"] = "File size must be less than 2MB";
+                    return RedirectToAction("Profile");
+                }
+
+                // Check file type
+                var allowedTypes = new[] { "image/jpeg", "image/jpg", "image/png" };
+                if (!allowedTypes.Contains(profilePicture.ContentType.ToLower()))
+                {
+                    TempData["ErrorMessage"] = "Only .jpg, .jpeg and .png files are allowed";
                     return RedirectToAction("Profile");
                 }
 
                 var user = await userManager.GetUserAsync(User);
                 if (user == null)
                 {
+                    _logger.LogWarning("User not found when trying to update profile picture");
                     return RedirectToAction("Login");
                 }
 
                 var customer = await _customerManager.GetCustomerAsync(user.CustomerId.Value);
                 if (customer == null)
                 {
+                    _logger.LogWarning($"Customer not found for user {user.Id} when trying to update profile picture");
                     return RedirectToAction("Login");
                 }
 
                 // Create filename based on CustomerId
-                var fileName = $"customer_{customer.CustomerId}.jpg";
-                var filePath = Path.Combine("wwwroot", "images", "profile_pictures", fileName);
+                var fileName = $"customer_{customer.CustomerId}{Path.GetExtension(profilePicture.FileName)}";
                 var directory = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "profile_pictures");
+                var filePath = Path.Combine(directory, fileName);
 
                 // Create directory if it doesn't exist
                 if (!Directory.Exists(directory))
@@ -285,21 +312,36 @@ namespace Travel_Agency___Web.Controllers
                     Directory.CreateDirectory(directory);
                 }
 
-                // Save file
-                using (var fileStream = new FileStream(Path.Combine(Directory.GetCurrentDirectory(), filePath), FileMode.Create))
+                // Delete existing file if it exists
+                if (System.IO.File.Exists(filePath))
+                {
+                    System.IO.File.Delete(filePath);
+                }
+
+                // Save new file
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
                 {
                     await profilePicture.CopyToAsync(fileStream);
                 }
 
-                return RedirectToAction("Profile");
+                _logger.LogInformation($"Profile picture updated successfully for customer {customer.CustomerId}");
+                TempData["SuccessMessage"] = "Profile picture updated successfully";
             }
-     
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error uploading profile picture");
+                TempData["ErrorMessage"] = "Error uploading profile picture";
+            }
+
+            return RedirectToAction("Profile");
+        }
+
         // POST: AccountController/Login
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> LoginAsync(LoginViewModal loginViewModal)
         {
-            if (ModelState.IsValid) // Check if model is valid
+            if (ModelState.IsValid) 
             {
                 var result = await signInManager.PasswordSignInAsync(loginViewModal.Username!, loginViewModal.Password!, loginViewModal.RememberMe, false);
                 if (result.Succeeded) // If successful, go to home page

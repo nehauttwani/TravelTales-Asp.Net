@@ -20,3 +20,33 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+.wallet-container .card {
+    transition: transform 0.2s;
+}
+
+    .wallet-container .card:hover {
+        transform: translateY(-5px);
+    }
+
+.wallet-container .form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.wallet-container .btn {
+    transition: all 0.3s;
+}
+
+    .wallet-container .btn:hover {
+        transform: translateY(-2px);
+    }
+
+.wallet-container .table {
+    margin-bottom: 0;
+}
+
+.wallet-container .badge {
+    font-size: 0.875rem;
+    padding: 0.5em 0.75em;
+}

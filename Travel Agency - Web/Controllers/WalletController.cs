@@ -9,6 +9,7 @@ using Travel_Agency___Data.Services;
 using Travel_Agency___Data.ViewModels;
 
 using System.Threading.Tasks;
+using System.Globalization;
 
 namespace Travel_Agency___Web.Controllers
 
@@ -64,6 +65,92 @@ namespace Travel_Agency___Web.Controllers
 
         }
 
+        [HttpPost]
+        public async Task<IActionResult> AddCreditCard(int customerId, string Ccname, string Ccnumber, string Ccexpiry)
+        {
+            try
+            {
+                // Check if customer already has a credit card
+                var existingCard = await _walletService.GetCreditCardsAsync(customerId);
+                if (existingCard != null && existingCard.Any())
+                {
+                    TempData["ErrorMessage"] = "You already have a credit card registered.";
+                    return RedirectToAction("Index", new { customerId });
+                }
+
+                // Validate inputs
+                if (string.IsNullOrEmpty(Ccname) || string.IsNullOrEmpty(Ccnumber) || string.IsNullOrEmpty(Ccexpiry))
+                {
+                    TempData["ErrorMessage"] = "All fields are required.";
+                    return RedirectToAction("Index", new { customerId });
+                }
+
+                // Parse expiry date (assuming MM/YY format)
+                if (!DateTime.TryParseExact(Ccexpiry, "MM/yy",
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.None,
+                    out DateTime expiryDate))
+                {
+                    TempData["ErrorMessage"] = "Invalid expiry date format.";
+                    return RedirectToAction("Index", new { customerId });
+                }
+
+                // Remove spaces from card number
+                Ccnumber = Ccnumber.Replace(" ", "");
+
+                var creditCard = new CreditCard
+                {
+                    CustomerId = customerId,
+                    Ccname = Ccname,
+                    Ccnumber = Ccnumber,
+                    Ccexpiry = expiryDate
+                };
+
+                var result = await _walletService.AddCreditCardAsync(creditCard);
+
+                if (result)
+                {
+                    TempData["SuccessMessage"] = "Credit card added successfully.";
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = "Failed to add credit card.";
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error adding credit card for CustomerId: {CustomerId}", customerId);
+                TempData["ErrorMessage"] = "An error occurred while adding the credit card.";
+            }
+
+            return RedirectToAction("Index", new { customerId });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteCreditCard(int customerId, int creditCardId)
+        {
+            try
+            {
+                var result = await _walletService.DeleteCreditCardAsync(customerId, creditCardId);
+
+                if (result)
+                {
+                    TempData["SuccessMessage"] = "Credit card deleted successfully.";
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = "Failed to delete credit card.";
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting credit card. CustomerId: {CustomerId}, CreditCardId: {CreditCardId}",
+                    customerId, creditCardId);
+                TempData["ErrorMessage"] = "An error occurred while deleting the credit card.";
+            }
+
+            return RedirectToAction("Index", new { customerId });
+        }
 
         // Add funds via credit card
 

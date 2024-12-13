@@ -36,12 +36,23 @@ namespace Travel_Agency___Web.Controllers
         // GET: Account/Register
         public ActionResult Register()
         {
-            var registerViewModel = new RegisterViewModel()
+            try
             {
-                // Ensure that Agents is not null by using null-coalescing operator
-                Agents = _agentsAndAgenciesManager.GetAgents() ?? new List<Agent>()
-            };
-            return View(registerViewModel);
+                var agents = _agentsAndAgenciesManager.GetAgents() ?? new List<Agent>();
+                var registerViewModel = new RegisterViewModel
+                {
+                    Agents = agents
+                };
+                return View(registerViewModel);
+            }
+            catch (Exception ex)
+            {
+                // Log the error
+                return View(new RegisterViewModel
+                {
+                    Agents = new List<Agent>() // Provide empty list instead of null
+                });
+            }
         }
 
         // POST: AccountController/Register

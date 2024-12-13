@@ -24,45 +24,135 @@
         <div class="col-lg-8">
             <div class="card shadow-lg border-0">
                 <div class="card-header bg-light text-primary">
-                    <h5 class="fw-bold mb-0">Add Funds via Credit Card</h5>
+                    <h5 class="fw-bold mb-0">Credit Card Information</h5>
                 </div>
                 <div class="card-body">
                     @if (Model.CreditCards != null && Model.CreditCards.Any())
                     {
-                        <form asp-action="AddFundsWithCreditCard" method="post">
-                            @Html.AntiForgeryToken()
-                            <input type="hidden" name="customerId" value="@Model.CustomerId" />
-
-                            <div class="mb-3">
-                                <label for="creditCardId" class="form-label">Select Credit Card</label>
-                                <select id="creditCardId" name="creditCardId" class="form-select shadow-sm" required>
-                                    @foreach (var card in Model.CreditCards)
-                                    {
-                                        <option value="@card.CreditCardId">
-                                            @card.Ccname (**** @card.Ccnumber.Substring(card.Ccnumber.Length - 4))
-                                        </option>
-                                    }
-                                </select>
+                        @foreach (var card in Model.CreditCards)
+                        {
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <div>
+                                    <h6 class="mb-1">@card.Ccname</h6>
+                                    <p class="mb-0 text-muted">**** **** **** @card.Ccnumber.Substring(card.Ccnumber.Length - 4)</p>
+                                    <small class="text-muted">Expires: @card.Ccexpiry.ToString("MM/yy")</small>
+                                </div>
+                                <form asp-action="DeleteCreditCard" asp-controller="Wallet" method="post"
+                                      onsubmit="return confirm('Are you sure you want to delete this credit card?');">
+                                    <input type="hidden" name="customerId" value="@Model.CustomerId" />
+                                    <input type="hidden" name="creditCardId" value="@card.CreditCardId" />
+                                    <button type="submit" class="btn btn-danger">
+                                        <i class="fas fa-trash-alt"></i> Delete Card
+                                    </button>
+                                </form>
                             </div>
 
-                            <div class="mb-3">
-                                <label for="amount" class="form-label">Amount</label>
-                                <input type="number" id="amount" name="amount" class="form-control shadow-sm" step="0.01" placeholder="Enter amount" required />
-                            </div>
+                            <hr class="my-4">
 
-                            <div class="d-grid">
-                                <button type="submit" class="btn btn-success btn-lg shadow">Add Funds</button>
-                            </div>
-                        </form>
+                            <!-- Add Funds Form -->
+                            <form asp-action="AddFundsWithCreditCard" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="customerId" value="@Model.CustomerId" />
+                                <input type="hidden" name="creditCardId" value="@card.CreditCardId" />
+
+                                <div class="mb-3">
+                                    <label for="amount" class="form-label">Amount to Add</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">$</span>
+                                        <input type="number" id="amount" name="amount"
+                                               class="form-control shadow-sm"
+                                               step="0.01" min="0.01"
+                                               placeholder="0.00" required />
+                                    </div>
+                                </div>
+
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-success btn-lg shadow">
+                                        <i class="fas fa-plus-circle me-2"></i>Add Funds
+                                    </button>
+                                </div>
+                            </form>
+                        }
                     }
                     else
                     {
-                        <p class="text-danger">No credit cards available. Please add a credit card first.</p>
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            No credit cards available. Please add a credit card first.
+                        </div>
                     }
                 </div>
             </div>
         </div>
+
+    @if (!Model.CreditCards.Any())
+{
+    <!-- Add Credit Card -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-light text-primary">
+                    <h5 class="fw-bold mb-0">Add New Credit Card</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="AddCreditCard" asp-controller="Wallet" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="customerId" value="@Model.CustomerId" />
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">Card Type</label>
+                                    <select name="Ccname" class="form-select shadow-sm" required>
+                                        <option value="">Select card type</option>
+                                        <option value="Visa">Visa</option>
+                                        <option value="MasterCard">MasterCard</option>
+                                        <option value="CanadianTire">Canadian Tire</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">Card Number</label>
+                                    <input type="text" name="Ccnumber" class="form-control shadow-sm"
+                                           placeholder="XXXX XXXX XXXX XXXX" required
+                                           maxlength="19" oninput="formatCardNumber(this)" />
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">Expiry Date</label>
+                                    <input type="text" name="Ccexpiry" class="form-control shadow-sm"
+                                           placeholder="MM/YY" required maxlength="5"
+                                           oninput="formatExpiryDate(this)" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-primary shadow">
+                                <i class="fas fa-credit-card me-2"></i>Add Card
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
+}
+else
+{
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                You already have a credit card registered.
+            </div>
+        </div>
+    </div>
+}
 
     <!-- Transaction History -->
     <div class="card shadow-lg border-0 mt-4">
@@ -119,3 +209,45 @@
         </a>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        function formatCardNumber(input) {
+            // Remove all non-digits
+            let value = input.value.replace(/\D/g, '');
+
+            // Add spaces after every 4 digits
+            let formattedValue = value.replace(/(\d{4})(?=\d)/g, '$1 ');
+
+            // Update input value
+            input.value = formattedValue;
+        }
+
+        function formatExpiryDate(input) {
+            // Remove all non-digits
+            let value = input.value.replace(/\D/g, '');
+
+            // Format as MM/YY
+            if (value.length >= 2) {
+                value = value.substring(0, 2) + '/' + value.substring(2);
+            }
+
+            input.value = value;
+        }
+
+        // Add success/error message handling
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <text>
+                toastr.success('@TempData["SuccessMessage"]');
+            </text>
+        }
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <text>
+                toastr.error('@TempData["ErrorMessage"]');
+            </text>
+        }
+    </script>
+}

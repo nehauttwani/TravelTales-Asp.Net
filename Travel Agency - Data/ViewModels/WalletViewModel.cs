@@ -1,23 +1,42 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Transactions;
 using Travel_Agency___Data.Models;
 
 namespace Travel_Agency___Data.ViewModels
 {
     public class WalletViewModel
     {
-        public int CustomerId { get; set; } // To identify the customer
-        public decimal CurrentBalance { get; set; } // Wallet's current balance
-        public List<CreditCard> CreditCards { get; set; } = new List<CreditCard>(); // Customer's credit cards
-        public List<WalletTransaction> Transactions { get; set; } = new List<WalletTransaction>(); // Wallet transactions
+        public decimal CurrentBalance { get; set; }
+        public int CustomerId { get; set; }
+        public IEnumerable<CreditCard> CreditCards { get; set; }
+        public IEnumerable<WalletTransaction> Transactions { get; set; }
 
+        [Required(ErrorMessage = "Please select a card type")]
+        [Display(Name = "Card Type")]
+        public string Ccname { get; set; }
 
-        // Optional calculated properties for convenience
-        public bool HasCreditCards => CreditCards?.Count > 0; // Check if the customer has any credit cards
-        public bool HasTransactions => Transactions?.Count > 0; // Check if the wallet has any transactions
+        [Required(ErrorMessage = "Card Number is required")]
+        [Display(Name = "Card Number")]
+        public string Ccnumber { get; set; }
 
+        [Required(ErrorMessage = "Expiry date is required")]
+        [Display(Name = "Expiry Date")]
+        public string Ccexpiry { get; set; }
 
-        // Optional display-friendly property for transaction count
-        public string TransactionSummary => $"{Transactions?.Count ?? 0} transactions available.";
+        [Required(ErrorMessage = "Amount is required")]
+        [Range(0.01, double.MaxValue, ErrorMessage = "Amount must be greater than 0")]
+        public decimal Amount { get; set; }
+    }
+
+    // Custom validation attribute for future date
+    public class FutureDateAttribute : ValidationAttribute
+    {
+        public override bool IsValid(object value)
+        {
+            DateTime date = (DateTime)value;
+            return date > DateTime.Now;
+        }
     }
 }

@@ -60,31 +60,27 @@
 
                         <div class="mb-3">
                             <label asp-for="TripTypeId" class="form-label">
-                                <i class="fas fa-plane me-2"></i>Trip Type
+                                <i class="fas fa-plane me-2"></i>Trip Type<span class="text-danger">*</span>
                             </label>
                             <select asp-for="TripTypeId"
                                     class="form-select"
-                                    asp-items="@(new SelectList(Model.TripTypes, "TripTypeId", "Ttname"))">
+                                    asp-items="@(new SelectList(Model.TripTypes, "TripTypeId", "Ttname"))"
+                                    required>
                                 <option value="">-- Select Trip Type --</option>
                             </select>
                             <span asp-validation-for="TripTypeId" class="text-danger"></span>
                         </div>
 
-                        <div class="mb-3">
-                            <label asp-for="Destination" class="form-label">
-                                <i class="fas fa-map-marker-alt me-2"></i>Destination
-                            </label>
-                            <input asp-for="Destination" class="form-control" required />
-                            <span asp-validation-for="Destination" class="text-danger"></span>
-                        </div>
+                        
 
                         <div class="mb-3">
                             <label asp-for="ClassId" class="form-label">
-                                <i class="fas fa-hotel me-2"></i>Travel Accommodations
+                                <i class="fas fa-hotel me-2"></i>Travel Accommodations<span class="text-danger">*</span>
                             </label>
                             <select asp-for="ClassId"
                                     class="form-select"
-                                    asp-items="@(new SelectList(Model.Classes, "ClassId", "ClassName"))">
+                                    asp-items="@(new SelectList(Model.Classes, "ClassId", "ClassName"))"
+                                    required>
                                 <option value="">-- Select Accommodation Type --</option>
                             </select>
                             <span asp-validation-for="ClassId" class="text-danger"></span>

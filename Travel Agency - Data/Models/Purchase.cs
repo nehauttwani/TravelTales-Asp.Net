@@ -13,7 +13,7 @@ public partial class Purchase
 
     public int CustomerId { get; set; }
 
-    public int PackageId { get; set; }
+    public int? PackageId { get; set; }  // Made nullable
 
     [StringLength(255)]
     public string ProductName { get; set; } = null!;
@@ -41,5 +41,5 @@ public partial class Purchase
 
     [ForeignKey("PackageId")]
     [InverseProperty("Purchases")]
-    public virtual Package Package { get; set; } = null!;
+    public virtual Package? Package { get; set; }  // Made nullable
 }

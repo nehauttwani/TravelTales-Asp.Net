@@ -190,6 +190,7 @@ public partial class TravelExpertsContext : IdentityDbContext<User>
                 .IsClustered(false);
 
             entity.Property(e => e.PkgAgencyCommission).HasDefaultValue(0m);
+            entity.Property(e => e.IsDeleted).HasDefaultValue(false);
         });
 
         modelBuilder.Entity<PackagesProductsSupplier>(entity =>
@@ -297,6 +298,8 @@ public partial class TravelExpertsContext : IdentityDbContext<User>
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_WalletTransactions_Customers");
         });
+
+
 
         OnModelCreatingPartial(modelBuilder);
     }

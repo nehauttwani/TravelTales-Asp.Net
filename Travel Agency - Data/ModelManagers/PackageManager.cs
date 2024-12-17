@@ -18,9 +18,14 @@ namespace Travel_Agency___Data.ModelManagers
 
         public List<Package> GetAllPackages()
         {
-            return _context.Packages.ToList();
+            return _context.Packages
+                          .Where(p => !p.IsDeleted)
+                          .ToList();
         }
 
-        public Package GetPackage(int packageID) => _context.Packages.Find(packageID);
+        public Package GetPackage(int packageID) =>
+            _context.Packages
+                   .Where(p => !p.IsDeleted && p.PackageId == packageID)
+                   .FirstOrDefault();
     }
 }

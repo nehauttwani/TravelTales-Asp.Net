@@ -32,6 +32,8 @@ public partial class Package
     [StringLength(255)]
     public string? ImagePath { get; set; }
 
+    public bool IsDeleted { get; set; }  
+
     [InverseProperty("Package")]
     public virtual ICollection<Booking> Bookings { get; set; } = new List<Booking>();
 
